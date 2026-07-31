@@ -812,155 +812,292 @@
         }
 
         // --- 2. 喝水打卡模組 ---
-        function openWaterGoalModal() {
-            document.getElementById('inputWaterGoal').value = appState.waterGoal || 2000;
-            document.getElementById('inputWaterReward').value = appState.waterGoalReward !== undefined ? appState.waterGoalReward : 10;
-            openModal('water-goal-modal');
+
+// 開啟設定 Modal 並帶入目前數值
+function openWaterGoalModal() {
+    document.getElementById('inputWaterGoal1').value = appState.waterGoal1 || 2400;
+    document.getElementById('inputWaterReward1').value = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+    document.getElementById('inputWaterGoal2').value = appState.waterGoal2 || 4000;
+    document.getElementById('inputWaterReward2').value = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
+    openModal('water-goal-modal');
+}
+
+// 儲存兩階段目標設定
+function saveWaterGoalSettings() {
+    const goal1 = parseInt(document.getElementById('inputWaterGoal1').value) || 2400;
+    const reward1 = parseInt(document.getElementById('inputWaterReward1').value) || 0;
+    const goal2 = parseInt(document.getElementById('inputWaterGoal2').value) || 4000;
+    const reward2 = parseInt(document.getElementById('inputWaterReward2').value) || 0;
+
+    appState.waterGoal1 = goal1;
+    appState.waterGoalReward1 = reward1;
+    appState.waterGoal2 = goal2;
+    appState.waterGoalReward2 = reward2;
+
+    saveState();
+    closeModal('water-goal-modal');
+    renderWater();
+}
+
+// 喝水打卡與兩階段獎勵判定
+function addWater(amount) {
+    const current = appState.waterLogs[appState.currentDate] || 0;
+    const newAmount = current + amount;
+    appState.waterLogs[appState.currentDate] = newAmount;
+
+    // 取得兩階段目標與獎勵
+    const goal1 = appState.waterGoal1 || 2400;
+    const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+    const goal2 = appState.waterGoal2 || 4000;
+    const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
+
+    // 初始化已領取紀錄陣列
+    if (!appState.waterGoal1ReachedDates) appState.waterGoal1ReachedDates = [];
+    if (!appState.waterGoal2ReachedDates) appState.waterGoal2ReachedDates = [];
+
+    let alertMsgs = [];
+
+    // 第一階段判定
+    if (newAmount >= goal1 && !appState.waterGoal1ReachedDates.includes(appState.currentDate)) {
+        appState.waterGoal1ReachedDates.push(appState.currentDate);
+        if (reward1 > 0) {
+            addPointsLog(reward1, `每日喝水第一階段達標 (${goal1}cc)`);
+            alertMsgs.push(`🎯 恭喜達成【第一階段】喝水目標 (${goal1} cc)！獲得 +${reward1} 點好棒棒點數！`);
         }
+    }
 
-        function saveWaterGoalSettings() {
-            const goal = parseInt(document.getElementById('inputWaterGoal').value) || 2000;
-            const reward = parseInt(document.getElementById('inputWaterReward').value) || 0;
-
-            appState.waterGoal = goal;
-            appState.waterGoalReward = reward;
-
-            saveState();
-            closeModal('water-goal-modal');
-            renderWater();
+    // 第二階段判定
+    if (newAmount >= goal2 && !appState.waterGoal2ReachedDates.includes(appState.currentDate)) {
+        appState.waterGoal2ReachedDates.push(appState.currentDate);
+        if (reward2 > 0) {
+            addPointsLog(reward2, `每日喝水第二階段達標 (${goal2}cc)`);
+            alertMsgs.push(`🚀 恭喜達成【第二階段】喝水目標 (${goal2} cc)！獲得 +${reward2} 點好棒棒點數！`);
         }
+    }
 
-        function addWater(amount) {
-            const current = appState.waterLogs[appState.currentDate] || 0;
-            const newAmount = current + amount;
-            appState.waterLogs[appState.currentDate] = newAmount;
+    if (alertMsgs.length > 0) {
+        alert(alertMsgs.join('\n'));
+    }
 
-            const targetGoal = appState.waterGoal || 2000;
-            if (!appState.waterGoalReachedDates) appState.waterGoalReachedDates = [];
+    saveState();
+    renderWater();
+}
 
-            if (newAmount >= targetGoal && !appState.waterGoalReachedDates.includes(appState.currentDate)) {
-                appState.waterGoalReachedDates.push(appState.currentDate);
-                const reward = appState.waterGoalReward !== undefined ? appState.waterGoalReward : 10;
-                addPointsLog(reward, `每日喝水達標獎勵 (${targetGoal}cc)`);
-                alert(`🎉 恭喜達成今日喝水目標 (${targetGoal} cc)！獲得 +${reward} 點好棒棒點數！`);
+function addNewWaterCup() {
+    const val = prompt('輸入新杯子容量 (cc):', '350');
+    if (val && !isNaN(val)) {
+        appState.waterCups.push(parseInt(val));
+        saveState();
+        renderWater();
+    }
+}
+
+function toggleWaterChart(type) {
+    currentWaterChartView = type;
+    document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
+    document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
+    document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
+    document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
+}
+
+// 渲染喝水系統介面與統計
+function renderWater() {
+    const todayAmount = appState.waterLogs[appState.currentDate] || 0;
+    document.getElementById('todayWaterAmount').innerText = todayAmount;
+
+    // 渲染 UI 上的兩階段目標數字
+    const goal1 = appState.waterGoal1 || 2400;
+    const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+    const goal2 = appState.waterGoal2 || 4000;
+    const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
+
+    document.getElementById('displayWaterGoal1').innerText = goal1;
+    document.getElementById('displayWaterReward1').innerText = reward1;
+    document.getElementById('displayWaterGoal2').innerText = goal2;
+    document.getElementById('displayWaterReward2').innerText = reward2;
+
+    // 快速按鈕
+    const cupContainer = document.getElementById('waterCupButtons');
+    cupContainer.innerHTML = '';
+    appState.waterCups.forEach(cc => {
+        cupContainer.innerHTML += `
+            <button onclick="addWater(${cc})" class="py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
+                <span class="text-base mb-0.5">🥛</span>+${cc} cc
+            </button>
+        `;
+    });
+
+    // 1. 直條圖 (以第二階段目標作為 100% 高度基準)
+    const barContainer = document.getElementById('waterBarContainer');
+    barContainer.innerHTML = '';
+    let weeklyTotalWater = 0;
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(appState.currentDate);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const amt = appState.waterLogs[dateStr] || 0;
+        weeklyTotalWater += amt;
+
+        const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
+
+        barContainer.innerHTML += `
+            <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+                <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
+                <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+                <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+            </div>
+        `;
+    }
+    const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+    document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
+
+    // 2. 月曆視圖 (根據是否達標呈現不同顯色)
+    const calView = document.getElementById('waterCalendarGrid');
+    if (calView) {
+        const current = new Date(appState.currentDate);
+        const year = current.getFullYear();
+        const month = current.getMonth();
+        const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let monthlyTotalWater = 0;
+        Object.keys(appState.waterLogs).forEach(dateStr => {
+            if (dateStr.startsWith(monthPrefix)) {
+                monthlyTotalWater += appState.waterLogs[dateStr];
             }
+        });
+        const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
+        document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
 
-            saveState();
-            renderWater();
+        let html = `
+            <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+        `;
+
+        for (let i = 0; i < firstDay; i++) {
+            html += `<div></div>`;
         }
 
-        function addNewWaterCup() {
-            const val = prompt('輸入新杯子容量 (cc):', '350');
-            if (val && !isNaN(val)) {
-                appState.waterCups.push(parseInt(val));
-                saveState();
-                renderWater();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const amt = appState.waterLogs[dateStr] || 0;
+            const isToday = dateStr === appState.currentDate;
+
+            // 月曆底色邏輯：達第二階段 (深水藍) / 達第一階段 (淺水藍) / 未達標 (米白)
+            let bgClass = "bg-[#FAF7F2] text-gray-500";
+            if (amt >= goal2) {
+                bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
+            } else if (amt >= goal1) {
+                bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
             }
+            if (isToday) bgClass += " ring-2 ring-[#00838F]";
+
+            html += `
+                <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
+                    <span class="font-bold text-[11px]">${day}</span>
+                    <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
+                        ${amt > 0 ? `💧${amt}cc` : '--'}
+                    </span>
+                </div>
+            `;
         }
-
-        function toggleWaterChart(type) {
-            currentWaterChartView = type;
-            document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
-            document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
-            document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
-            document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
-        }
-
-        function renderWater() {
-            const todayAmount = appState.waterLogs[appState.currentDate] || 0;
-            document.getElementById('todayWaterAmount').innerText = todayAmount;
-            document.getElementById('displayWaterGoal').innerText = appState.waterGoal || 2000;
-            document.getElementById('displayWaterReward').innerText = appState.waterGoalReward !== undefined ? appState.waterGoalReward : 10;
-
-            const cupContainer = document.getElementById('waterCupButtons');
-            cupContainer.innerHTML = '';
-            appState.waterCups.forEach(cc => {
-                cupContainer.innerHTML += `
-                    <button onclick="addWater(${cc})" class="py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
-                        <span class="text-base mb-0.5">🥛</span>+${cc} cc
-                    </button>
-                `;
-            });
+        calView.innerHTML = html;
+    }
+}
 
             // 1. 計算並渲染直條圖 (包含當週平均喝水量)
-            const barContainer = document.getElementById('waterBarContainer');
-            barContainer.innerHTML = '';
-            const goal = appState.waterGoal || 2000;
-            let weeklyTotalWater = 0;
+const barContainer = document.getElementById('waterBarContainer');
+barContainer.innerHTML = '';
 
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(appState.currentDate);
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                const amt = appState.waterLogs[dateStr] || 0;
-                weeklyTotalWater += amt;
+// 取得兩階段目標 (直條圖 100% 高度以第二階段 goal2 為基準)
+const goal1 = appState.waterGoal1 || 2400;
+const goal2 = appState.waterGoal2 || 4000;
+let weeklyTotalWater = 0;
 
-                const heightPct = Math.min(100, Math.round((amt / goal) * 100));
+for (let i = 6; i >= 0; i--) {
+    const d = new Date(appState.currentDate);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const amt = appState.waterLogs[dateStr] || 0;
+    weeklyTotalWater += amt;
 
-                barContainer.innerHTML += `
-                    <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-                        <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
-                        <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
-                        <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
-                    </div>
-                `;
-            }
-            const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
-            document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
+    // 計算百分比 (最高 100%)
+    const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
 
-            // 2. 計算並渲染月曆視圖 (包含當月平均喝水量與💧CC數)
-            const calView = document.getElementById('waterCalendarGrid');
-            if (calView) {
-                const current = new Date(appState.currentDate);
-                const year = current.getFullYear();
-                const month = current.getMonth();
-                const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    barContainer.innerHTML += `
+        <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+            <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
+            <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+            <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+        </div>
+    `;
+}
+const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
 
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
+// 2. 計算並渲染月曆視圖 (包含當月平均喝水量與💧CC數)
+const calView = document.getElementById('waterCalendarGrid');
+if (calView) {
+    const current = new Date(appState.currentDate);
+    const year = current.getFullYear();
+    const month = current.getMonth();
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-                // 計算當月平均喝水量
-                let monthlyTotalWater = 0;
-                Object.keys(appState.waterLogs).forEach(dateStr => {
-                    if (dateStr.startsWith(monthPrefix)) {
-                        monthlyTotalWater += appState.waterLogs[dateStr];
-                    }
-                });
-                const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
-                document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                let html = `
-                    <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
-                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-                    </div>
-                `;
-
-                for (let i = 0; i < firstDay; i++) {
-                    html += `<div></div>`;
-                }
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const amt = appState.waterLogs[dateStr] || 0;
-                    const isReached = amt >= goal;
-                    const isToday = dateStr === appState.currentDate;
-
-                    let bgClass = "bg-[#FAF7F2] text-gray-500";
-                    if (isReached) bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
-                    if (isToday) bgClass += " ring-2 ring-[#00838F]";
-
-                    html += `
-                        <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
-                            <span class="font-bold text-[11px]">${day}</span>
-                            <span class="text-[9px] font-extrabold ${amt > 0 ? 'text-[#00838F]' : 'text-gray-300'} truncate">
-                                ${amt > 0 ? `💧${amt}cc` : '--'}
-                            </span>
-                        </div>
-                    `;
-                }
-                calView.innerHTML = html;
-            }
+    // 計算當月平均喝水量
+    let monthlyTotalWater = 0;
+    Object.keys(appState.waterLogs).forEach(dateStr => {
+        if (dateStr.startsWith(monthPrefix)) {
+            monthlyTotalWater += appState.waterLogs[dateStr];
         }
+    });
+    const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
+    document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
+
+    let html = `
+        <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+    `;
+
+    for (let i = 0; i < firstDay; i++) {
+        html += `<div></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const amt = appState.waterLogs[dateStr] || 0;
+        const isToday = dateStr === appState.currentDate;
+
+        // 兩階段月曆配色邏輯：
+        // 1. 達到第二階段 (>= 4000cc)：顯示深水藍底色 + 白字 (#4DD0E1)
+        // 2. 達到第一階段 (>= 2400cc)：顯示淺水藍底色 (#E0F7FA)
+        // 3. 未達標：預設米白底色 (#FAF7F2)
+        let bgClass = "bg-[#FAF7F2] text-gray-500";
+        if (amt >= goal2) {
+            bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
+        } else if (amt >= goal1) {
+            bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+        }
+        if (isToday) bgClass += " ring-2 ring-[#00838F]";
+
+        html += `
+            <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
+                <span class="font-bold text-[11px]">${day}</span>
+                <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
+                    ${amt > 0 ? `💧${amt}cc` : '--'}
+                </span>
+            </div>
+        `;
+    }
+    calView.innerHTML = html;
+}
 
         // 全域切換日期小幫手
         function changeGlobalDate(dateStr) {
