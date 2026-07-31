@@ -465,7 +465,7 @@
             renderHabits();
             renderWater();
             renderMood();
-            ();
+            renderRewards();
         }
 
         function switchTab(tabName) {
@@ -1338,8 +1338,7 @@ if (calView) {
             }
         }
 
-        // --- 4. 獎勵商城渲染邏輯 ---
-function renderRewards() {
+        function renderRewards() {
             const container = document.getElementById('rewardListContainer');
             container.innerHTML = '';
 
