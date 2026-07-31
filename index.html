@@ -359,40 +359,53 @@
 
     <!-- JS 邏輯區 -->
     <script>
-        let appState = {
-            currentDate: new Date().toISOString().split('T')[0],
-            points: 0,
-            pointsHistory: [],
-            waterGoal: 2000,
-            waterGoalReward: 10,
-            waterGoalReachedDates: [],
-            habits: [
-                { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
-            ],
-            waterLogs: {},
-            waterCups: [250, 500, 800],
-            moodLogs: {},
-            rewards: [
-                { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
-                { id: 2, title: '看一部電影 🎬', points: 80 }
-            ]
-        };
+    let appState = {
+        currentDate: new Date().toISOString().split('T')[0],
+        points: 0,
+        pointsHistory: [],
 
-        let currentHabitMainView = 'list';
-        let currentHabitSubVisual = 'cal';
-        let currentWaterChartView = 'bar';
-        let selectedMoodEmoji = '';
+        // ⭐ 更新 1：升級為兩階段喝水目標與獎勵
+        waterGoal1: 2400,
+        waterReward1: 10,
+        waterGoal2: 4000,
+        waterReward2: 20,
+        waterGoalReachedDates: [], // 記錄達標日期
 
-        window.onload = function() {
-            loadLocalStorage();
-            initHeaderDate();
-            document.getElementById('globalDatePicker').value = appState.currentDate;
-            document.getElementById('globalDatePicker').addEventListener('change', (e) => {
-                appState.currentDate = e.target.value;
-                renderAll();
-            });
+        habits: [
+            { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
+        ],
+        waterLogs: {},
+
+        // ⭐ 更新 2：水杯升級為物件格式 (方便顯示名稱、圖示與進行刪除)
+        waterCups: [
+            { id: 1, name: '小水杯', amount: 250, emoji: '🥛' },
+            { id: 2, name: '馬克杯', amount: 500, emoji: '☕' },
+            { id: 3, name: '大水壺', amount: 800, emoji: '🧋' }
+        ],
+
+        moodLogs: {},
+        rewards: [
+            { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
+            { id: 2, title: '看一部電影 🎬', points: 80 }
+        ]
+    };
+
+    let currentHabitMainView = 'list';
+    let currentHabitSubVisual = 'cal';
+    let currentWaterChartView = 'bar';
+    let selectedMoodEmoji = '';
+
+    window.onload = function() {
+        loadLocalStorage();
+        initHeaderDate();
+        document.getElementById('globalDatePicker').value = appState.currentDate;
+        document.getElementById('globalDatePicker').addEventListener('change', (e) => {
+            appState.currentDate = e.target.value;
             renderAll();
-        };
+        });
+        renderAll();
+    };
+
 
         function initHeaderDate() {
             const today = new Date();
