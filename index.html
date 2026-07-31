@@ -1376,21 +1376,31 @@ if (calView) {
     <!-- 2. 拖曳控制邏輯 (必須用 <script> 包起來) -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const listContainer = document.getElementById('habit-list-container');
+    const listContainer = document.getElementById('habit-list-container');
 
-            if (listContainer) {
-                new Sortable(listContainer, {
-                    animation: 200,          // 拖曳時的平滑動畫時間 (毫秒)
-                    delay: 300,              // 長按 300 毫秒後才能開始拖曳
-                    delayOnTouchOnly: true,  // 僅在手機觸控時啟用長按延遲
-                    touchStartThreshold: 5,  // 防止手晃誤判
-                    ghostClass: 'opacity-50',// 拖曳時被選中項目的透明度樣式
-                    onEnd: function (evt) {
-                        console.log(`原本位置：${evt.oldIndex} -> 新位置：${evt.newIndex}`);
-                    }
+    if (listContainer) {
+        new Sortable(listContainer, {
+            animation: 200,
+            delay: 300,
+            delayOnTouchOnly: true,
+            touchStartThreshold: 5,
+            ghostClass: 'opacity-50',
+            onEnd: function () {
+                // 讀取拖曳後的新 ID 順序
+                const currentCards = listContainer.querySelectorAll('[data-id]');
+                const newOrderIds = Array.from(currentCards).map(card => card.getAttribute('data-id'));
+
+                // 更新 JS 陣列順序
+                appState.habits.sort((a, b) => {
+                    return newOrderIds.indexOf(String(a.id)) - newOrderIds.indexOf(String(b.id));
                 });
+
+                // 儲存到 localStorage
+                saveState();
             }
         });
+    }
+});
     </script>
 </body>
 </html>
