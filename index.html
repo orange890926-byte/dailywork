@@ -1340,57 +1340,29 @@ if (calView) {
 
         // --- 4. 獎勵商城渲染邏輯 ---
 function renderRewards() {
-    const container = document.getElementById('rewardListContainer');
-    if (!container) return;
+            const container = document.getElementById('rewardListContainer');
+            container.innerHTML = '';
 
-    // 更新點數顯示
-    const pointsDisplay = document.getElementById('shopPointsDisplay');
-    if (pointsDisplay) {
-        pointsDisplay.innerText = appState.points || 0;
-    }
-
-    container.innerHTML = '';
-
-    if (!appState.rewards || appState.rewards.length === 0) {
-        container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">目前尚無自訂商品，點擊上方按鈕新增吧！</div>`;
-        return;
-    }
-
-    // ⭐ 核心重點：將獎勵陣列複製一份後，依照所需點數「由少到多」進行排序
-    // (如果你的點數屬性叫 points 或 price，請將下面的 .cost 替換掉)
-    const sortedRewards = [...appState.rewards].sort((a, b) => {
-        const costA = a.cost !== undefined ? a.cost : (a.points || 0);
-        const costB = b.cost !== undefined ? b.cost : (b.points || 0);
-        return costA - costB;
-    });
-
-    // 渲染排序後的商品卡片
-    sortedRewards.forEach(reward => {
-        const cost = reward.cost !== undefined ? reward.cost : (reward.points || 0);
-        const canAfford = (appState.points || 0) >= cost;
-
-        container.innerHTML += `
-            <div class="flex items-center justify-between p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#F2EDE4] hover:border-[#FFE2B3] transition">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">${reward.emoji || '🎁'}</span>
-                    <div>
-                        <h4 class="font-bold text-sm text-[#5C5552]">${reward.title || reward.name}</h4>
-                        <p class="text-xs font-bold text-[#8C5E14]">所需點數：${cost} 點</p>
+            appState.rewards.forEach(item => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-3.5 bg-[#FFF8E7]/60 border border-[#FFE2B3] rounded-2xl">
+                        <div>
+                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-1.5">
+                                <span>${item.title}</span>
+                            </div>
+                            <div class="text-xs text-[#8C5E14] font-bold mt-0.5">⭐ ${item.points} 點</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openEditRewardModal(${item.id})" class="text-xs text-gray-400 hover:text-gray-600 p-1">✏️</button>
+                            <button onclick="deleteRewardItem(${item.id})" class="text-xs text-gray-400 hover:text-red-500 p-1">🗑️</button>
+                            <button onclick="redeemReward(${item.id})" class="px-4 py-2 bg-[#FFF0D6] text-[#8C5E14] font-bold text-xs rounded-xl border border-[#FFE2B3] shadow-xs hover:bg-[#FFE2B3] transition ml-1">
+                                兌換
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center space-x-1.5">
-                    <button onclick="openEditRewardModal(${reward.id})" class="text-xs text-gray-400 hover:text-gray-600 p-1">✏️</button>
-                    <button onclick="deleteReward(${reward.id})" class="text-xs text-gray-400 hover:text-red-500 p-1">🗑️</button>
-                    <button onclick="redeemReward(${reward.id})" 
-                        class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${canAfford ? 'bg-[#FFF0D6] text-[#8C5E14] border border-[#FFD591] hover:bg-[#FFE2B3]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}"
-                        ${canAfford ? '' : 'disabled'}>
-                        兌換
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-}
+                `;
+            });
+        }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
