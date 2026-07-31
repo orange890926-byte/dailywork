@@ -291,26 +291,49 @@
         </div>
     </div>
 
-    <!-- 喝水目標 Modal -->
-    <div id="water-goal-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#B2EBF2]">
-            <h3 class="font-bold text-base text-[#006064]">💧 設定每日喝水目標與獎勵</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-[#00838F] mb-1">每日喝水目標 (cc)：</label>
-                    <input type="number" id="inputWaterGoal" value="2000" step="50" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#00838F] mb-1">達標獎勵點數：</label>
-                    <input type="number" id="inputWaterReward" value="10" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+   <!-- 喝水目標 Modal -->
+<div id="water-goal-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#B2EBF2]">
+        <h3 class="font-bold text-base text-[#006064]">💧 設定兩階段喝水目標與獎勵</h3>
+        
+        <div class="space-y-3">
+            <!-- 第一階段設定區塊 -->
+            <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
+                <div class="text-xs font-bold text-[#00838F]">🎯 第一階段設定</div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
+                        <input type="number" id="inputWaterGoal1" value="2400" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
+                        <input type="number" id="inputWaterReward1" value="10" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                    </div>
                 </div>
             </div>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeModal('water-goal-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold">取消</button>
-                <button onclick="saveWaterGoalSettings()" class="px-5 py-2 text-xs bg-[#E0F7FA] text-[#006064] border border-[#B2EBF2] rounded-xl font-bold">儲存設定</button>
+
+            <!-- 第二階段設定區塊 -->
+            <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
+                <div class="text-xs font-bold text-[#00838F]">🚀 第二階段設定</div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
+                        <input type="number" id="inputWaterGoal2" value="4000" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
+                        <input type="number" id="inputWaterReward2" value="20" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+            <button onclick="closeModal('water-goal-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold hover:text-gray-600 transition">取消</button>
+            <button onclick="saveWaterGoalSettings()" class="px-5 py-2 text-xs bg-[#E0F7FA] text-[#006064] border border-[#B2EBF2] rounded-xl font-bold hover:bg-[#B2EBF2] transition">儲存設定</button>
+        </div>
     </div>
+</div>
 
     <!-- 新增 / 編輯商品 Modal -->
     <div id="reward-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
