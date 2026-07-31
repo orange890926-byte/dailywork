@@ -3,87 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人生活管理系統</title>
+    <title>馬卡龍風 · 生活隨身小管家</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 圓潤字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
     <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #FAF7F2; /* 柔和馬卡龍米白底色 */
+        }
         .no-select { user-select: none; -webkit-user-select: none; }
-        .tab-btn.active { color: #3B82F6; border-bottom: 2px solid #3B82F6; }
+        .tab-btn.active { 
+            background-color: #FFE5EC; 
+            color: #FF5A8D; 
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(255, 182, 193, 0.4);
+        }
+
+        /* 可愛畫線劃掉動畫 */
+        .strike-anim {
+            position: relative;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+        .strike-anim::after {
+            content: '';
+            position: absolute;
+            left: -2%;
+            top: 50%;
+            width: 0%;
+            height: 3px;
+            background: #FF85A1; /* 糖果粉紅劃線 */
+            border-radius: 99px;
+            transform: translateY(-50%) rotate(-1.5deg);
+            transition: width 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        .completed .strike-anim {
+            color: #A0AEC0;
+        }
+        .completed .strike-anim::after {
+            width: 104%;
+        }
+
+        /* 隱藏滾動條但保持可滾動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800 flex flex-col font-sans">
+<body class="min-h-screen text-gray-700 flex flex-col justify-between">
 
-    <!-- 全域頂部：通用日期選擇器與好棒棒點數顯示 -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fa-regular fa-calendar-check text-blue-500 text-xl"></i>
-                <input type="date" id="globalDatePicker" class="font-bold text-gray-700 bg-gray-50 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <!-- 頂部導覽列 -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-pink-100 rounded-b-3xl shadow-sm">
+        <div class="max-w-md mx-auto px-4 pt-3 pb-2 flex justify-between items-center">
+            <div class="flex items-center space-x-2 bg-pink-50 px-3 py-1.5 rounded-2xl border border-pink-100">
+                <span class="text-base">📅</span>
+                <input type="date" id="globalDatePicker" class="bg-transparent font-bold text-xs text-pink-600 focus:outline-none">
             </div>
-            <div class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-sm">
-                <i class="fa-solid fa-star text-amber-500"></i>
+            <div class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-2xl flex items-center space-x-1 shadow-sm border border-amber-200">
+                <span>⭐</span>
                 <span>好棒棒點數: <span id="headerPointsDisplay">0</span></span>
             </div>
         </div>
         
-        <!-- 底部/頂部頁籤導覽 (依指定順序：待辦 > 打卡 > 喝水打卡 > 心情日記 > 獎勵) -->
-        <nav class="flex justify-around bg-white border-t border-gray-200 text-xs text-gray-500 font-medium">
-            <button onclick="switchTab('todo')" id="nav-todo" class="tab-btn active py-2.5 flex-1 flex flex-col items-center">
-                <i class="fa-solid fa-list-check text-base mb-0.5"></i>待辦
+        <!-- 分頁 Tab 按鈕 (馬卡龍膠囊造型) -->
+        <nav class="max-w-md mx-auto px-2 py-2 flex justify-around text-xs gap-1 no-scrollbar overflow-x-auto">
+            <button onclick="switchTab('todo')" id="nav-todo" class="tab-btn active px-3 py-2 rounded-2xl flex items-center space-x-1 transition-all">
+                <span>📝</span><span>待辦</span>
             </button>
-            <button onclick="switchTab('habit')" id="nav-habit" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
-                <i class="fa-solid fa-square-check text-base mb-0.5"></i>打卡
+            <button onclick="switchTab('habit')" id="nav-habit" class="tab-btn px-3 py-2 rounded-2xl flex items-center space-x-1 transition-all text-gray-500">
+                <span>✅</span><span>打卡</span>
             </button>
-            <button onclick="switchTab('water')" id="nav-water" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
-                <i class="fa-solid fa-bottle-water text-base mb-0.5"></i>喝水打卡
+            <button onclick="switchTab('water')" id="nav-water" class="tab-btn px-3 py-2 rounded-2xl flex items-center space-x-1 transition-all text-gray-500">
+                <span>💧</span><span>喝水</span>
             </button>
-            <button onclick="switchTab('mood')" id="nav-mood" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
-                <i class="fa-solid fa-face-smile text-base mb-0.5"></i>心情日記
+            <button onclick="switchTab('mood')" id="nav-mood" class="tab-btn px-3 py-2 rounded-2xl flex items-center space-x-1 transition-all text-gray-500">
+                <span>📖</span><span>心情</span>
             </button>
-            <button onclick="switchTab('reward')" id="nav-reward" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
-                <i class="fa-solid fa-trophy text-base mb-0.5"></i>獎勵
+            <button onclick="switchTab('reward')" id="nav-reward" class="tab-btn px-3 py-2 rounded-2xl flex items-center space-x-1 transition-all text-gray-500">
+                <span>🏆</span><span>獎勵</span>
             </button>
         </nav>
     </header>
 
-    <!-- 主要內容區域 -->
-    <main class="max-w-md mx-auto w-full flex-1 p-4 pb-12">
+    <!-- 主體內容區 -->
+    <main class="max-w-md mx-auto w-full flex-1 p-4 space-y-4">
 
         <!-- 1. 待辦事項 (To-Do) -->
-        <section id="sec-todo" class="space-y-4">
-            <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm">
-                <span class="text-sm font-bold text-gray-600">顯示模式：</span>
-                <div class="inline-flex rounded-md shadow-sm" role="group">
-                    <button id="view-quadrant-btn" onclick="toggleTodoView('quadrant')" class="px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-l-lg">四象限</button>
-                    <button id="view-list-btn" onclick="toggleTodoView('list')" class="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-r-lg">條列</button>
+        <section id="sec-todo" class="space-y-3">
+            <div class="flex justify-between items-center bg-white p-2.5 rounded-2xl shadow-sm border border-pink-100">
+                <span class="text-xs font-bold text-gray-500">檢視視圖：</span>
+                <div class="inline-flex rounded-xl bg-gray-100 p-0.5 text-xs font-bold">
+                    <button id="view-quadrant-btn" onclick="toggleTodoView('quadrant')" class="px-3 py-1 rounded-lg bg-white text-pink-500 shadow-sm">四象限</button>
+                    <button id="view-list-btn" onclick="toggleTodoView('list')" class="px-3 py-1 rounded-lg text-gray-400">條列</button>
                 </div>
             </div>
 
-            <!-- 新增待辦按鈕 -->
-            <button onclick="openModal('add-todo-modal')" class="w-full py-2.5 bg-blue-500 text-white font-bold rounded-lg shadow hover:bg-blue-600 transition flex items-center justify-center space-x-1">
-                <i class="fa-solid fa-plus"></i>
-                <span>新增待辦事項</span>
+            <button onclick="openModal('add-todo-modal')" class="w-full py-3 bg-gradient-to-r from-pink-300 to-rose-300 text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>新增待辦任務</span>
             </button>
 
             <!-- 四象限檢視 -->
-            <div id="todo-quadrant-view" class="grid grid-cols-2 gap-2">
-                <div class="bg-red-50 p-2 rounded-lg border border-red-200 min-h-[140px]">
-                    <h4 class="text-xs font-bold text-red-700 mb-2 border-b border-red-200 pb-1">重要且緊急 (Q1)</h4>
-                    <div id="q1-list" class="space-y-1.5"></div>
+            <div id="todo-quadrant-view" class="grid grid-cols-2 gap-2.5">
+                <!-- Q1 粉紅色 -->
+                <div class="bg-pink-100/70 p-2.5 rounded-2xl border border-pink-200 min-h-[150px] space-y-2">
+                    <h4 class="text-[11px] font-bold text-pink-700 border-b border-pink-200 pb-1 flex items-center justify-between">
+                        <span>🚨 重要且緊急</span>
+                        <span class="text-[9px] opacity-70">不做會出問題</span>
+                    </h4>
+                    <div id="q1-list" class="space-y-2"></div>
                 </div>
-                <div class="bg-amber-50 p-2 rounded-lg border border-amber-200 min-h-[140px]">
-                    <h4 class="text-xs font-bold text-amber-700 mb-2 border-b border-amber-200 pb-1">重要不緊急 (Q2)</h4>
-                    <div id="q2-list" class="space-y-1.5"></div>
+                <!-- Q2 淺藍色 -->
+                <div class="bg-sky-100/70 p-2.5 rounded-2xl border border-sky-200 min-h-[150px] space-y-2">
+                    <h4 class="text-[11px] font-bold text-sky-700 border-b border-sky-200 pb-1 flex items-center justify-between">
+                        <span>🎯 重要不緊急</span>
+                        <span class="text-[9px] opacity-70">中長期規劃</span>
+                    </h4>
+                    <div id="q2-list" class="space-y-2"></div>
                 </div>
-                <div class="bg-blue-50 p-2 rounded-lg border border-blue-200 min-h-[140px]">
-                    <h4 class="text-xs font-bold text-blue-700 mb-2 border-b border-blue-200 pb-1">不重要但緊急 (Q3)</h4>
-                    <div id="q3-list" class="space-y-1.5"></div>
+                <!-- Q3 淡黃色 -->
+                <div class="bg-amber-100/70 p-2.5 rounded-2xl border border-amber-200 min-h-[150px] space-y-2">
+                    <h4 class="text-[11px] font-bold text-amber-800 border-b border-amber-200 pb-1 flex items-center justify-between">
+                        <span>⚡ 不重要但緊急</span>
+                        <span class="text-[9px] opacity-70">不花心思速做</span>
+                    </h4>
+                    <div id="q3-list" class="space-y-2"></div>
                 </div>
-                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 min-h-[140px]">
-                    <h4 class="text-xs font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">不重要不緊急 (Q4)</h4>
-                    <div id="q4-list" class="space-y-1.5"></div>
+                <!-- Q4 淺綠色 -->
+                <div class="bg-emerald-100/70 p-2.5 rounded-2xl border border-emerald-200 min-h-[150px] space-y-2">
+                    <h4 class="text-[11px] font-bold text-emerald-800 border-b border-emerald-200 pb-1 flex items-center justify-between">
+                        <span>🍃 不重要不緊急</span>
+                        <span class="text-[9px] opacity-70">瑣事及雜事</span>
+                    </h4>
+                    <div id="q4-list" class="space-y-2"></div>
                 </div>
             </div>
 
@@ -94,185 +150,196 @@
         </section>
 
         <!-- 2. 習慣打卡 (Habit) -->
-        <section id="sec-habit" class="hidden space-y-4">
-            <button onclick="openModal('add-habit-modal')" class="w-full py-2.5 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-600 transition flex items-center justify-center space-x-1">
-                <i class="fa-solid fa-plus"></i>
-                <span>新增習慣目標</span>
+        <section id="sec-habit" class="hidden space-y-3">
+            <button onclick="openModal('add-habit-modal')" class="w-full py-3 bg-gradient-to-r from-teal-300 to-emerald-300 text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>新增習慣習慣目標</span>
             </button>
 
             <div id="habit-list-container" class="space-y-3">
-                <!-- 習慣列表由 JS 動態生成 -->
+                <!-- 動態生成的習慣列表與月曆 -->
             </div>
         </section>
 
         <!-- 3. 喝水打卡 (Water) -->
-        <section id="sec-water" class="hidden space-y-4">
-            <!-- 當天喝水總量卡片 -->
-            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 text-white p-5 rounded-xl shadow-md text-center space-y-2">
-                <p class="text-xs opacity-80">本日累積喝水量</p>
-                <div class="text-4xl font-extrabold"><span id="todayWaterAmount">0</span> <span class="text-lg font-normal">cc</span></div>
-                <p id="waterGoalText" class="text-xs bg-white/20 inline-block px-3 py-1 rounded-full">目標：2000 cc</p>
+        <section id="sec-water" class="hidden space-y-3">
+            <div class="bg-gradient-to-br from-sky-200 via-blue-200 to-indigo-200 p-5 rounded-3xl shadow-sm text-center space-y-2 text-sky-900 border border-sky-200">
+                <p class="text-xs font-bold opacity-80">💧 本日累積喝水量</p>
+                <div class="text-4xl font-extrabold"><span id="todayWaterAmount">0</span> <span class="text-base font-normal">cc</span></div>
+                <div class="inline-block bg-white/60 px-3 py-1 rounded-full text-xs font-bold text-sky-800 shadow-sm">目標：2000 cc</div>
             </div>
 
-            <!-- 容量快速按鈕區 -->
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">快速打卡</h3>
-                <div id="waterCupButtons" class="grid grid-cols-3 gap-2">
-                    <!-- 250cc, 600cc, 800cc & 自訂按鈕 -->
-                </div>
-                <button onclick="addNewWaterCup()" class="w-full text-xs text-blue-500 font-bold border border-dashed border-blue-300 py-2 rounded-lg hover:bg-blue-50">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-sky-100 space-y-3">
+                <h3 class="text-xs font-bold text-gray-400">快速打卡</h3>
+                <div id="waterCupButtons" class="grid grid-cols-3 gap-2"></div>
+                <button onclick="addNewWaterCup()" class="w-full text-xs text-sky-500 font-bold border border-dashed border-sky-300 py-2.5 rounded-2xl hover:bg-sky-50 transition">
                     + 新增杯子容量
                 </button>
             </div>
 
-            <!-- 數據展現模式 (月曆 / 直條圖) -->
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="text-sm font-bold text-gray-700">喝水紀錄圖表</h3>
-                    <div class="space-x-1 text-xs">
-                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-2 py-1 bg-blue-500 text-white rounded">直條圖</button>
-                        <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-2 py-1 bg-gray-200 text-gray-700 rounded">月曆</button>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-sky-100 space-y-3">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h3 class="text-xs font-bold text-gray-600">喝水紀錄圖表</h3>
+                    <div class="space-x-1 text-xs font-bold">
+                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-2.5 py-1 bg-sky-300 text-white rounded-xl">直條圖</button>
+                        <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
                     </div>
                 </div>
                 
-                <!-- 直條圖視圖 -->
-                <div id="water-bar-view" class="h-40 flex items-end justify-between px-2 pt-6 pb-2 border-b">
-                    <!-- 動態繪製直條圖 -->
-                </div>
-
-                <!-- 月曆視圖 -->
-                <div id="water-cal-view" class="hidden text-center text-xs text-gray-500 py-4">
-                    <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1 text-center"></div>
+                <div id="water-bar-view" class="h-36 flex items-end justify-between px-2 pt-6 pb-2 border-b border-gray-50"></div>
+                <div id="water-cal-view" class="hidden text-center text-xs py-2">
+                    <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1"></div>
                 </div>
             </div>
         </section>
 
         <!-- 4. 心情日記 (Mood) -->
-        <section id="sec-mood" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
-                <h3 class="text-sm font-bold text-gray-700">今天的心情如何？</h3>
-                <div class="flex justify-between px-2 text-3xl">
-                    <button onclick="selectMood('😃')" class="mood-opt hover:scale-125 transition">😃</button>
-                    <button onclick="selectMood('😊')" class="mood-opt hover:scale-125 transition">😊</button>
-                    <button onclick="selectMood('😐')" class="mood-opt hover:scale-125 transition">😐</button>
-                    <button onclick="selectMood('😔')" class="mood-opt hover:scale-125 transition">😔</button>
-                    <button onclick="selectMood('😡')" class="mood-opt hover:scale-125 transition">😡</button>
+        <section id="sec-mood" class="hidden space-y-3">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-pink-100 space-y-4">
+                <h3 class="text-xs font-bold text-gray-500">今天的心情如何呢？</h3>
+                <div class="flex justify-around px-2 text-3xl">
+                    <button onclick="selectMood('😃')" class="mood-opt transition transform hover:scale-125">😃</button>
+                    <button onclick="selectMood('😊')" class="mood-opt transition transform hover:scale-125">😊</button>
+                    <button onclick="selectMood('😐')" class="mood-opt transition transform hover:scale-125">😐</button>
+                    <button onclick="selectMood('😔')" class="mood-opt transition transform hover:scale-125">😔</button>
+                    <button onclick="selectMood('😭')" class="mood-opt transition transform hover:scale-125">😭</button>
                 </div>
 
-                <textarea id="moodJournalInput" rows="4" placeholder="寫下今天發生的事情或心得..." class="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                <textarea id="moodJournalInput" rows="3" placeholder="寫下今天的心情或小記事..." class="w-full p-3 border border-pink-100 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-pink-200 bg-pink-50/30"></textarea>
                 
-                <button onclick="saveMoodEntry()" class="w-full py-2 bg-indigo-500 text-white font-bold rounded-lg shadow hover:bg-indigo-600 transition">
+                <button onclick="saveMoodEntry()" class="w-full py-2.5 bg-gradient-to-r from-purple-300 to-pink-300 text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition">
                     儲存日記 (+5 點數)
                 </button>
             </div>
 
-            <!-- 歷史紀錄 -->
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-2">
-                <h3 class="text-sm font-bold text-gray-700">當日日記紀錄</h3>
-                <div id="moodEntryDisplay" class="text-sm text-gray-600 italic border-l-2 border-indigo-400 pl-3 py-1">
-                    當天尚無紀錄。
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-pink-100 space-y-2">
+                <h3 class="text-xs font-bold text-gray-500">本日日記紀錄</h3>
+                <div id="moodEntryDisplay" class="text-xs text-gray-600 bg-purple-50/50 p-3 rounded-2xl italic border border-purple-100">
+                    尚無紀錄。
                 </div>
             </div>
         </section>
 
         <!-- 5. 獎勵商城 (Reward) -->
-        <section id="sec-reward" class="hidden space-y-4">
-            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center space-y-1">
-                <p class="text-xs text-amber-700">當前可用點數</p>
+        <section id="sec-reward" class="hidden space-y-3">
+            <div class="bg-gradient-to-r from-amber-100 via-orange-100 to-amber-200 p-4 rounded-3xl text-center space-y-1 border border-amber-200 shadow-sm">
+                <p class="text-xs text-amber-700 font-bold">當前累積好棒棒點數</p>
                 <p class="text-3xl font-extrabold text-amber-600" id="shopPointsDisplay">0</p>
             </div>
 
-            <button onclick="openModal('add-reward-modal')" class="w-full py-2 bg-amber-500 text-white font-bold rounded-lg shadow hover:bg-amber-600 transition flex items-center justify-center space-x-1">
+            <button onclick="openModal('add-reward-modal')" class="w-full py-2.5 bg-amber-300 text-amber-900 font-bold rounded-2xl shadow-sm hover:bg-amber-400 transition flex items-center justify-center space-x-1 text-xs">
                 <i class="fa-solid fa-plus"></i>
                 <span>新增自訂兌換商品</span>
             </button>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
-                <h3 class="text-sm font-bold text-gray-700 border-b pb-2">獎勵兌換清單</h3>
-                <div id="rewardListContainer" class="space-y-2">
-                    <!-- 動態生成兌換清單 -->
-                </div>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-amber-100 space-y-3">
+                <h3 class="text-xs font-bold text-gray-500 border-b border-gray-100 pb-2">獎勵兌換清單</h3>
+                <div id="rewardListContainer" class="space-y-2"></div>
             </div>
         </section>
 
     </main>
 
     <!-- Modal 彈窗區 -->
+
     <!-- 1. 新增待辦 Modal -->
-    <div id="add-todo-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
-            <h3 class="font-bold text-gray-700">新增待辦事項 (不可修改項目)</h3>
-            <input type="text" id="newTodoTitle" placeholder="事項名稱..." class="w-full p-2 border rounded text-sm">
+    <div id="add-todo-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 shadow-xl border border-pink-100">
+            <h3 class="font-bold text-sm text-gray-700">✨ 新增待辦任務 (項目鎖定)</h3>
             
-            <label class="block text-xs font-bold text-gray-600">四象限分類：</label>
-            <select id="newTodoQuadrant" class="w-full p-2 border rounded text-sm bg-white">
-                <option value="Q1">Q1: 重要且緊急</option>
-                <option value="Q2">Q2: 重要不緊急</option>
-                <option value="Q3">Q3: 不重要但緊急</option>
-                <option value="Q4">Q4: 不重要不緊急</option>
+            <div class="flex space-x-2">
+                <input type="text" id="newTodoEmoji" value="📝" class="w-12 text-center p-2 border rounded-xl text-lg">
+                <input type="text" id="newTodoTitle" placeholder="任務名稱..." class="flex-1 p-2 border rounded-xl text-xs">
+            </div>
+
+            <label class="block text-xs font-bold text-gray-500">四象限分類：</label>
+            <select id="newTodoQuadrant" class="w-full p-2 border rounded-xl text-xs bg-white">
+                <option value="Q1">Q1: 重要且緊急 (粉紅)</option>
+                <option value="Q2">Q2: 重要不緊急 (淺藍)</option>
+                <option value="Q3">Q3: 不重要但緊急 (淡黃)</option>
+                <option value="Q4">Q4: 不重要不緊急 (淺綠)</option>
             </select>
 
-            <div class="flex items-center space-x-2 pt-1">
-                <input type="checkbox" id="newTodoIsRepeat" onchange="toggleRepeatDateInput(this.checked)" class="rounded">
-                <label for="newTodoIsRepeat" class="text-xs text-gray-700 font-bold">重複任務 (需設定截止日期)</label>
+            <label class="block text-xs font-bold text-gray-500">重複設定：</label>
+            <select id="newTodoRepeatType" onchange="handleRepeatTypeChange(this.value)" class="w-full p-2 border rounded-xl text-xs bg-white">
+                <option value="none">不重複 (單次任務)</option>
+                <option value="daily">每天重複</option>
+                <option value="weekly">每周重複 (可選星期)</option>
+                <option value="monthly">每月重複</option>
+            </select>
+
+            <!-- 每周選項 -->
+            <div id="weeklyDaysContainer" class="hidden space-y-1">
+                <span class="text-[10px] text-gray-400">選擇重複星期：</span>
+                <div class="flex justify-between text-xs">
+                    <label><input type="checkbox" value="0" class="week-day-cb">日</label>
+                    <label><input type="checkbox" value="1" class="week-day-cb">一</label>
+                    <label><input type="checkbox" value="2" class="week-day-cb">二</label>
+                    <label><input type="checkbox" value="3" class="week-day-cb">三</label>
+                    <label><input type="checkbox" value="4" class="week-day-cb">四</label>
+                    <label><input type="checkbox" value="5" class="week-day-cb">五</label>
+                    <label><input type="checkbox" value="6" class="week-day-cb">六</label>
+                </div>
             </div>
 
             <div id="repeatEndDateContainer" class="hidden">
-                <label class="block text-xs text-gray-500 mb-1">截止日期：</label>
-                <input type="date" id="newTodoEndDate" class="w-full p-2 border rounded text-sm">
+                <label class="block text-xs text-gray-400">截止日期：</label>
+                <input type="date" id="newTodoEndDate" class="w-full p-2 border rounded-xl text-xs">
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeModal('add-todo-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
-                <button onclick="saveNewTodo()" class="px-3 py-1.5 text-xs bg-blue-500 text-white rounded font-bold">建立</button>
+                <button onclick="closeModal('add-todo-modal')" class="px-3 py-1.5 text-xs text-gray-400">取消</button>
+                <button onclick="saveNewTodo()" class="px-4 py-1.5 text-xs bg-pink-400 text-white rounded-xl font-bold">建立</button>
             </div>
         </div>
     </div>
 
     <!-- 2. 新增習慣 Modal -->
-    <div id="add-habit-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
-            <h3 class="font-bold text-gray-700">新增習慣目標</h3>
-            <input type="text" id="newHabitTitle" placeholder="習慣名稱 (例: 敷面膜)..." class="w-full p-2 border rounded text-sm">
+    <div id="add-habit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 shadow-xl border border-teal-100">
+            <h3 class="font-bold text-sm text-gray-700">🌿 新增習慣打卡</h3>
+            <div class="flex space-x-2">
+                <input type="text" id="newHabitEmoji" value="💊" class="w-12 text-center p-2 border rounded-xl text-lg">
+                <input type="text" id="newHabitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2 border rounded-xl text-xs">
+            </div>
             <div class="flex items-center space-x-2">
-                <span class="text-xs text-gray-600">目標每週：</span>
-                <input type="number" id="newHabitTarget" value="2" min="1" class="w-20 p-2 border rounded text-sm">
-                <span class="text-xs text-gray-600">次</span>
+                <span class="text-xs text-gray-500">目標每週：</span>
+                <input type="number" id="newHabitTarget" value="3" min="1" class="w-20 p-2 border rounded-xl text-xs">
+                <span class="text-xs text-gray-500">次</span>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeModal('add-habit-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
-                <button onclick="saveNewHabit()" class="px-3 py-1.5 text-xs bg-green-500 text-white rounded font-bold">建立</button>
+                <button onclick="closeModal('add-habit-modal')" class="px-3 py-1.5 text-xs text-gray-400">取消</button>
+                <button onclick="saveNewHabit()" class="px-4 py-1.5 text-xs bg-teal-400 text-white rounded-xl font-bold">建立</button>
             </div>
         </div>
     </div>
 
     <!-- 3. 新增商品 Modal -->
-    <div id="add-reward-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
-            <h3 class="font-bold text-gray-700">新增自訂兌換商品</h3>
-            <input type="text" id="newRewardTitle" placeholder="商品名稱 (例如：吃冰淇淋)..." class="w-full p-2 border rounded text-sm">
-            <input type="number" id="newRewardPoints" placeholder="所需點數" class="w-full p-2 border rounded text-sm">
+    <div id="add-reward-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 shadow-xl border border-amber-100">
+            <h3 class="font-bold text-sm text-gray-700">🎁 新增兌換獎勵</h3>
+            <input type="text" id="newRewardTitle" placeholder="獎勵名稱 (例: 看電影)..." class="w-full p-2 border rounded-xl text-xs">
+            <input type="number" id="newRewardPoints" placeholder="所需點數" class="w-full p-2 border rounded-xl text-xs">
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeModal('add-reward-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
-                <button onclick="saveNewReward()" class="px-3 py-1.5 text-xs bg-amber-500 text-white rounded font-bold">新增</button>
+                <button onclick="closeModal('add-reward-modal')" class="px-3 py-1.5 text-xs text-gray-400">取消</button>
+                <button onclick="saveNewReward()" class="px-4 py-1.5 text-xs bg-amber-400 text-white rounded-xl font-bold">新增</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript 業務邏輯 -->
     <script>
-        // --- 狀態管理 ---
         let appState = {
             currentDate: new Date().toISOString().split('T')[0],
             points: 0,
             todos: [],
             habits: [],
-            waterLogs: {}, // 'YYYY-MM-DD': amount
+            waterLogs: {},
             waterCups: [250, 600, 800],
-            moodLogs: {}, // 'YYYY-MM-DD': { mood, text }
+            moodLogs: {},
             rewards: [
-                { id: 1, title: '看一部電影', points: 30 },
-                { id: 2, title: '吃一頓大餐', points: 100 }
+                { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
+                { id: 2, title: '看一部電影 🎬', points: 80 }
             ]
         };
 
@@ -280,7 +347,6 @@
         let currentWaterChartView = 'bar';
         let selectedMoodEmoji = '';
 
-        // --- 初始化 ---
         window.onload = function() {
             loadLocalStorage();
             document.getElementById('globalDatePicker').value = appState.currentDate;
@@ -292,12 +358,12 @@
         };
 
         function saveState() {
-            localStorage.setItem('life_app_data', JSON.stringify(appState));
+            localStorage.setItem('macaron_life_data', JSON.stringify(appState));
             renderHeaderPoints();
         }
 
         function loadLocalStorage() {
-            const data = localStorage.getItem('life_app_data');
+            const data = localStorage.getItem('macaron_life_data');
             if (data) {
                 appState = { ...appState, ...JSON.parse(data) };
             }
@@ -317,14 +383,16 @@
             renderRewards();
         }
 
-        // --- Tab 切換 ---
         function switchTab(tabName) {
             ['todo', 'habit', 'water', 'mood', 'reward'].forEach(t => {
                 document.getElementById(`sec-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).classList.remove('active');
+                document.getElementById(`nav-${t}`).classList.add('text-gray-500');
             });
             document.getElementById(`sec-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).classList.add('active');
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            navBtn.classList.add('active');
+            navBtn.classList.remove('text-gray-500');
         }
 
         // --- 1. 待辦事項模組 ---
@@ -333,38 +401,52 @@
             if (mode === 'quadrant') {
                 document.getElementById('todo-quadrant-view').classList.remove('hidden');
                 document.getElementById('todo-list-view').classList.add('hidden');
-                document.getElementById('view-quadrant-btn').className = "px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-l-lg";
-                document.getElementById('view-list-btn').className = "px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-r-lg";
+                document.getElementById('view-quadrant-btn').className = "px-3 py-1 rounded-lg bg-white text-pink-500 shadow-sm";
+                document.getElementById('view-list-btn').className = "px-3 py-1 rounded-lg text-gray-400";
             } else {
                 document.getElementById('todo-quadrant-view').classList.add('hidden');
                 document.getElementById('todo-list-view').classList.remove('hidden');
-                document.getElementById('view-quadrant-btn').className = "px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-l-lg";
-                document.getElementById('view-list-btn').className = "px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-r-lg";
+                document.getElementById('view-quadrant-btn').className = "px-3 py-1 rounded-lg text-gray-400";
+                document.getElementById('view-list-btn').className = "px-3 py-1 rounded-lg bg-white text-pink-500 shadow-sm";
             }
         }
 
-        function toggleRepeatDateInput(checked) {
-            document.getElementById('repeatEndDateContainer').classList.toggle('hidden', !checked);
+        function handleRepeatTypeChange(val) {
+            const isRepeat = val !== 'none';
+            document.getElementById('repeatEndDateContainer').classList.toggle('hidden', !isRepeat);
+            document.getElementById('weeklyDaysContainer').classList.toggle('hidden', val !== 'weekly');
         }
 
         function saveNewTodo() {
+            const emoji = document.getElementById('newTodoEmoji').value.trim() || '📝';
             const title = document.getElementById('newTodoTitle').value.trim();
             const quadrant = document.getElementById('newTodoQuadrant').value;
-            const isRepeat = document.getElementById('newTodoIsRepeat').checked;
+            const repeatType = document.getElementById('newTodoRepeatType').value;
             const endDate = document.getElementById('newTodoEndDate').value;
 
-            if (!title) return alert('請輸入事項名稱');
-            if (isRepeat && !endDate) return alert('重複任務必須設定截止日期');
+            if (!title) return alert('請輸入任務名稱');
+            if (repeatType !== 'none' && !endDate) return alert('重複任務必須設定截止日期');
+
+            let repeatDays = [];
+            if (repeatType === 'weekly') {
+                document.querySelectorAll('.week-day-cb:checked').forEach(cb => {
+                    repeatDays.push(parseInt(cb.value));
+                });
+            }
 
             const todo = {
                 id: Date.now(),
-                title, // 鎖定不可修改
+                emoji,
+                title,
                 quadrant,
-                isRepeat,
-                endDate: isRepeat ? endDate : null,
+                repeatType,
+                repeatDays,
+                endDate: repeatType !== 'none' ? endDate : null,
                 createdAt: appState.currentDate,
                 isPaused: false,
-                pausedDaysCount: 0,
+                pausedDates: [],
+                leaveDates: [], // 請假日期
+                delayedDates: {}, // 'YYYY-MM-DD': count
                 completedDates: []
             };
 
@@ -372,6 +454,48 @@
             saveState();
             closeModal('add-todo-modal');
             document.getElementById('newTodoTitle').value = '';
+            renderTodos();
+        }
+
+        function toggleCompleteTodo(id) {
+            const todo = appState.todos.find(t => t.id === id);
+            if (!todo) return;
+            const idx = todo.completedDates.indexOf(appState.currentDate);
+            if (idx >= 0) {
+                todo.completedDates.splice(idx, 1);
+            } else {
+                todo.completedDates.push(appState.currentDate);
+            }
+            saveState();
+            renderTodos();
+        }
+
+        function takeLeaveTodo(id) {
+            const todo = appState.todos.find(t => t.id === id);
+            if (!todo) return;
+            if (!todo.leaveDates.includes(appState.currentDate)) {
+                todo.leaveDates.push(appState.currentDate);
+                alert(`🏖️ 已針對【${todo.title}】請假一次，不納入今日計算！`);
+            } else {
+                todo.leaveDates = todo.leaveDates.filter(d => d !== appState.currentDate);
+            }
+            saveState();
+            renderTodos();
+        }
+
+        function delayTodo(id) {
+            const todo = appState.todos.find(t => t.id === id);
+            if (!todo) return;
+            // 自動順延至下一天
+            const curr = new Date(appState.currentDate);
+            curr.setDate(curr.getDate() + 1);
+            const nextDate = curr.toISOString().split('T')[0];
+            
+            if (!todo.leaveDates.includes(appState.currentDate)) {
+                todo.leaveDates.push(appState.currentDate); // 當天視為順延移出
+            }
+            alert(`⏰ 任務【${todo.title}】已自動延遲移至下一天 (${nextDate})！`);
+            saveState();
             renderTodos();
         }
 
@@ -384,88 +508,59 @@
             }
         }
 
-        function toggleCompleteTodo(id) {
-            const todo = appState.todos.find(t => t.id === id);
-            if (!todo) return;
-            const idx = todo.completedDates.indexOf(appState.currentDate);
-            if (idx >= 0) {
-                todo.completedDates.splice(idx, 1);
-            } else {
-                todo.completedDates.push(appState.currentDate);
-            }
-
-            // 檢查當天所有待辦是否全完成，獲得獎勵
-            checkAllTodosCompleted();
-            saveState();
-            renderTodos();
-        }
-
-        function calculateTodoDenominator(todo) {
-            // 算式：總建立天數 - 暫停天數 (簡化計算 logic)
-            const created = new Date(todo.createdAt);
-            const current = new Date(appState.currentDate);
-            const diffTime = Math.max(0, current - created);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            const denominator = Math.max(1, diffDays - (todo.pausedDaysCount || 0));
-            return denominator;
-        }
-
         function renderTodos() {
             ['q1', 'q2', 'q3', 'q4'].forEach(q => document.getElementById(`${q}-list`).innerHTML = '');
             document.getElementById('todo-full-list').innerHTML = '';
 
             appState.todos.forEach(todo => {
                 const isDone = todo.completedDates.includes(appState.currentDate);
-                const denominator = calculateTodoDenominator(todo);
-                const numerator = todo.completedDates.length;
+                const isLeave = todo.leaveDates.includes(appState.currentDate);
 
                 const cardHtml = `
-                    <div class="bg-white p-2 rounded shadow-sm border border-gray-100 flex flex-col justify-between text-xs space-y-1">
+                    <div class="bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 space-y-1.5 ${isDone ? 'completed' : ''}">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold ${isDone ? 'line-through text-gray-400' : 'text-gray-800'}">${todo.title}</span>
-                            <input type="checkbox" ${isDone ? 'checked' : ''} onclick="toggleCompleteTodo(${todo.id})" class="rounded">
+                            <div class="flex items-center space-x-1.5 overflow-hidden">
+                                <span class="text-sm">${todo.emoji}</span>
+                                <span class="strike-anim text-xs font-bold ${isLeave ? 'text-amber-500 line-through' : 'text-gray-700'}">${todo.title}</span>
+                            </div>
+                            <input type="checkbox" ${isDone ? 'checked' : ''} onclick="toggleCompleteTodo(${todo.id})" class="rounded text-pink-400 focus:ring-pink-300">
                         </div>
-                        ${todo.isRepeat ? `<div class="text-[10px] text-red-400">截止: ${todo.endDate}</div>` : ''}
-                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1">
-                            <span>完成比率: ${numerator}/${todo.isPaused ? '(暫停中)' : denominator}</span>
-                            <button onclick="togglePauseTodo(${todo.id})" class="text-blue-500 font-bold">
-                                ${todo.isPaused ? '恢復' : '暫停'}
+
+                        ${isLeave ? '<div class="text-[9px] text-amber-500 font-bold">🏖️ 今日已請假/順延</div>' : ''}
+
+                        <div class="flex justify-between items-center text-[9px] text-gray-400 pt-1 border-t border-gray-50">
+                            <div class="space-x-1">
+                                <button onclick="delayTodo(${todo.id})" class="text-blue-400 hover:underline">⏰ 延遲</button>
+                                ${todo.repeatType !== 'none' ? `<button onclick="takeLeaveTodo(${todo.id})" class="text-amber-500 hover:underline">🏖️ 請假</button>` : ''}
+                            </div>
+                            <button onclick="togglePauseTodo(${todo.id})" class="text-gray-400">
+                                ${todo.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
                             </button>
                         </div>
                     </div>
                 `;
 
-                // 填入四象限
                 const qKey = todo.quadrant.toLowerCase();
                 if (document.getElementById(`${qKey}-list`)) {
                     document.getElementById(`${qKey}-list`).insertAdjacentHTML('beforeend', cardHtml);
                 }
-
-                // 條列式
                 document.getElementById('todo-full-list').insertAdjacentHTML('beforeend', cardHtml);
             });
         }
 
-        function checkAllTodosCompleted() {
-            if (appState.todos.length === 0) return;
-            const allDone = appState.todos.every(t => t.completedDates.includes(appState.currentDate));
-            if (allDone) {
-                appState.points += 10;
-                alert('🎉 太棒了！今天的所有待辦事項皆已完成，獲得 10 點好棒棒點數！');
-            }
-        }
-
-        // --- 2. 習慣打卡模組 (目標導向、允許超額、時間戳記、長按取消) ---
+        // --- 2. 習慣打卡模組 (含習慣月曆圖標顯示) ---
         function saveNewHabit() {
+            const emoji = document.getElementById('newHabitEmoji').value.trim() || '💊';
             const title = document.getElementById('newHabitTitle').value.trim();
             const target = parseInt(document.getElementById('newHabitTarget').value) || 1;
             if (!title) return alert('請輸入習慣名稱');
 
             appState.habits.push({
                 id: Date.now(),
+                emoji,
                 title,
                 target,
-                logs: [] // { id, timestamp }
+                logs: []
             });
             saveState();
             closeModal('add-habit-modal');
@@ -476,21 +571,12 @@
         function checkInHabit(habitId) {
             const habit = appState.habits.find(h => h.id === habitId);
             if (!habit) return;
-
             const now = new Date();
             const log = {
                 id: Date.now(),
                 timestamp: `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
             };
             habit.logs.push(log);
-
-            // 檢查是否達成目標發放點數
-            const thisWeekLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate.substring(0, 7)));
-            if (thisWeekLogs.length === habit.target) {
-                appState.points += 15;
-                alert(`🏅 恭喜達成習慣【${habit.title}】的目標！獲得 15 點好棒棒點數！`);
-            }
-
             saveState();
             renderHabits();
         }
@@ -510,35 +596,84 @@
             appState.habits.forEach(habit => {
                 const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
                 
-                let logsBadgesHtml = todayLogs.map(l => `
-                    <span oncontextmenu="return false;" 
-                          class="habit-badge no-select bg-green-100 text-green-800 text-[10px] px-2 py-0.5 rounded cursor-pointer border border-green-300"
+                let logsBadges = todayLogs.map(l => `
+                    <span class="habit-badge bg-teal-50 text-teal-700 border border-teal-200 text-[9px] px-2 py-0.5 rounded-full cursor-pointer"
                           data-habit="${habit.id}" data-log="${l.id}">
-                        ${l.timestamp.split(' ')[1]} (長按取消)
+                        ${l.timestamp.split(' ')[1]} (長按刪除)
                     </span>
                 `).join(' ');
 
                 const cardHtml = `
-                    <div class="bg-white p-3 rounded-xl shadow-sm space-y-2 border">
+                    <div class="bg-white p-3.5 rounded-3xl shadow-sm border border-teal-100 space-y-3">
                         <div class="flex justify-between items-center">
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-sm">${habit.title}</h4>
-                                <p class="text-[10px] text-gray-400">目標：${habit.target} 次/週 | 本日已打卡 ${todayLogs.length} 次</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl">${habit.emoji}</span>
+                                <div>
+                                    <h4 class="font-bold text-xs text-gray-700">${habit.title}</h4>
+                                    <p class="text-[9px] text-gray-400">目標：${habit.target} 次/週 | 本日打卡: ${todayLogs.length} 次</p>
+                                </div>
                             </div>
-                            <button onclick="checkInHabit(${habit.id})" class="bg-green-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow hover:bg-green-600">
+                            <button onclick="checkInHabit(${habit.id})" class="bg-teal-300 text-teal-900 text-xs px-3 py-1.5 rounded-2xl font-bold shadow-sm hover:bg-teal-400 transition">
                                 + 打卡
                             </button>
                         </div>
-                        <div class="flex flex-wrap gap-1 pt-1 border-t">
-                            ${logsBadgesHtml || '<span class="text-[10px] text-gray-400">本日尚無打卡紀錄</span>'}
+
+                        <div class="flex flex-wrap gap-1 border-t border-gray-50 pt-2">
+                            ${logsBadges || '<span class="text-[9px] text-gray-300">本日尚無打卡紀錄</span>'}
+                        </div>
+
+                        <!-- 習慣專屬月曆展現 -->
+                        <div class="bg-teal-50/40 p-2 rounded-2xl space-y-1">
+                            <div class="text-[9px] font-bold text-teal-700 text-center">打卡月曆</div>
+                            <div id="habit-cal-${habit.id}"></div>
                         </div>
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', cardHtml);
+                renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
             });
 
-            // 綁定長按事件 (防誤觸)
             setupLongPressEvents();
+        }
+
+        // 渲染打卡月曆 (顯示專屬圖標 💊)
+        function renderHabitCalendarGrid(habit, containerId) {
+            const current = new Date(appState.currentDate);
+            const year = current.getFullYear();
+            const month = current.getMonth();
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let html = `
+                <div class="grid grid-cols-7 gap-1 text-center text-[8px] font-bold text-gray-400 mb-1">
+                    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center">
+            `;
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasLog = habit.logs.some(l => l.timestamp.startsWith(dateStr));
+                const isToday = dateStr === appState.currentDate;
+
+                let bgClass = "bg-white text-gray-400";
+                if (hasLog) bgClass = "bg-pink-100 text-pink-600 font-bold border border-pink-200 shadow-xs";
+                if (isToday) bgClass += " ring-1 ring-teal-300";
+
+                html += `
+                    <div class="p-1 rounded-xl ${bgClass} h-7 flex flex-col items-center justify-center text-[9px]">
+                        <span>${day}</span>
+                        ${hasLog ? `<span class="text-[10px]">${habit.emoji}</span>` : ''}
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            document.getElementById(containerId).innerHTML = html;
         }
 
         function setupLongPressEvents() {
@@ -549,10 +684,10 @@
 
                 const start = () => {
                     timer = setTimeout(() => {
-                        if (confirm('確定要取消這次的打卡紀錄嗎？')) {
+                        if (confirm('要取消這次的打卡嗎？')) {
                             removeHabitLog(habitId, logId);
                         }
-                    }, 800); // 長按 0.8 秒
+                    }, 800);
                 };
                 const cancel = () => { if (timer) clearTimeout(timer); };
 
@@ -572,7 +707,7 @@
         }
 
         function addNewWaterCup() {
-            const val = prompt('請輸入新杯子的容量 (cc):', '350');
+            const val = prompt('輸入新杯子容量 (cc):', '350');
             if (val && !isNaN(val)) {
                 appState.waterCups.push(parseInt(val));
                 saveState();
@@ -582,35 +717,27 @@
 
         function toggleWaterChart(type) {
             currentWaterChartView = type;
-            if (type === 'bar') {
-                document.getElementById('water-bar-view').classList.remove('hidden');
-                document.getElementById('water-cal-view').classList.add('hidden');
-                document.getElementById('btn-water-bar').className = "px-2 py-1 bg-blue-500 text-white rounded";
-                document.getElementById('btn-water-cal').className = "px-2 py-1 bg-gray-200 text-gray-700 rounded";
-            } else {
-                document.getElementById('water-bar-view').classList.add('hidden');
-                document.getElementById('water-cal-view').classList.remove('hidden');
-                document.getElementById('btn-water-bar').className = "px-2 py-1 bg-gray-200 text-gray-700 rounded";
-                document.getElementById('btn-water-cal').className = "px-2 py-1 bg-blue-500 text-white rounded";
-            }
+            document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
+            document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
+            document.getElementById('btn-water-bar').className = type === 'bar' ? "px-2.5 py-1 bg-sky-300 text-white rounded-xl" : "px-2.5 py-1 bg-gray-100 text-gray-500 rounded-xl";
+            document.getElementById('btn-water-cal').className = type === 'cal' ? "px-2.5 py-1 bg-sky-300 text-white rounded-xl" : "px-2.5 py-1 bg-gray-100 text-gray-500 rounded-xl";
         }
 
         function renderWater() {
             const todayAmount = appState.waterLogs[appState.currentDate] || 0;
             document.getElementById('todayWaterAmount').innerText = todayAmount;
 
-            // 渲染杯子按鈕
             const cupContainer = document.getElementById('waterCupButtons');
             cupContainer.innerHTML = '';
             appState.waterCups.forEach(cc => {
                 cupContainer.innerHTML += `
-                    <button onclick="addWater(${cc})" class="py-2.5 bg-blue-50 border border-blue-200 text-blue-600 rounded-lg font-bold text-xs hover:bg-blue-100 flex flex-col items-center">
-                        <i class="fa-solid fa-glass-water mb-1 text-sm"></i>+${cc} cc
+                    <button onclick="addWater(${cc})" class="py-2 bg-sky-50 border border-sky-100 text-sky-600 rounded-2xl font-bold text-xs hover:bg-sky-100 transition flex flex-col items-center">
+                        <span class="text-xs mb-0.5">🥛</span>+${cc} cc
                     </button>
                 `;
             });
 
-            // 繪製近 7 天直條圖
+            // 繪製直條圖
             const barView = document.getElementById('water-bar-view');
             barView.innerHTML = '';
             for (let i = 6; i >= 0; i--) {
@@ -622,15 +749,15 @@
 
                 barView.innerHTML += `
                     <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-                        <div class="text-[9px] text-gray-400">${amt}</div>
-                        <div class="w-4 bg-blue-400 rounded-t" style="height: ${Math.max(5, heightPct)}%;"></div>
-                        <div class="text-[9px] text-gray-500">${dateStr.substring(5)}</div>
+                        <div class="text-[8px] text-gray-400">${amt}</div>
+                        <div class="w-3.5 bg-sky-300 rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+                        <div class="text-[8px] text-gray-400">${dateStr.substring(5)}</div>
                     </div>
                 `;
             }
         }
 
-        // --- 4. 心情日記模組 ---
+        // --- 4. 心情日記模組 (最後一個情緒替換為😭) ---
         function selectMood(emoji) {
             selectedMoodEmoji = emoji;
             document.querySelectorAll('.mood-opt').forEach(btn => {
@@ -646,27 +773,27 @@
                 mood: selectedMoodEmoji,
                 text
             };
-            appState.points += 5; // 完成心情日記獎勵
+            appState.points += 5;
             saveState();
             renderMood();
-            alert('日記已儲存，獲得 5 點好棒棒點數！');
+            alert('日記儲存成功！獲得 5 點點數！');
         }
 
         function renderMood() {
             const entry = appState.moodLogs[appState.currentDate];
             const display = document.getElementById('moodEntryDisplay');
             if (entry) {
-                display.innerHTML = `<span class="text-2xl mr-2">${entry.mood}</span> <span>${entry.text || '（當天無填寫文字心得）'}</span>`;
+                display.innerHTML = `<span class="text-2xl mr-2">${entry.mood}</span> <span>${entry.text || '（今天沒有留下文字）'}</span>`;
             } else {
-                display.innerText = '當天尚無紀錄。';
+                display.innerText = '尚無紀錄。';
             }
         }
 
-        // --- 5. 獎勵與兌換商城模組 ---
+        // --- 5. 獎勵商城模組 ---
         function saveNewReward() {
             const title = document.getElementById('newRewardTitle').value.trim();
             const points = parseInt(document.getElementById('newRewardPoints').value);
-            if (!title || isNaN(points)) return alert('請輸入完整商品資訊');
+            if (!title || isNaN(points)) return alert('請輸入完整資訊');
 
             appState.rewards.push({ id: Date.now(), title, points });
             saveState();
@@ -679,14 +806,14 @@
             if (!item) return;
 
             if (appState.points < item.points) {
-                return alert('好棒棒點數不足，繼續加油！');
+                return alert('好棒棒點數還不夠喔，繼續努力！');
             }
 
-            if (confirm(`確定要消耗 ${item.points} 點兌換【${item.title}】嗎？`)) {
+            if (confirm(`確定要兌換【${item.title}】嗎？`)) {
                 appState.points -= item.points;
                 saveState();
                 renderRewards();
-                alert('🎉 兌換成功！好好享受你的獎勵吧！');
+                alert('🎉 兌換成功！好好獎勵一下自己吧！');
             }
         }
 
@@ -696,12 +823,12 @@
 
             appState.rewards.forEach(item => {
                 container.innerHTML += `
-                    <div class="flex justify-between items-center p-2.5 bg-gray-50 border rounded-lg">
+                    <div class="flex justify-between items-center p-3 bg-amber-50/50 border border-amber-100 rounded-2xl">
                         <div>
-                            <div class="font-bold text-sm text-gray-800">${item.title}</div>
-                            <div class="text-xs text-amber-600 font-bold"><i class="fa-solid fa-star text-[10px]"></i> ${item.points} 點</div>
+                            <div class="font-bold text-xs text-gray-700">${item.title}</div>
+                            <div class="text-[10px] text-amber-600 font-bold">⭐ ${item.points} 點</div>
                         </div>
-                        <button onclick="redeemReward(${item.id})" class="px-3 py-1.5 bg-amber-500 text-white font-bold text-xs rounded-lg shadow hover:bg-amber-600">
+                        <button onclick="redeemReward(${item.id})" class="px-3 py-1.5 bg-amber-300 text-amber-900 font-bold text-xs rounded-xl shadow-xs hover:bg-amber-400 transition">
                             兌換
                         </button>
                     </div>
@@ -709,7 +836,6 @@
             });
         }
 
-        // --- 通用 Modal 控制 ---
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
     </script>
