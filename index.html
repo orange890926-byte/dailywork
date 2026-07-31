@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLAN JOY · 生活隨身小管家</title>
+    <title>PLAN JOY · 打卡系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome 圖示 -->
@@ -44,10 +44,11 @@
                 <span class="text-base">📅</span>
                 <input type="date" id="globalDatePicker" class="bg-transparent font-bold text-sm text-[#5C5552] focus:outline-none cursor-pointer">
             </div>
-            <div class="bg-[#FFF0D6] text-[#8C5E14] text-sm font-bold px-4 py-1.5 rounded-2xl flex items-center space-x-1.5 shadow-xs border border-[#FFE2B3]">
+            <!-- 點擊顯示點數紀錄彈窗 -->
+            <button onclick="openPointsHistoryModal()" class="bg-[#FFF0D6] hover:bg-[#FFE2B3] transition text-[#8C5E14] text-sm font-bold px-4 py-1.5 rounded-2xl flex items-center space-x-1.5 shadow-xs border border-[#FFE2B3] cursor-pointer">
                 <span class="text-base">⭐</span>
-                <span>好棒棒點數: <span id="headerPointsDisplay" class="text-base font-extrabold text-[#D47A88]">0</span></span>
-            </div>
+                <span>好棒棒點數: <span id="headerPointsDisplay" class="text-base font-extrabold text-[#D47A88]">0</span> <span class="text-xs text-[#8C5E14]/70 font-normal ml-0.5">(看明細)</span></span>
+            </button>
         </div>
 
         <!-- 分頁 Tab 按鈕 (膠囊造型) -->
@@ -67,7 +68,7 @@
         </nav>
     </header>
 
-    <!-- 主體內容區 (拉寬至 max-w-2xl) -->
+    <!-- 主體內容區 (寬度 max-w-2xl) -->
     <main class="max-w-2xl mx-auto w-full flex-1 p-5 space-y-5">
 
         <!-- 1. 習慣打卡 (Habit) -->
@@ -172,12 +173,12 @@
 
         <!-- 4. 獎勵商城 (Reward) -->
         <section id="sec-reward" class="hidden space-y-4">
-            <div class="bg-gradient-to-r from-[#FFF0D6] to-[#FFE2B3] p-5 rounded-3xl text-center space-y-1 border border-[#FFD591] shadow-xs">
-                <p class="text-xs text-[#8C5E14] font-bold">當前累積好棒棒點數</p>
+            <div onclick="openPointsHistoryModal()" class="bg-gradient-to-r from-[#FFF0D6] to-[#FFE2B3] p-5 rounded-3xl text-center space-y-1 border border-[#FFD591] shadow-xs cursor-pointer hover:opacity-95 transition">
+                <p class="text-xs text-[#8C5E14] font-bold">當前累積好棒棒點數 (點擊查看獲得明細)</p>
                 <p class="text-4xl font-black text-[#D47A88]" id="shopPointsDisplay">0</p>
             </div>
 
-            <button onclick="openModal('add-reward-modal')" class="w-full py-3 bg-[#FFF0D6] border border-[#FFE2B3] text-[#8C5E14] font-bold rounded-2xl shadow-xs hover:bg-[#FFE2B3] transition flex items-center justify-center space-x-1.5 text-sm">
+            <button onclick="openAddRewardModal()" class="w-full py-3 bg-[#FFF0D6] border border-[#FFE2B3] text-[#8C5E14] font-bold rounded-2xl shadow-xs hover:bg-[#FFE2B3] transition flex items-center justify-center space-x-1.5 text-sm">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span>新增自訂兌換商品</span>
             </button>
@@ -192,6 +193,27 @@
 
     <!-- Modals 彈窗區 -->
 
+    <!-- 點數明細 Modal -->
+    <div id="points-history-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#FFE2B3] max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="font-bold text-base text-[#8C5E14] flex items-center space-x-1">
+                    <span>⭐</span>
+                    <span>好棒棒點數歷史紀錄</span>
+                </h3>
+                <button onclick="closeModal('points-history-modal')" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+            </div>
+
+            <div id="pointsHistoryList" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar">
+                <!-- 點數紀錄項目動態載入 -->
+            </div>
+
+            <div class="pt-2 border-t border-gray-100 text-right">
+                <button onclick="closeModal('points-history-modal')" class="px-5 py-2 text-xs bg-[#FFF0D6] text-[#8C5E14] rounded-xl font-bold">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 新增 / 編輯打卡 Modal -->
     <div id="habit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#F2EDE4]">
@@ -203,14 +225,19 @@
                 <input type="text" id="habitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2.5 border border-gray-200 rounded-xl text-sm">
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-bold text-[#8C827A] mb-1">每週目標次數：</label>
+                <input type="number" id="habitTarget" value="3" min="1" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
                 <div>
-                    <label class="block text-xs font-bold text-[#8C827A] mb-1">每週目標次數：</label>
-                    <input type="number" id="habitTarget" value="3" min="1" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">1. 每次打卡獲得點數：</label>
+                    <input type="number" id="habitPointsReward" value="5" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#8C827A] mb-1">完成每次可獲點數：</label>
-                    <input type="number" id="habitPointsReward" value="5" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">2. 目標完成額外獎勵：</label>
+                    <input type="number" id="habitTargetReward" value="10" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
                 </div>
             </div>
 
@@ -244,15 +271,24 @@
         </div>
     </div>
 
-    <!-- 新增商品 Modal -->
-    <div id="add-reward-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <!-- 新增 / 編輯商品 Modal -->
+    <div id="reward-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#FFE2B3]">
-            <h3 class="font-bold text-base text-[#8C5E14]">🎁 新增兌換獎勵</h3>
-            <input type="text" id="newRewardTitle" placeholder="獎勵名稱 (例: 看電影)..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
-            <input type="number" id="newRewardPoints" placeholder="所需點數" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            <h3 id="rewardModalTitle" class="font-bold text-base text-[#8C5E14]">🎁 新增兌換獎勵</h3>
+            <input type="hidden" id="editRewardId" value="">
+            
+            <div>
+                <label class="block text-xs font-bold text-[#8C5E14] mb-1">獎勵名稱：</label>
+                <input type="text" id="rewardTitleInput" placeholder="獎勵名稱 (例: 看電影)..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-[#8C5E14] mb-1">所需點數：</label>
+                <input type="number" id="rewardPointsInput" placeholder="所需點數" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            </div>
+
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeModal('add-reward-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold">取消</button>
-                <button onclick="saveNewReward()" class="px-5 py-2 text-xs bg-[#FFF0D6] text-[#8C5E14] border border-[#FFE2B3] rounded-xl font-bold">新增</button>
+                <button onclick="closeModal('reward-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold">取消</button>
+                <button onclick="saveRewardItem()" class="px-5 py-2 text-xs bg-[#FFF0D6] text-[#8C5E14] border border-[#FFE2B3] rounded-xl font-bold">儲存</button>
             </div>
         </div>
     </div>
@@ -262,11 +298,12 @@
         let appState = {
             currentDate: new Date().toISOString().split('T')[0],
             points: 0,
+            pointsHistory: [], // 點數紀錄
             waterGoal: 2000,
             waterGoalReward: 10,
             waterGoalReachedDates: [],
             habits: [
-                { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, logs: [] }
+                { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
             ],
             waterLogs: {},
             waterCups: [250, 500, 800],
@@ -310,7 +347,50 @@
             if (data) {
                 const parsed = JSON.parse(data);
                 appState = { ...appState, ...parsed };
+                if (!appState.pointsHistory) appState.pointsHistory = [];
             }
+        }
+
+        // 點數統一異動紀錄 function
+        function addPointsLog(amount, description) {
+            appState.points += amount;
+            if (!appState.pointsHistory) appState.pointsHistory = [];
+            
+            const now = new Date();
+            const timeStr = `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            appState.pointsHistory.unshift({
+                id: Date.now(),
+                timestamp: timeStr,
+                description,
+                amount
+            });
+        }
+
+        function openPointsHistoryModal() {
+            const container = document.getElementById('pointsHistoryList');
+            container.innerHTML = '';
+
+            if (!appState.pointsHistory || appState.pointsHistory.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-8">尚無點數獲得或使用紀錄</div>`;
+            } else {
+                appState.pointsHistory.forEach(item => {
+                    const isPositive = item.amount > 0;
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl text-xs">
+                            <div>
+                                <div class="font-bold text-[#5C5552] text-sm">${item.description}</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5">${item.timestamp}</div>
+                            </div>
+                            <div class="font-extrabold text-sm ${isPositive ? 'text-[#2E7D32]' : 'text-[#D47A88]'}">
+                                ${isPositive ? '+' : ''}${item.amount} 點
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            openModal('points-history-modal');
         }
 
         function renderHeaderPoints() {
@@ -336,6 +416,22 @@
             const navBtn = document.getElementById(`nav-${tabName}`);
             navBtn.classList.add('active');
             navBtn.classList.remove('text-[#9E958F]');
+        }
+
+        // 計算傳入日期當週的 7 天日期陣列 (週一至週日)
+        function getWeekDates(dateStr) {
+            const curr = new Date(dateStr);
+            const day = curr.getDay(); // 0 是週日
+            const diffToMon = curr.getDate() - day + (day === 0 ? -6 : 1);
+            const mon = new Date(curr.setDate(diffToMon));
+
+            const week = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(mon);
+                d.setDate(mon.getDate() + i);
+                week.push(d.toISOString().split('T')[0]);
+            }
+            return week;
         }
 
         // --- 1. 打卡模組 ---
@@ -368,6 +464,7 @@
             document.getElementById('habitTitle').value = '';
             document.getElementById('habitTarget').value = '3';
             document.getElementById('habitPointsReward').value = '5';
+            document.getElementById('habitTargetReward').value = '10';
             openModal('habit-modal');
         }
 
@@ -380,6 +477,7 @@
             document.getElementById('habitTitle').value = habit.title || '';
             document.getElementById('habitTarget').value = habit.target || 3;
             document.getElementById('habitPointsReward').value = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+            document.getElementById('habitTargetReward').value = habit.targetReward !== undefined ? habit.targetReward : 10;
             openModal('habit-modal');
         }
 
@@ -389,6 +487,7 @@
             const title = document.getElementById('habitTitle').value.trim();
             const target = parseInt(document.getElementById('habitTarget').value) || 1;
             const pointsReward = parseInt(document.getElementById('habitPointsReward').value) || 0;
+            const targetReward = parseInt(document.getElementById('habitTargetReward').value) || 0;
 
             if (!title) return alert('請輸入習慣名稱');
 
@@ -399,6 +498,7 @@
                     habit.title = title;
                     habit.target = target;
                     habit.pointsReward = pointsReward;
+                    habit.targetReward = targetReward;
                 }
             } else {
                 appState.habits.push({
@@ -407,6 +507,8 @@
                     title,
                     target,
                     pointsReward,
+                    targetReward,
+                    isPaused: false,
                     logs: []
                 });
             }
@@ -416,9 +518,21 @@
             renderHabits();
         }
 
+        function togglePauseHabit(habitId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (habit) {
+                habit.isPaused = !habit.isPaused;
+                saveState();
+                renderHabits();
+            }
+        }
+
         function checkInHabit(habitId) {
             const habit = appState.habits.find(h => h.id === habitId);
-            if (!habit) return;
+            if (!habit || habit.isPaused) return;
+
+            const weekDates = getWeekDates(appState.currentDate);
+            const checkInsBefore = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
 
             const now = new Date();
             const log = {
@@ -426,13 +540,25 @@
                 timestamp: `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
             };
             habit.logs.push(log);
-            
-            const reward = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-            appState.points += reward;
+
+            const checkInsAfter = checkInsBefore + 1;
+
+            // 1. 每次打卡獲得點數
+            const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+            addPointsLog(pts, `打卡【${habit.title}】`);
+
+            let alertMsg = `🎉 完成【${habit.title}】打卡！獲得 +${pts} 點好棒棒點數！`;
+
+            // 2. 達成每週目標額外獲得點數
+            const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+            if (checkInsBefore < habit.target && checkInsAfter >= habit.target && targetPts > 0) {
+                addPointsLog(targetPts, `達成【${habit.title}】每週目標獎勵`);
+                alertMsg += `\n🏆 恭喜達成每週目標 (${habit.target}次)，額外獲得 +${targetPts} 點目標獎勵！`;
+            }
 
             saveState();
             renderHabits();
-            alert(`🎉 完成【${habit.title}】打卡！獲得 +${reward} 點好棒棒點數！`);
+            alert(alertMsg);
         }
 
         function removeHabitLog(habitId, logId) {
@@ -449,10 +575,21 @@
             container.innerHTML = '';
             visualContainer.innerHTML = '';
 
-            appState.habits.forEach(habit => {
+            // 將暫停的項目排序移至最後
+            const sortedHabits = [...appState.habits].sort((a, b) => {
+                if (a.isPaused === b.isPaused) return 0;
+                return a.isPaused ? 1 : -1;
+            });
+
+            sortedHabits.forEach(habit => {
                 const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+                const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
                 const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
                 
+                // 本週累積次數
+                const weekDates = getWeekDates(appState.currentDate);
+                const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+
                 // 1. 條列 view 渲染
                 let logsBadges = todayLogs.map(l => `
                     <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
@@ -461,25 +598,37 @@
                     </span>
                 `).join(' ');
 
+                const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
+
                 const cardHtml = `
-                    <div class="bg-white p-4 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                    <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center space-x-3">
                                 <span class="text-3xl">${habit.emoji}</span>
                                 <div>
                                     <div class="flex items-center space-x-2">
-                                        <h4 class="font-bold text-sm text-[#5C5552]">${habit.title}</h4>
+                                        <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
+                                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
                                         <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600">✏️</button>
                                     </div>
-                                    <p class="text-xs text-[#9E958F] mt-0.5">目標：${habit.target} 次/週 | 每次打卡: <span class="text-[#D47A88] font-bold">+${pts} 點</span></p>
+                                    <p class="text-xs text-[#9E958F] mt-0.5">
+                                        每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
+                                    </p>
                                 </div>
                             </div>
-                            <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-4 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
-                                + 打卡 (${todayLogs.length})
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition" title="${habit.isPaused ? '恢復項目' : '暫停項目'}">
+                                    ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
+                                </button>
+                                ${!habit.isPaused ? `
+                                    <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
+                                        + 打卡 (${todayLogs.length})
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
 
-                        <div class="flex flex-wrap gap-1.5 border-t border-gray-50 pt-2.5">
+                        <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
                             ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
                         </div>
                     </div>
@@ -489,11 +638,12 @@
                 // 2. 視覺 view 渲染
                 if (currentHabitSubVisual === 'cal') {
                     const habitCalCard = `
-                        <div class="bg-white p-4 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-2">
-                            <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                                 <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
                                     <span>${habit.emoji}</span>
                                     <span>${habit.title} 月曆打卡</span>
+                                    ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
                                 </div>
                             </div>
                             <div id="habit-cal-${habit.id}"></div>
@@ -503,10 +653,11 @@
                     renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
                 } else {
                     const habitBarCard = `
-                        <div class="bg-white p-4 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-2">
-                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-50 pb-2">
+                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
                                 <span>${habit.emoji}</span>
                                 <span>${habit.title} 近七日打卡次數</span>
+                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
                             </div>
                             <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
                         </div>
@@ -631,7 +782,7 @@
             if (newAmount >= targetGoal && !appState.waterGoalReachedDates.includes(appState.currentDate)) {
                 appState.waterGoalReachedDates.push(appState.currentDate);
                 const reward = appState.waterGoalReward !== undefined ? appState.waterGoalReward : 10;
-                appState.points += reward;
+                addPointsLog(reward, `每日喝水達標獎勵 (${targetGoal}cc)`);
                 alert(`🎉 恭喜達成今日喝水目標 (${targetGoal} cc)！獲得 +${reward} 點好棒棒點數！`);
             }
 
@@ -743,10 +894,11 @@
             if (!selectedMoodEmoji) return alert('請先選擇一個心情圖示！');
 
             appState.moodLogs[appState.currentDate] = { mood: selectedMoodEmoji, text };
-            appState.points += 5;
+            addPointsLog(5, '撰寫心情日記');
+
             saveState();
             renderMood();
-            alert('🎉 日記儲存成功！獲得 5 點好棒棒點數！');
+            alert('🎉 日記儲存成功！獲得 +5 點好棒棒點數！');
         }
 
         function renderMood() {
@@ -759,16 +911,57 @@
             }
         }
 
-        // --- 4. 獎勵商城模組 ---
-        function saveNewReward() {
-            const title = document.getElementById('newRewardTitle').value.trim();
-            const points = parseInt(document.getElementById('newRewardPoints').value);
-            if (!title || isNaN(points)) return alert('請輸入完整資訊');
+        // --- 4. 獎勵商城模組 (CRUD) ---
+        function openAddRewardModal() {
+            document.getElementById('rewardModalTitle').innerText = '🎁 新增兌換獎勵';
+            document.getElementById('editRewardId').value = '';
+            document.getElementById('rewardTitleInput').value = '';
+            document.getElementById('rewardPointsInput').value = '';
+            openModal('reward-modal');
+        }
 
-            appState.rewards.push({ id: Date.now(), title, points });
+        function openEditRewardModal(rewardId) {
+            const item = appState.rewards.find(r => r.id === rewardId);
+            if (!item) return;
+            document.getElementById('rewardModalTitle').innerText = '✏️ 編輯兌換獎勵';
+            document.getElementById('editRewardId').value = item.id;
+            document.getElementById('rewardTitleInput').value = item.title;
+            document.getElementById('rewardPointsInput').value = item.points;
+            openModal('reward-modal');
+        }
+
+        function saveRewardItem() {
+            const editId = document.getElementById('editRewardId').value;
+            const title = document.getElementById('rewardTitleInput').value.trim();
+            const points = parseInt(document.getElementById('rewardPointsInput').value);
+
+            if (!title || isNaN(points)) return alert('請填寫完整資訊！');
+
+            if (editId) {
+                const item = appState.rewards.find(r => r.id === parseInt(editId));
+                if (item) {
+                    item.title = title;
+                    item.points = points;
+                }
+            } else {
+                appState.rewards.push({
+                    id: Date.now(),
+                    title,
+                    points
+                });
+            }
+
             saveState();
-            closeModal('add-reward-modal');
+            closeModal('reward-modal');
             renderRewards();
+        }
+
+        function deleteRewardItem(rewardId) {
+            if (confirm('確定要刪除這個獎勵項目嗎？')) {
+                appState.rewards = appState.rewards.filter(r => r.id !== rewardId);
+                saveState();
+                renderRewards();
+            }
         }
 
         function redeemReward(rewardId) {
@@ -780,7 +973,7 @@
             }
 
             if (confirm(`確定要兌換【${item.title}】嗎？`)) {
-                appState.points -= item.points;
+                addPointsLog(-item.points, `兌換獎勵【${item.title}】`);
                 saveState();
                 renderRewards();
                 alert('🎉 兌換成功！好好獎勵一下自己吧！');
@@ -795,12 +988,18 @@
                 container.innerHTML += `
                     <div class="flex justify-between items-center p-3.5 bg-[#FFF8E7]/60 border border-[#FFE2B3] rounded-2xl">
                         <div>
-                            <div class="font-bold text-sm text-[#5C5552]">${item.title}</div>
+                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-1.5">
+                                <span>${item.title}</span>
+                            </div>
                             <div class="text-xs text-[#8C5E14] font-bold mt-0.5">⭐ ${item.points} 點</div>
                         </div>
-                        <button onclick="redeemReward(${item.id})" class="px-4 py-2 bg-[#FFF0D6] text-[#8C5E14] font-bold text-xs rounded-xl border border-[#FFE2B3] shadow-xs hover:bg-[#FFE2B3] transition">
-                            兌換
-                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openEditRewardModal(${item.id})" class="text-xs text-gray-400 hover:text-gray-600 p-1">✏️</button>
+                            <button onclick="deleteRewardItem(${item.id})" class="text-xs text-gray-400 hover:text-red-500 p-1">🗑️</button>
+                            <button onclick="redeemReward(${item.id})" class="px-4 py-2 bg-[#FFF0D6] text-[#8C5E14] font-bold text-xs rounded-xl border border-[#FFE2B3] shadow-xs hover:bg-[#FFE2B3] transition ml-1">
+                                兌換
+                            </button>
+                        </div>
                     </div>
                 `;
             });
