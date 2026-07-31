@@ -126,14 +126,26 @@
 
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄圖表</h3>
+                    <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
                     <div class="space-x-1 text-xs font-bold">
                         <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
                         <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
                     </div>
                 </div>
-                <div id="water-bar-view" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
-                <div id="water-cal-view" class="hidden text-center text-xs py-2">
+
+                <!-- 直條圖視圖 (含當週喝水平均) -->
+                <div id="water-bar-view" class="space-y-2">
+                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                        📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+                    </div>
+                    <div id="waterBarContainer" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
+                </div>
+
+                <!-- 月曆視圖 (含當月喝水平均與💧CC數) -->
+                <div id="water-cal-view" class="hidden space-y-3 text-center text-xs py-1">
+                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                        📅 當月平均喝水量：<span id="waterMonthlyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+                    </div>
                     <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1.5"></div>
                 </div>
             </div>
@@ -141,8 +153,13 @@
 
         <!-- 3. 心情日記 (Mood) -->
         <section id="sec-mood" class="hidden space-y-4">
+            <!-- 填寫 / 編輯日記區 -->
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-4">
-                <h3 class="text-sm font-bold text-[#5C5552]">今天的心情如何呢？</h3>
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-[#5C5552]">今天的心情如何呢？</h3>
+                    <span id="moodSelectedDateTag" class="text-xs font-bold bg-[#FDE2E4] text-[#D47A88] px-2.5 py-1 rounded-full"></span>
+                </div>
+
                 <div class="flex justify-around px-2 text-4xl">
                     <button onclick="selectMood('😃')" class="mood-opt transition transform hover:scale-125">😃</button>
                     <button onclick="selectMood('😊')" class="mood-opt transition transform hover:scale-125">😊</button>
@@ -158,10 +175,27 @@
                 </button>
             </div>
 
-            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-2">
-                <h3 class="text-xs font-bold text-[#9E958F]">本日日記紀錄</h3>
-                <div id="moodEntryDisplay" class="text-sm text-[#5C5552] bg-[#FFF8E7]/60 p-4 rounded-2xl border border-[#FFE2B3]">
-                    尚無紀錄。
+            <!-- 當月心情次數統計卡片 -->
+            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📊 當月心情統計</h3>
+                <div id="moodMonthlyStats" class="grid grid-cols-5 gap-2 text-center">
+                    <!-- 動態載入 EX: 😃 4次 -->
+                </div>
+            </div>
+
+            <!-- 心情月曆 View -->
+            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📅 心情月曆</h3>
+                <div id="moodCalendarGrid" class="grid grid-cols-7 gap-1.5 text-center">
+                    <!-- 動態載入月曆 EMOJI -->
+                </div>
+            </div>
+
+            <!-- 歷史日記條列 View -->
+            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📖 歷史日記紀錄條列</h3>
+                <div id="moodHistoryList" class="space-y-2.5 max-h-72 overflow-y-auto no-scrollbar">
+                    <!-- 動態載入歷史日記清單 -->
                 </div>
             </div>
         </section>
@@ -808,32 +842,52 @@
                 `;
             });
 
-            const barView = document.getElementById('water-bar-view');
-            barView.innerHTML = '';
+            // 1. 計算並渲染直條圖 (包含當週平均喝水量)
+            const barContainer = document.getElementById('waterBarContainer');
+            barContainer.innerHTML = '';
             const goal = appState.waterGoal || 2000;
+            let weeklyTotalWater = 0;
+
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(appState.currentDate);
                 d.setDate(d.getDate() - i);
                 const dateStr = d.toISOString().split('T')[0];
                 const amt = appState.waterLogs[dateStr] || 0;
+                weeklyTotalWater += amt;
+
                 const heightPct = Math.min(100, Math.round((amt / goal) * 100));
 
-                barView.innerHTML += `
+                barContainer.innerHTML += `
                     <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-                        <div class="text-[10px] text-gray-400">${amt}</div>
+                        <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
                         <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
                         <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
                     </div>
                 `;
             }
+            const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+            document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
 
+            // 2. 計算並渲染月曆視圖 (包含當月平均喝水量與💧CC數)
             const calView = document.getElementById('waterCalendarGrid');
             if (calView) {
                 const current = new Date(appState.currentDate);
                 const year = current.getFullYear();
                 const month = current.getMonth();
+                const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                // 計算當月平均喝水量
+                let monthlyTotalWater = 0;
+                Object.keys(appState.waterLogs).forEach(dateStr => {
+                    if (dateStr.startsWith(monthPrefix)) {
+                        monthlyTotalWater += appState.waterLogs[dateStr];
+                    }
+                });
+                const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
+                document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
 
                 let html = `
                     <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
@@ -849,14 +903,18 @@
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const amt = appState.waterLogs[dateStr] || 0;
                     const isReached = amt >= goal;
+                    const isToday = dateStr === appState.currentDate;
 
-                    let bgClass = "bg-[#FAF7F2] text-gray-400";
+                    let bgClass = "bg-[#FAF7F2] text-gray-500";
                     if (isReached) bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+                    if (isToday) bgClass += " ring-2 ring-[#00838F]";
 
                     html += `
-                        <div class="p-1 rounded-xl ${bgClass} h-8 flex flex-col items-center justify-center text-xs">
-                            <span>${day}</span>
-                            ${isReached ? `<span class="text-[9px]">💧</span>` : ''}
+                        <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
+                            <span class="font-bold text-[11px]">${day}</span>
+                            <span class="text-[9px] font-extrabold ${amt > 0 ? 'text-[#00838F]' : 'text-gray-300'} truncate">
+                                ${amt > 0 ? `💧${amt}cc` : '--'}
+                            </span>
                         </div>
                     `;
                 }
@@ -864,7 +922,14 @@
             }
         }
 
-        // --- 3. 心情日記模組 (支援獨立修改 EMOJI 與文字) ---
+        // 全域切換日期小幫手
+        function changeGlobalDate(dateStr) {
+            appState.currentDate = dateStr;
+            document.getElementById('globalDatePicker').value = dateStr;
+            renderAll();
+        }
+
+        // --- 3. 心情日記模組 (包含統計、月曆與歷史條列) ---
         function selectMood(emoji) {
             selectedMoodEmoji = emoji;
             document.querySelectorAll('.mood-opt').forEach(btn => {
@@ -896,40 +961,134 @@
             renderMood();
         }
 
-        function editMoodEntry() {
-            const entry = appState.moodLogs[appState.currentDate];
-            if (!entry) return;
-            selectMood(entry.mood);
-            document.getElementById('moodJournalInput').value = entry.text || '';
-            document.getElementById('moodJournalInput').focus();
+        function deleteMoodEntry(dateStr) {
+            if (confirm(`確定要刪除 ${dateStr} 的心情日記嗎？`)) {
+                delete appState.moodLogs[dateStr];
+                saveState();
+                renderMood();
+            }
         }
 
         function renderMood() {
+            document.getElementById('moodSelectedDateTag').innerText = appState.currentDate;
             const entry = appState.moodLogs[appState.currentDate];
-            const display = document.getElementById('moodEntryDisplay');
             const btnSave = document.getElementById('btnSaveMood');
 
             if (entry) {
-                display.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-3xl">${entry.mood}</span>
-                            <span class="text-sm text-[#5C5552]">${entry.text || '（今天沒有留下文字）'}</span>
-                        </div>
-                        <button onclick="editMoodEntry()" class="text-xs text-[#D47A88] font-bold hover:underline border border-[#FDE2E4] bg-white px-2.5 py-1 rounded-xl shadow-xs">
-                            ✏️ 編輯日記
-                        </button>
-                    </div>
-                `;
                 selectMood(entry.mood);
                 document.getElementById('moodJournalInput').value = entry.text || '';
-                btnSave.innerText = "更新日記內容";
+                btnSave.innerText = "更新今日日記內容";
             } else {
-                display.innerText = '本日尚無日記紀錄。';
                 selectMood('');
                 document.getElementById('moodJournalInput').value = '';
                 btnSave.innerText = "儲存日記 (+5 點好棒棒點數)";
             }
+
+            renderMoodStats();
+            renderMoodCalendar();
+            renderMoodHistoryList();
+        }
+
+        // 當月心情統計 (EX: 😃 4次)
+        function renderMoodStats() {
+            const statsContainer = document.getElementById('moodMonthlyStats');
+            statsContainer.innerHTML = '';
+
+            const current = new Date(appState.currentDate);
+            const monthPrefix = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+
+            const moods = ['😃', '😊', '😐', '😔', '😭'];
+            const counts = { '😃': 0, '😊': 0, '😐': 0, '😔': 0, '😭': 0 };
+
+            Object.keys(appState.moodLogs).forEach(dateStr => {
+                if (dateStr.startsWith(monthPrefix)) {
+                    const mood = appState.moodLogs[dateStr].mood;
+                    if (counts[mood] !== undefined) counts[mood]++;
+                }
+            });
+
+            moods.forEach(m => {
+                statsContainer.innerHTML += `
+                    <div class="bg-[#FAF7F2] border border-[#F2EDE4] p-2 rounded-2xl flex flex-col items-center">
+                        <span class="text-xl">${m}</span>
+                        <span class="text-xs font-bold text-[#5C5552] mt-1">${counts[m]} 次</span>
+                    </div>
+                `;
+            });
+        }
+
+        // 心情月曆 View (日 一 二 三 四 五 六)
+        function renderMoodCalendar() {
+            const calView = document.getElementById('moodCalendarGrid');
+            calView.innerHTML = '';
+
+            const current = new Date(appState.currentDate);
+            const year = current.getFullYear();
+            const month = current.getMonth();
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let html = `
+                <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+                    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                </div>
+            `;
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const entry = appState.moodLogs[dateStr];
+                const isToday = dateStr === appState.currentDate;
+
+                let bgClass = "bg-[#FAF7F2] text-gray-400";
+                if (entry) bgClass = "bg-[#FDE2E4]/60 border border-[#FDE2E4]";
+                if (isToday) bgClass += " ring-2 ring-[#D47A88]";
+
+                html += `
+                    <div onclick="changeGlobalDate('${dateStr}')" class="p-1 rounded-xl ${bgClass} h-11 flex flex-col items-center justify-between text-xs cursor-pointer hover:bg-[#FDE2E4] transition">
+                        <span class="font-bold text-[10px] text-gray-500">${day}</span>
+                        <span class="text-sm">${entry ? entry.mood : ''}</span>
+                    </div>
+                `;
+            }
+
+            calView.innerHTML = html;
+        }
+
+        // 歷史日記條列 View
+        function renderMoodHistoryList() {
+            const historyContainer = document.getElementById('moodHistoryList');
+            historyContainer.innerHTML = '';
+
+            const sortedDates = Object.keys(appState.moodLogs).sort((a, b) => new Date(b) - new Date(a));
+
+            if (sortedDates.length === 0) {
+                historyContainer.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">尚無心情日記紀錄</div>`;
+                return;
+            }
+
+            sortedDates.forEach(dateStr => {
+                const entry = appState.moodLogs[dateStr];
+                historyContainer.innerHTML += `
+                    <div class="p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl flex justify-between items-start">
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl">${entry.mood}</span>
+                                <span class="text-xs font-bold text-[#D47A88]">${dateStr}</span>
+                            </div>
+                            <p class="text-xs text-[#5C5552] pl-1">${entry.text || '（無留下文字記錄）'}</p>
+                        </div>
+                        <div class="flex space-x-1">
+                            <button onclick="changeGlobalDate('${dateStr}')" class="text-xs text-gray-400 hover:text-[#D47A88] p-1" title="編輯這天的日記">✏️</button>
+                            <button onclick="deleteMoodEntry('${dateStr}')" class="text-xs text-gray-400 hover:text-red-500 p-1" title="刪除這天的日記">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         // --- 4. 獎勵商城模組 ---
