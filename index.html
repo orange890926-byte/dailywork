@@ -3,949 +3,715 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLAN JOY - 智慧生活手帳</title>
-    <!-- Tailwind CSS -->
+    <title>個人生活管理系統</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts 圓體 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-            background-color: #FAF7F2;
-            color: #4A4543;
-        }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #E5DDD5; border-radius: 9999px; }
-        .mood-btn.active {
-            transform: scale(1.15);
-            ring: 2px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
+        .no-select { user-select: none; -webkit-user-select: none; }
+        .tab-btn.active { color: #3B82F6; border-bottom: 2px solid #3B82F6; }
     </style>
 </head>
-<body class="min-h-screen py-6 px-3 flex justify-center items-start">
+<body class="bg-gray-100 min-h-screen text-gray-800 flex flex-col font-sans">
 
-    <div class="w-full max-w-xl bg-white rounded-3xl shadow-xl border-4 border-[#F2EDE4] overflow-hidden">
+    <!-- 全域頂部：通用日期選擇器與好棒棒點數顯示 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-regular fa-calendar-check text-blue-500 text-xl"></i>
+                <input type="date" id="globalDatePicker" class="font-bold text-gray-700 bg-gray-50 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-sm">
+                <i class="fa-solid fa-star text-amber-500"></i>
+                <span>好棒棒點數: <span id="headerPointsDisplay">0</span></span>
+            </div>
+        </div>
         
-        <!-- 頂部頁頭 -->
-        <header class="bg-[#FFF8E7] px-6 py-5 border-b-2 border-[#F2EDE4] text-center">
-            <span class="inline-block bg-[#FDE2E4] text-[#D47A88] text-xs px-3 py-1 rounded-full font-bold mb-1">
-                🌸 Plan Joy Journal
-            </span>
-            <h1 class="text-2xl font-bold tracking-wider text-[#5C5552]">PLAN JOY</h1>
-            <p id="today-date-str" class="text-xs text-[#9E958F] mt-1"></p>
-        </header>
-
-        <!-- 主頁面頁籤 -->
-        <nav class="flex border-b-2 border-[#F2EDE4] bg-[#FCFAF7] text-sm font-bold">
-            <button onclick="switchMainTab('todo')" id="main-tab-todo" class="flex-1 py-3 text-[#D47A88] border-b-2 border-[#D47A88]">
-                📝 待辦事項
+        <!-- 底部/頂部頁籤導覽 (依指定順序：待辦 > 打卡 > 喝水打卡 > 心情日記 > 獎勵) -->
+        <nav class="flex justify-around bg-white border-t border-gray-200 text-xs text-gray-500 font-medium">
+            <button onclick="switchTab('todo')" id="nav-todo" class="tab-btn active py-2.5 flex-1 flex flex-col items-center">
+                <i class="fa-solid fa-list-check text-base mb-0.5"></i>待辦
             </button>
-            <button onclick="switchMainTab('habit')" id="main-tab-habit" class="flex-1 py-3 text-[#9E958F]">
-                🌱 習慣打卡
+            <button onclick="switchTab('habit')" id="nav-habit" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
+                <i class="fa-solid fa-square-check text-base mb-0.5"></i>打卡
             </button>
-            <button onclick="switchMainTab('mood')" id="main-tab-mood" class="flex-1 py-3 text-[#9E958F]">
-                🏷️ 心情日記
+            <button onclick="switchTab('water')" id="nav-water" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
+                <i class="fa-solid fa-bottle-water text-base mb-0.5"></i>喝水打卡
+            </button>
+            <button onclick="switchTab('mood')" id="nav-mood" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
+                <i class="fa-solid fa-face-smile text-base mb-0.5"></i>心情日記
+            </button>
+            <button onclick="switchTab('reward')" id="nav-reward" class="tab-btn py-2.5 flex-1 flex flex-col items-center">
+                <i class="fa-solid fa-trophy text-base mb-0.5"></i>獎勵
             </button>
         </nav>
+    </header>
 
-        <main class="p-5">
+    <!-- 主要內容區域 -->
+    <main class="max-w-md mx-auto w-full flex-1 p-4 pb-12">
 
-            <!-- ==================== 1. 待辦事項區塊 ==================== -->
-            <section id="main-view-todo" class="space-y-4">
+        <!-- 1. 待辦事項 (To-Do) -->
+        <section id="sec-todo" class="space-y-4">
+            <div class="flex justify-between items-center bg-white p-2 rounded-lg shadow-sm">
+                <span class="text-sm font-bold text-gray-600">顯示模式：</span>
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <button id="view-quadrant-btn" onclick="toggleTodoView('quadrant')" class="px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-l-lg">四象限</button>
+                    <button id="view-list-btn" onclick="toggleTodoView('list')" class="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-r-lg">條列</button>
+                </div>
+            </div>
+
+            <!-- 新增待辦按鈕 -->
+            <button onclick="openModal('add-todo-modal')" class="w-full py-2.5 bg-blue-500 text-white font-bold rounded-lg shadow hover:bg-blue-600 transition flex items-center justify-center space-x-1">
+                <i class="fa-solid fa-plus"></i>
+                <span>新增待辦事項</span>
+            </button>
+
+            <!-- 四象限檢視 -->
+            <div id="todo-quadrant-view" class="grid grid-cols-2 gap-2">
+                <div class="bg-red-50 p-2 rounded-lg border border-red-200 min-h-[140px]">
+                    <h4 class="text-xs font-bold text-red-700 mb-2 border-b border-red-200 pb-1">重要且緊急 (Q1)</h4>
+                    <div id="q1-list" class="space-y-1.5"></div>
+                </div>
+                <div class="bg-amber-50 p-2 rounded-lg border border-amber-200 min-h-[140px]">
+                    <h4 class="text-xs font-bold text-amber-700 mb-2 border-b border-amber-200 pb-1">重要不緊急 (Q2)</h4>
+                    <div id="q2-list" class="space-y-1.5"></div>
+                </div>
+                <div class="bg-blue-50 p-2 rounded-lg border border-blue-200 min-h-[140px]">
+                    <h4 class="text-xs font-bold text-blue-700 mb-2 border-b border-blue-200 pb-1">不重要但緊急 (Q3)</h4>
+                    <div id="q3-list" class="space-y-1.5"></div>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200 min-h-[140px]">
+                    <h4 class="text-xs font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">不重要不緊急 (Q4)</h4>
+                    <div id="q4-list" class="space-y-1.5"></div>
+                </div>
+            </div>
+
+            <!-- 條列檢視 -->
+            <div id="todo-list-view" class="hidden space-y-2">
+                <div id="todo-full-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- 2. 習慣打卡 (Habit) -->
+        <section id="sec-habit" class="hidden space-y-4">
+            <button onclick="openModal('add-habit-modal')" class="w-full py-2.5 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-600 transition flex items-center justify-center space-x-1">
+                <i class="fa-solid fa-plus"></i>
+                <span>新增習慣目標</span>
+            </button>
+
+            <div id="habit-list-container" class="space-y-3">
+                <!-- 習慣列表由 JS 動態生成 -->
+            </div>
+        </section>
+
+        <!-- 3. 喝水打卡 (Water) -->
+        <section id="sec-water" class="hidden space-y-4">
+            <!-- 當天喝水總量卡片 -->
+            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 text-white p-5 rounded-xl shadow-md text-center space-y-2">
+                <p class="text-xs opacity-80">本日累積喝水量</p>
+                <div class="text-4xl font-extrabold"><span id="todayWaterAmount">0</span> <span class="text-lg font-normal">cc</span></div>
+                <p id="waterGoalText" class="text-xs bg-white/20 inline-block px-3 py-1 rounded-full">目標：2000 cc</p>
+            </div>
+
+            <!-- 容量快速按鈕區 -->
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">快速打卡</h3>
+                <div id="waterCupButtons" class="grid grid-cols-3 gap-2">
+                    <!-- 250cc, 600cc, 800cc & 自訂按鈕 -->
+                </div>
+                <button onclick="addNewWaterCup()" class="w-full text-xs text-blue-500 font-bold border border-dashed border-blue-300 py-2 rounded-lg hover:bg-blue-50">
+                    + 新增杯子容量
+                </button>
+            </div>
+
+            <!-- 數據展現模式 (月曆 / 直條圖) -->
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="text-sm font-bold text-gray-700">喝水紀錄圖表</h3>
+                    <div class="space-x-1 text-xs">
+                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-2 py-1 bg-blue-500 text-white rounded">直條圖</button>
+                        <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-2 py-1 bg-gray-200 text-gray-700 rounded">月曆</button>
+                    </div>
+                </div>
                 
-                <!-- 次級頁籤：今日條列 vs 四象限 -->
-                <div class="flex justify-between items-center bg-[#FAF7F2] p-1.5 rounded-2xl border border-[#E8E1D9]">
-                    <div class="flex gap-1">
-                        <button onclick="switchTodoSubTab('list')" id="todo-sub-list" class="px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm">
-                            📋 今日條列
-                        </button>
-                        <button onclick="switchTodoSubTab('quadrant')" id="todo-sub-quadrant" class="px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]">
-                            🧩 四象限矩陣
-                        </button>
-                    </div>
-                    <button onclick="toggleModal('todo-modal', true)" class="bg-[#FDE2E4] hover:bg-[#FCD5CE] text-[#D47A88] text-xs font-bold px-3 py-1.5 rounded-xl transition">
-                        ＋ 新增待辦
-                    </button>
+                <!-- 直條圖視圖 -->
+                <div id="water-bar-view" class="h-40 flex items-end justify-between px-2 pt-6 pb-2 border-b">
+                    <!-- 動態繪製直條圖 -->
                 </div>
 
-                <!-- 1.1 今日條列視圖 -->
-                <div id="todo-view-list" class="space-y-2">
-                    <ul id="todo-list-container" class="space-y-2"></ul>
+                <!-- 月曆視圖 -->
+                <div id="water-cal-view" class="hidden text-center text-xs text-gray-500 py-4">
+                    <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1 text-center"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 心情日記 (Mood) -->
+        <section id="sec-mood" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
+                <h3 class="text-sm font-bold text-gray-700">今天的心情如何？</h3>
+                <div class="flex justify-between px-2 text-3xl">
+                    <button onclick="selectMood('😃')" class="mood-opt hover:scale-125 transition">😃</button>
+                    <button onclick="selectMood('😊')" class="mood-opt hover:scale-125 transition">😊</button>
+                    <button onclick="selectMood('😐')" class="mood-opt hover:scale-125 transition">😐</button>
+                    <button onclick="selectMood('😔')" class="mood-opt hover:scale-125 transition">😔</button>
+                    <button onclick="selectMood('😡')" class="mood-opt hover:scale-125 transition">😡</button>
                 </div>
 
-                <!-- 1.2 四象限矩陣視圖 -->
-                <div id="todo-view-quadrant" class="grid grid-cols-2 gap-3 hidden">
-                    <!-- Q1: 重要且緊急 (粉紅) -->
-                    <div class="bg-[#FDE2E4]/60 p-3 rounded-2xl border border-[#FAD2E1] min-h-[160px]">
-                        <h4 class="text-xs font-bold text-[#D47A88] mb-2 flex items-center gap-1">
-                            🔥 重要且緊急 <span class="text-[10px] font-normal text-gray-500">(不做會出問題)</span>
-                        </h4>
-                        <ul id="quadrant-q1" class="space-y-1.5 text-xs"></ul>
-                    </div>
-                    <!-- Q2: 重要但不緊急 (淺藍) -->
-                    <div class="bg-[#E0F7FA]/70 p-3 rounded-2xl border border-[#B2EBF2] min-h-[160px]">
-                        <h4 class="text-xs font-bold text-[#00838F] mb-2 flex items-center gap-1">
-                            🎯 重要不緊急 <span class="text-[10px] font-normal text-gray-500">(中長期規劃)</span>
-                        </h4>
-                        <ul id="quadrant-q2" class="space-y-1.5 text-xs"></ul>
-                    </div>
-                    <!-- Q3: 不重要但緊急 (淡黃) -->
-                    <div class="bg-[#FFF9C4]/70 p-3 rounded-2xl border border-[#FFF59D] min-h-[160px]">
-                        <h4 class="text-xs font-bold text-[#F57F17] mb-2 flex items-center gap-1">
-                            ⚡ 不重要緊急 <span class="text-[10px] font-normal text-gray-500">(不花心思速做)</span>
-                        </h4>
-                        <ul id="quadrant-q3" class="space-y-1.5 text-xs"></ul>
-                    </div>
-                    <!-- Q4: 不重要也不緊急 (淺綠) -->
-                    <div class="bg-[#E8F5E9]/70 p-3 rounded-2xl border border-[#C8E6C9] min-h-[160px]">
-                        <h4 class="text-xs font-bold text-[#2E7D32] mb-2 flex items-center gap-1">
-                            ☕ 不重要不緊急 <span class="text-[10px] font-normal text-gray-500">(瑣事及雜事)</span>
-                        </h4>
-                        <ul id="quadrant-q4" class="space-y-1.5 text-xs"></ul>
-                    </div>
-                </div>
-            </section>
-
-
-            <!-- ==================== 2. 習慣打卡區塊 ==================== -->
-            <section id="main-view-habit" class="space-y-4 hidden">
+                <textarea id="moodJournalInput" rows="4" placeholder="寫下今天發生的事情或心得..." class="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
                 
-                <!-- 次級頁籤：今日打卡 vs 月曆視圖 vs 管理 -->
-                <div class="flex justify-between items-center bg-[#FAF7F2] p-1.5 rounded-2xl border border-[#E8E1D9]">
-                    <div class="flex gap-1">
-                        <button onclick="switchHabitSubTab('today')" id="habit-sub-today" class="px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm">
-                            ☀️ 今日打卡
-                        </button>
-                        <button onclick="switchHabitSubTab('calendar')" id="habit-sub-calendar" class="px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]">
-                            📅 月曆視圖
-                        </button>
-                        <button onclick="switchHabitSubTab('manage')" id="habit-sub-manage" class="px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]">
-                            ⚙️ 習慣管理
-                        </button>
-                    </div>
+                <button onclick="saveMoodEntry()" class="w-full py-2 bg-indigo-500 text-white font-bold rounded-lg shadow hover:bg-indigo-600 transition">
+                    儲存日記 (+5 點數)
+                </button>
+            </div>
+
+            <!-- 歷史紀錄 -->
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-2">
+                <h3 class="text-sm font-bold text-gray-700">當日日記紀錄</h3>
+                <div id="moodEntryDisplay" class="text-sm text-gray-600 italic border-l-2 border-indigo-400 pl-3 py-1">
+                    當天尚無紀錄。
                 </div>
+            </div>
+        </section>
 
-                <!-- 2.1 今日打卡清單 -->
-                <div id="habit-view-today" class="space-y-3">
-                    <div id="habit-today-list" class="space-y-2.5"></div>
+        <!-- 5. 獎勵商城 (Reward) -->
+        <section id="sec-reward" class="hidden space-y-4">
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center space-y-1">
+                <p class="text-xs text-amber-700">當前可用點數</p>
+                <p class="text-3xl font-extrabold text-amber-600" id="shopPointsDisplay">0</p>
+            </div>
+
+            <button onclick="openModal('add-reward-modal')" class="w-full py-2 bg-amber-500 text-white font-bold rounded-lg shadow hover:bg-amber-600 transition flex items-center justify-center space-x-1">
+                <i class="fa-solid fa-plus"></i>
+                <span>新增自訂兌換商品</span>
+            </button>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-3">
+                <h3 class="text-sm font-bold text-gray-700 border-b pb-2">獎勵兌換清單</h3>
+                <div id="rewardListContainer" class="space-y-2">
+                    <!-- 動態生成兌換清單 -->
                 </div>
+            </div>
+        </section>
 
-                <!-- 2.2 月曆視圖 -->
-                <div id="habit-view-calendar" class="space-y-3 hidden">
-                    <!-- 下拉選單選取項目 -->
-                    <div class="flex items-center justify-between bg-[#FAF7F2] p-2 rounded-2xl border border-[#E8E1D9]">
-                        <span class="text-xs font-bold text-[#7A7571]">切換模式：</span>
-                        <select id="habit-calendar-filter" onchange="renderHabitCalendar()" class="bg-white border border-[#E8E1D9] rounded-xl text-xs px-3 py-1 font-bold text-[#5C5552] focus:outline-none">
-                            <option value="ALL">ALL (全體環圈達成率)</option>
-                        </select>
-                    </div>
+    </main>
 
-                    <!-- 月曆標題與切換 -->
-                    <div class="flex justify-between items-center px-2">
-                        <button onclick="changeHabitMonth(-1)" class="text-xs font-bold text-[#9E958F] hover:text-[#D47A88]">◀ 上個月</button>
-                        <span id="habit-calendar-month-title" class="text-sm font-bold text-[#5C5552]"></span>
-                        <button onclick="changeHabitMonth(1)" class="text-xs font-bold text-[#9E958F] hover:text-[#D47A88]">下個月 ▶</button>
-                    </div>
-
-                    <!-- 月曆網格 -->
-                    <div class="bg-[#FCFAF7] p-3 rounded-2xl border border-[#E8E1D9]">
-                        <div class="grid grid-cols-7 text-center text-[11px] font-bold text-[#9E958F] mb-2">
-                            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-                        </div>
-                        <div id="habit-calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
-                    </div>
-                </div>
-
-                <!-- 2.3 習慣管理區 -->
-                <div id="habit-view-manage" class="space-y-3 hidden">
-                    <button onclick="openHabitModal()" class="w-full bg-[#FDE2E4] hover:bg-[#FCD5CE] text-[#D47A88] font-bold text-xs py-2 rounded-xl transition">
-                        ＋ 新增習慣項目
-                    </button>
-                    <div id="habit-manage-list" class="space-y-2"></div>
-                </div>
-
-            </section>
-
-
-            <!-- ==================== 3. 心情日記區塊 (全新升級) ==================== -->
-            <section id="main-view-mood" class="space-y-4 hidden">
-                
-                <!-- 次級頁籤：記錄與足跡 vs 心情月曆 -->
-                <div class="flex justify-between items-center bg-[#FAF7F2] p-1.5 rounded-2xl border border-[#E8E1D9]">
-                    <div class="flex gap-1">
-                        <button onclick="switchMoodSubTab('record')" id="mood-sub-record" class="px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm">
-                            ✏️ 記錄與足跡
-                        </button>
-                        <button onclick="switchMoodSubTab('calendar')" id="mood-sub-calendar" class="px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]">
-                            📅 心情月曆
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3.1 寫日記與歷史足跡 -->
-                <div id="mood-view-record" class="space-y-4">
-                    <!-- 新增/編輯心情卡片 -->
-                    <div class="bg-[#FAF7F2] p-4 rounded-2xl border border-[#E8E1D9] space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-[#7A7571]">日期：</label>
-                            <input type="date" id="mood-input-date" class="bg-white border border-[#E8E1D9] rounded-xl px-2.5 py-1 text-xs text-[#5C5552] focus:outline-none">
-                        </div>
-
-                        <div>
-                            <p class="text-xs font-bold text-[#7A7571] mb-2 text-center">選擇今天的心情表情：</p>
-                            <div class="flex justify-around items-center py-1">
-                                <button type="button" onclick="selectMoodEmoji('😄', '超快樂', '#E8F5E9', this)" class="mood-btn text-2xl p-1.5 rounded-2xl hover:scale-110 transition-all">😄</button>
-                                <button type="button" onclick="selectMoodEmoji('😊', '平靜舒適', '#FFF9C4', this)" class="mood-btn text-2xl p-1.5 rounded-2xl hover:scale-110 transition-all">😊</button>
-                                <button type="button" onclick="selectMoodEmoji('😐', '普普通通', '#F5F5F5', this)" class="mood-btn text-2xl p-1.5 rounded-2xl hover:scale-110 transition-all">😐</button>
-                                <button type="button" onclick="selectMoodEmoji('🥺', '有點累累', '#FFE0B2', this)" class="mood-btn text-2xl p-1.5 rounded-2xl hover:scale-110 transition-all">🥺</button>
-                                <button type="button" onclick="selectMoodEmoji('😭', '需要抱抱', '#FFCDD2', this)" class="mood-btn text-2xl p-1.5 rounded-2xl hover:scale-110 transition-all">😭</button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-bold text-[#7A7571] mb-1 block">心情小筆記：</label>
-                            <input type="text" id="mood-input-note" placeholder="例如：發票中200！、吃到超美味蛋糕..." 
-                                class="w-full bg-white border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#FDE2E4]">
-                        </div>
-
-                        <button onclick="saveMoodEntry()" class="w-full bg-[#FDE2E4] hover:bg-[#FCD5CE] text-[#D47A88] font-bold text-xs py-2 rounded-xl transition shadow-sm">
-                            💾 儲存心情日記
-                        </button>
-                    </div>
-
-                    <!-- 歷史心情足跡清單 -->
-                    <div>
-                        <h3 class="text-xs font-bold text-[#9E958F] mb-2">📖 心情足跡紀錄</h3>
-                        <div id="mood-history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-                    </div>
-                </div>
-
-                <!-- 3.2 心情月曆視圖 -->
-                <div id="mood-view-calendar" class="space-y-3 hidden">
-                    <div class="flex justify-between items-center px-2">
-                        <button onclick="changeMoodMonth(-1)" class="text-xs font-bold text-[#9E958F] hover:text-[#D47A88]">◀ 上個月</button>
-                        <span id="mood-calendar-month-title" class="text-sm font-bold text-[#5C5552]"></span>
-                        <button onclick="changeMoodMonth(1)" class="text-xs font-bold text-[#9E958F] hover:text-[#D47A88]">下個月 ▶</button>
-                    </div>
-
-                    <div class="bg-[#FCFAF7] p-3 rounded-2xl border border-[#E8E1D9]">
-                        <div class="grid grid-cols-7 text-center text-[11px] font-bold text-[#9E958F] mb-2">
-                            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-                        </div>
-                        <div id="mood-calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
-                    </div>
-                </div>
-
-            </section>
-
-        </main>
-
-        <!-- 頁尾 -->
-        <footer class="bg-[#FCFAF7] px-6 py-3 border-t border-[#F2EDE4] flex justify-between items-center text-[11px] text-[#9E958F]">
-            <span>✨ Plan Joy · 陪伴你的每一天</span>
-            <button onclick="resetAllData()" class="hover:text-[#D47A88] underline">重置所有資料</button>
-        </footer>
-
-    </div>
-
-    <!-- ==================== Modal 1: 新增待辦事項 ==================== -->
-    <div id="todo-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4 border-2 border-[#F2EDE4]">
-            <h3 class="text-base font-bold text-[#5C5552]">新增待辦事項</h3>
+    <!-- Modal 彈窗區 -->
+    <!-- 1. 新增待辦 Modal -->
+    <div id="add-todo-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
+            <h3 class="font-bold text-gray-700">新增待辦事項 (不可修改項目)</h3>
+            <input type="text" id="newTodoTitle" placeholder="事項名稱..." class="w-full p-2 border rounded text-sm">
             
-            <div>
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">事項名稱</label>
-                <input type="text" id="modal-todo-text" placeholder="例如: 準備簡報資料..." class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs focus:outline-none">
+            <label class="block text-xs font-bold text-gray-600">四象限分類：</label>
+            <select id="newTodoQuadrant" class="w-full p-2 border rounded text-sm bg-white">
+                <option value="Q1">Q1: 重要且緊急</option>
+                <option value="Q2">Q2: 重要不緊急</option>
+                <option value="Q3">Q3: 不重要但緊急</option>
+                <option value="Q4">Q4: 不重要不緊急</option>
+            </select>
+
+            <div class="flex items-center space-x-2 pt-1">
+                <input type="checkbox" id="newTodoIsRepeat" onchange="toggleRepeatDateInput(this.checked)" class="rounded">
+                <label for="newTodoIsRepeat" class="text-xs text-gray-700 font-bold">重複任務 (需設定截止日期)</label>
             </div>
 
-            <div>
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">四象限分類</label>
-                <select id="modal-todo-q" class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs">
-                    <option value="q1">重要且緊急 (粉紅)</option>
-                    <option value="q2">重要但不緊急 (淺藍)</option>
-                    <option value="q3">不重要但緊急 (淡黃)</option>
-                    <option value="q4">不重要也不緊急 (淺綠)</option>
-                </select>
+            <div id="repeatEndDateContainer" class="hidden">
+                <label class="block text-xs text-gray-500 mb-1">截止日期：</label>
+                <input type="date" id="newTodoEndDate" class="w-full p-2 border rounded text-sm">
             </div>
 
-            <div>
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">重複頻率</label>
-                <select id="modal-todo-repeat" onchange="toggleRepeatWeekSelect()" class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs">
-                    <option value="none">單次 (不重複)</option>
-                    <option value="daily">每天</option>
-                    <option value="weekly">每週 (指定星期)</option>
-                    <option value="monthly">每月</option>
-                </select>
-            </div>
-
-            <!-- 每週指定星期選單 -->
-            <div id="modal-todo-weekdays" class="hidden">
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">選擇星期：</label>
-                <div class="flex justify-between gap-1 text-xs">
-                    <label class="flex items-center gap-1"><input type="checkbox" value="1" class="todo-week-cb">一</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="2" class="todo-week-cb">二</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="3" class="todo-week-cb">三</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="4" class="todo-week-cb">四</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="5" class="todo-week-cb">五</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="6" class="todo-week-cb">六</label>
-                    <label class="flex items-center gap-1"><input type="checkbox" value="0" class="todo-week-cb">日</label>
-                </div>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button onclick="toggleModal('todo-modal', false)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-500">取消</button>
-                <button onclick="saveTodoModal()" class="flex-1 py-2 rounded-xl text-xs font-bold bg-[#FDE2E4] text-[#D47A88]">儲存</button>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('add-todo-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
+                <button onclick="saveNewTodo()" class="px-3 py-1.5 text-xs bg-blue-500 text-white rounded font-bold">建立</button>
             </div>
         </div>
     </div>
 
-
-    <!-- ==================== Modal 2: 新增/編輯習慣 ==================== -->
-    <div id="habit-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4 border-2 border-[#F2EDE4]">
-            <h3 id="habit-modal-title" class="text-base font-bold text-[#5C5552]">新增習慣</h3>
-            <input type="hidden" id="modal-habit-id">
-
-            <div class="flex gap-2">
-                <div class="w-1/4">
-                    <label class="text-xs font-bold text-[#7A7571] mb-1 block">圖標</label>
-                    <input type="text" id="modal-habit-icon" placeholder="💊" class="w-full text-center bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-2 py-2 text-xs">
-                </div>
-                <div class="w-3/4">
-                    <label class="text-xs font-bold text-[#7A7571] mb-1 block">習慣名稱</label>
-                    <input type="text" id="modal-habit-name" placeholder="例如: 喝水 100cc" class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs">
-                </div>
+    <!-- 2. 新增習慣 Modal -->
+    <div id="add-habit-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
+            <h3 class="font-bold text-gray-700">新增習慣目標</h3>
+            <input type="text" id="newHabitTitle" placeholder="習慣名稱 (例: 敷面膜)..." class="w-full p-2 border rounded text-sm">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-600">目標每週：</span>
+                <input type="number" id="newHabitTarget" value="2" min="1" class="w-20 p-2 border rounded text-sm">
+                <span class="text-xs text-gray-600">次</span>
             </div>
-
-            <div>
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">頻率類型</label>
-                <select id="modal-habit-freq" class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs">
-                    <option value="daily_times">一天多次 (如: 喝水12次/天)</option>
-                    <option value="weekly_days">一週幾天 (如: 敷面膜2天/週)</option>
-                    <option value="monthly_days">一月幾天 (如: 帳務管理1天/月)</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="text-xs font-bold text-[#7A7571] mb-1 block">目標次數/天數</label>
-                <input type="number" id="modal-habit-target" min="1" value="1" class="w-full bg-[#FAF7F2] border border-[#E8E1D9] rounded-xl px-3 py-2 text-xs">
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button onclick="toggleModal('habit-modal', false)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-500">取消</button>
-                <button onclick="saveHabitModal()" class="flex-1 py-2 rounded-xl text-xs font-bold bg-[#FDE2E4] text-[#D47A88]">儲存</button>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('add-habit-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
+                <button onclick="saveNewHabit()" class="px-3 py-1.5 text-xs bg-green-500 text-white rounded font-bold">建立</button>
             </div>
         </div>
     </div>
 
-
-    <!-- ==================== Modal 3: 心情詳情檢視Modal ==================== -->
-    <div id="mood-detail-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-4 border-2 border-[#F2EDE4]">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 id="mood-detail-date" class="text-sm font-bold text-[#5C5552]">📅 2026-07-31</h3>
-                <button onclick="toggleModal('mood-detail-modal', false)" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
-            </div>
-            <div id="mood-detail-body" class="space-y-3"></div>
-            <div class="flex gap-2 pt-2">
-                <button id="mood-detail-edit-btn" class="flex-1 py-2 rounded-xl text-xs font-bold bg-[#FDE2E4] text-[#D47A88]">修改日記</button>
-                <button onclick="toggleModal('mood-detail-modal', false)" class="flex-1 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-500">關閉</button>
+    <!-- 3. 新增商品 Modal -->
+    <div id="add-reward-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-4 space-y-3">
+            <h3 class="font-bold text-gray-700">新增自訂兌換商品</h3>
+            <input type="text" id="newRewardTitle" placeholder="商品名稱 (例如：吃冰淇淋)..." class="w-full p-2 border rounded text-sm">
+            <input type="number" id="newRewardPoints" placeholder="所需點數" class="w-full p-2 border rounded text-sm">
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('add-reward-modal')" class="px-3 py-1.5 text-xs text-gray-500">取消</button>
+                <button onclick="saveNewReward()" class="px-3 py-1.5 text-xs bg-amber-500 text-white rounded font-bold">新增</button>
             </div>
         </div>
     </div>
 
-
-    <!-- 腳本區域 -->
+    <!-- JavaScript 業務邏輯 -->
     <script>
-        // --- 核心資料結構與初始化 ---
-        const TODAY_DATE = new Date();
-        const TODAY_KEY = formatDateKey(TODAY_DATE);
-
-        let currentHabitYear = TODAY_DATE.getFullYear();
-        let currentHabitMonth = TODAY_DATE.getMonth();
-
-        let currentMoodYear = TODAY_DATE.getFullYear();
-        let currentMoodMonth = TODAY_DATE.getMonth();
-
-        let selectedMoodData = { emoji: '😄', label: '超快樂', color: '#E8F5E9' };
-
-        let state = JSON.parse(localStorage.getItem('planJoyDataV3')) || {
-            todos: [
-                { id: 1, text: "完成這週的工作報告 📊", completed: false, q: "q1", repeat: "none", repeatDays: [] },
-                { id: 2, text: "閱讀 20 頁書 📚", completed: false, q: "q2", repeat: "daily", repeatDays: [] },
-                { id: 3, text: "拿快遞📦", completed: true, q: "q3", repeat: "none", repeatDays: [] },
-                { id: 4, text: "整理房間桌面 🧹", completed: false, q: "q4", repeat: "weekly", repeatDays: [6] }
-            ],
-            habits: [
-                { id: 101, name: "喝水 100cc", icon: "💧", freqType: "daily_times", target: 12, status: "active", history: { [TODAY_KEY]: 5 } },
-                { id: 102, name: "敷面膜", icon: "🧖‍♀️", freqType: "weekly_days", target: 2, status: "active", history: { [TODAY_KEY]: 1 } },
-                { id: 103, name: "吃維他命C", icon: "💊", freqType: "daily_times", target: 1, status: "active", history: { [TODAY_KEY]: 1 } },
-                { id: 104, name: "帳目管理", icon: "💰", freqType: "monthly_days", target: 1, status: "active", history: {} }
-            ],
-            moods: [
-                { date: TODAY_KEY, emoji: "😄", label: "超快樂", color: "#E8F5E9", note: "發票中200！" }
+        // --- 狀態管理 ---
+        let appState = {
+            currentDate: new Date().toISOString().split('T')[0],
+            points: 0,
+            todos: [],
+            habits: [],
+            waterLogs: {}, // 'YYYY-MM-DD': amount
+            waterCups: [250, 600, 800],
+            moodLogs: {}, // 'YYYY-MM-DD': { mood, text }
+            rewards: [
+                { id: 1, title: '看一部電影', points: 30 },
+                { id: 2, title: '吃一頓大餐', points: 100 }
             ]
         };
 
-        function saveData() {
-            localStorage.setItem('planJoyDataV3', JSON.stringify(state));
-        }
+        let currentTodoView = 'quadrant';
+        let currentWaterChartView = 'bar';
+        let selectedMoodEmoji = '';
 
-        function formatDateKey(dateObj) {
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const d = String(dateObj.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-
-        function initPage() {
-            document.getElementById('today-date-str').innerText = TODAY_DATE.toLocaleDateString('zh-TW', { 
-                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' 
+        // --- 初始化 ---
+        window.onload = function() {
+            loadLocalStorage();
+            document.getElementById('globalDatePicker').value = appState.currentDate;
+            document.getElementById('globalDatePicker').addEventListener('change', (e) => {
+                appState.currentDate = e.target.value;
+                renderAll();
             });
-            document.getElementById('mood-input-date').value = TODAY_KEY;
-
-            renderTodos();
-            renderHabitToday();
-            renderHabitManage();
-            renderHabitCalendar();
-            
-            // 預設選中第一個表情
-            const firstEmojiBtn = document.querySelector('.mood-btn');
-            if (firstEmojiBtn) selectMoodEmoji('😄', '超快樂', '#E8F5E9', firstEmojiBtn);
-
-            renderMoodHistory();
-            renderMoodCalendar();
-        }
-
-        // --- 切換通用 Modal ---
-        function toggleModal(id, show) {
-            document.getElementById(id).classList.toggle('hidden', !show);
-        }
-
-        // --- 主頁籤與次頁籤切換 ---
-        function switchMainTab(tab) {
-            ['todo', 'habit', 'mood'].forEach(t => {
-                const view = document.getElementById(`main-view-${t}`);
-                const btn = document.getElementById(`main-tab-${t}`);
-                if (t === tab) {
-                    view.classList.remove('hidden');
-                    btn.classList.add('text-[#D47A88]', 'border-b-2', 'border-[#D47A88]');
-                    btn.classList.remove('text-[#9E958F]');
-                } else {
-                    view.classList.add('hidden');
-                    btn.classList.remove('text-[#D47A88]', 'border-b-2', 'border-[#D47A88]');
-                    btn.classList.add('text-[#9E958F]');
-                }
-            });
-        }
-
-        function switchTodoSubTab(sub) {
-            const isList = sub === 'list';
-            document.getElementById('todo-view-list').classList.toggle('hidden', !isList);
-            document.getElementById('todo-view-quadrant').classList.toggle('hidden', isList);
-            
-            document.getElementById('todo-sub-list').className = isList ? "px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm" : "px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]";
-            document.getElementById('todo-sub-quadrant').className = !isList ? "px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm" : "px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]";
-        }
-
-        function switchHabitSubTab(sub) {
-            ['today', 'calendar', 'manage'].forEach(s => {
-                const view = document.getElementById(`habit-view-${s}`);
-                const btn = document.getElementById(`habit-sub-${s}`);
-                const isCurrent = s === sub;
-                view.classList.toggle('hidden', !isCurrent);
-                btn.className = isCurrent ? "px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm" : "px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]";
-            });
-            if (sub === 'calendar') renderHabitCalendar();
-        }
-
-        function switchMoodSubTab(sub) {
-            const isRecord = sub === 'record';
-            document.getElementById('mood-view-record').classList.toggle('hidden', !isRecord);
-            document.getElementById('mood-view-calendar').classList.toggle('hidden', isRecord);
-
-            document.getElementById('mood-sub-record').className = isRecord ? "px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm" : "px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]";
-            document.getElementById('mood-sub-calendar').className = !isRecord ? "px-3 py-1 rounded-xl text-xs font-bold bg-white text-[#5C5552] shadow-sm" : "px-3 py-1 rounded-xl text-xs font-bold text-[#9E958F]";
-            
-            if (!isRecord) renderMoodCalendar();
-        }
-
-        // ==================== 1. 待辦事項邏輯 ====================
-        const QUADRANT_CONFIG = {
-            q1: { title: "重要且緊急", bg: "bg-[#FDE2E4]/60", badge: "bg-[#FDE2E4] text-[#D47A88]" },
-            q2: { title: "重要不緊急", bg: "bg-[#E0F7FA]/70", badge: "bg-[#E0F7FA] text-[#00838F]" },
-            q3: { title: "不重要緊急", bg: "bg-[#FFF9C4]/70", badge: "bg-[#FFF9C4] text-[#F57F17]" },
-            q4: { title: "不重要不緊急", bg: "bg-[#E8F5E9]/70", badge: "bg-[#E8F5E9] text-[#2E7D32]" }
+            renderAll();
         };
 
-        function toggleRepeatWeekSelect() {
-            const val = document.getElementById('modal-todo-repeat').value;
-            document.getElementById('modal-todo-weekdays').classList.toggle('hidden', val !== 'weekly');
+        function saveState() {
+            localStorage.setItem('life_app_data', JSON.stringify(appState));
+            renderHeaderPoints();
         }
 
-        function saveTodoModal() {
-            const text = document.getElementById('modal-todo-text').value.trim();
-            if (!text) return alert("請輸入事項內容！");
-            
-            const q = document.getElementById('modal-todo-q').value;
-            const repeat = document.getElementById('modal-todo-repeat').value;
-            let repeatDays = [];
-            
-            if (repeat === 'weekly') {
-                document.querySelectorAll('.todo-week-cb:checked').forEach(cb => {
-                    repeatDays.push(parseInt(cb.value));
-                });
+        function loadLocalStorage() {
+            const data = localStorage.getItem('life_app_data');
+            if (data) {
+                appState = { ...appState, ...JSON.parse(data) };
+            }
+        }
+
+        function renderHeaderPoints() {
+            document.getElementById('headerPointsDisplay').innerText = appState.points;
+            document.getElementById('shopPointsDisplay').innerText = appState.points;
+        }
+
+        function renderAll() {
+            renderHeaderPoints();
+            renderTodos();
+            renderHabits();
+            renderWater();
+            renderMood();
+            renderRewards();
+        }
+
+        // --- Tab 切換 ---
+        function switchTab(tabName) {
+            ['todo', 'habit', 'water', 'mood', 'reward'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).classList.remove('active');
+            });
+            document.getElementById(`sec-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).classList.add('active');
+        }
+
+        // --- 1. 待辦事項模組 ---
+        function toggleTodoView(mode) {
+            currentTodoView = mode;
+            if (mode === 'quadrant') {
+                document.getElementById('todo-quadrant-view').classList.remove('hidden');
+                document.getElementById('todo-list-view').classList.add('hidden');
+                document.getElementById('view-quadrant-btn').className = "px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-l-lg";
+                document.getElementById('view-list-btn').className = "px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-r-lg";
+            } else {
+                document.getElementById('todo-quadrant-view').classList.add('hidden');
+                document.getElementById('todo-list-view').classList.remove('hidden');
+                document.getElementById('view-quadrant-btn').className = "px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-l-lg";
+                document.getElementById('view-list-btn').className = "px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded-r-lg";
+            }
+        }
+
+        function toggleRepeatDateInput(checked) {
+            document.getElementById('repeatEndDateContainer').classList.toggle('hidden', !checked);
+        }
+
+        function saveNewTodo() {
+            const title = document.getElementById('newTodoTitle').value.trim();
+            const quadrant = document.getElementById('newTodoQuadrant').value;
+            const isRepeat = document.getElementById('newTodoIsRepeat').checked;
+            const endDate = document.getElementById('newTodoEndDate').value;
+
+            if (!title) return alert('請輸入事項名稱');
+            if (isRepeat && !endDate) return alert('重複任務必須設定截止日期');
+
+            const todo = {
+                id: Date.now(),
+                title, // 鎖定不可修改
+                quadrant,
+                isRepeat,
+                endDate: isRepeat ? endDate : null,
+                createdAt: appState.currentDate,
+                isPaused: false,
+                pausedDaysCount: 0,
+                completedDates: []
+            };
+
+            appState.todos.push(todo);
+            saveState();
+            closeModal('add-todo-modal');
+            document.getElementById('newTodoTitle').value = '';
+            renderTodos();
+        }
+
+        function togglePauseTodo(id) {
+            const todo = appState.todos.find(t => t.id === id);
+            if (todo) {
+                todo.isPaused = !todo.isPaused;
+                saveState();
+                renderTodos();
+            }
+        }
+
+        function toggleCompleteTodo(id) {
+            const todo = appState.todos.find(t => t.id === id);
+            if (!todo) return;
+            const idx = todo.completedDates.indexOf(appState.currentDate);
+            if (idx >= 0) {
+                todo.completedDates.splice(idx, 1);
+            } else {
+                todo.completedDates.push(appState.currentDate);
             }
 
-            state.todos.unshift({
-                id: Date.now(),
-                text,
-                completed: false,
-                q,
-                repeat,
-                repeatDays
-            });
-
-            document.getElementById('modal-todo-text').value = '';
-            toggleModal('todo-modal', false);
+            // 檢查當天所有待辦是否全完成，獲得獎勵
+            checkAllTodosCompleted();
+            saveState();
             renderTodos();
         }
 
-        function toggleTodo(id) {
-            const t = state.todos.find(i => i.id === id);
-            if (t) t.completed = !t.completed;
-            renderTodos();
-        }
-
-        function deleteTodo(id) {
-            state.todos = state.todos.filter(i => i.id !== id);
-            renderTodos();
+        function calculateTodoDenominator(todo) {
+            // 算式：總建立天數 - 暫停天數 (簡化計算 logic)
+            const created = new Date(todo.createdAt);
+            const current = new Date(appState.currentDate);
+            const diffTime = Math.max(0, current - created);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            const denominator = Math.max(1, diffDays - (todo.pausedDaysCount || 0));
+            return denominator;
         }
 
         function renderTodos() {
-            saveData();
-            // 渲染列表視圖
-            const listEl = document.getElementById('todo-list-container');
-            listEl.innerHTML = state.todos.map(t => {
-                const qConf = QUADRANT_CONFIG[t.q] || QUADRANT_CONFIG.q1;
-                let repeatTag = '';
-                if (t.repeat === 'daily') repeatTag = '每天';
-                else if (t.repeat === 'weekly') repeatTag = '每週';
-                else if (t.repeat === 'monthly') repeatTag = '每月';
+            ['q1', 'q2', 'q3', 'q4'].forEach(q => document.getElementById(`${q}-list`).innerHTML = '');
+            document.getElementById('todo-full-list').innerHTML = '';
 
-                return `
-                    <li class="flex items-center justify-between bg-[#FAF7F2] px-3.5 py-2.5 rounded-2xl border border-[#E8E1D9] ${t.completed ? 'opacity-50' : ''}">
-                        <label class="flex items-center gap-2.5 cursor-pointer flex-1">
-                            <input type="checkbox" onchange="toggleTodo(${t.id})" ${t.completed ? 'checked' : ''} class="accent-[#D47A88]">
-                            <span class="text-xs ${t.completed ? 'line-through text-gray-400' : 'text-[#4A4543]'} font-medium">${t.text}</span>
-                        </label>
-                        <div class="flex items-center gap-1.5">
-                            ${repeatTag ? `<span class="text-[10px] bg-white px-2 py-0.5 rounded-full border text-gray-500 font-bold">🔁 ${repeatTag}</span>` : ''}
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${qConf.badge}">${qConf.title}</span>
-                            <button onclick="deleteTodo(${t.id})" class="text-gray-400 hover:text-red-400 text-xs ml-1">✕</button>
+            appState.todos.forEach(todo => {
+                const isDone = todo.completedDates.includes(appState.currentDate);
+                const denominator = calculateTodoDenominator(todo);
+                const numerator = todo.completedDates.length;
+
+                const cardHtml = `
+                    <div class="bg-white p-2 rounded shadow-sm border border-gray-100 flex flex-col justify-between text-xs space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold ${isDone ? 'line-through text-gray-400' : 'text-gray-800'}">${todo.title}</span>
+                            <input type="checkbox" ${isDone ? 'checked' : ''} onclick="toggleCompleteTodo(${todo.id})" class="rounded">
                         </div>
-                    </li>
+                        ${todo.isRepeat ? `<div class="text-[10px] text-red-400">截止: ${todo.endDate}</div>` : ''}
+                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1">
+                            <span>完成比率: ${numerator}/${todo.isPaused ? '(暫停中)' : denominator}</span>
+                            <button onclick="togglePauseTodo(${todo.id})" class="text-blue-500 font-bold">
+                                ${todo.isPaused ? '恢復' : '暫停'}
+                            </button>
+                        </div>
+                    </div>
                 `;
-            }).join('') || '<p class="text-center text-xs text-gray-400 py-4">目前沒有待辦事項 ✨</p>';
 
-            // 渲染四象限視圖
-            ['q1', 'q2', 'q3', 'q4'].forEach(q => {
-                const qEl = document.getElementById(`quadrant-${q}`);
-                const items = state.todos.filter(t => t.q === q);
-                qEl.innerHTML = items.map(t => `
-                    <li class="flex items-start gap-1.5 bg-white/80 p-2 rounded-xl shadow-sm">
-                        <input type="checkbox" onchange="toggleTodo(${t.id})" ${t.completed ? 'checked' : ''} class="mt-0.5 accent-[#D47A88]">
-                        <span class="flex-1 ${t.completed ? 'line-through text-gray-400' : 'text-[#4A4543]'}">${t.text}</span>
-                    </li>
-                `).join('') || '<span class="text-[11px] text-gray-400 italic">無事項</span>';
+                // 填入四象限
+                const qKey = todo.quadrant.toLowerCase();
+                if (document.getElementById(`${qKey}-list`)) {
+                    document.getElementById(`${qKey}-list`).insertAdjacentHTML('beforeend', cardHtml);
+                }
+
+                // 條列式
+                document.getElementById('todo-full-list').insertAdjacentHTML('beforeend', cardHtml);
             });
         }
 
-
-        // ==================== 2. 習慣打卡邏輯 ====================
-        function openHabitModal(habitId = null) {
-            const isEdit = !!habitId;
-            document.getElementById('habit-modal-title').innerText = isEdit ? "編輯習慣" : "新增習慣";
-            document.getElementById('modal-habit-id').value = habitId || '';
-
-            if (isEdit) {
-                const h = state.habits.find(i => i.id === habitId);
-                document.getElementById('modal-habit-icon').value = h.icon;
-                document.getElementById('modal-habit-name').value = h.name;
-                document.getElementById('modal-habit-freq').value = h.freqType;
-                document.getElementById('modal-habit-target').value = h.target;
-            } else {
-                document.getElementById('modal-habit-icon').value = '🌟';
-                document.getElementById('modal-habit-name').value = '';
-                document.getElementById('modal-habit-freq').value = 'daily_times';
-                document.getElementById('modal-habit-target').value = 1;
-            }
-            toggleModal('habit-modal', true);
-        }
-
-        function saveHabitModal() {
-            const id = document.getElementById('modal-habit-id').value;
-            const icon = document.getElementById('modal-habit-icon').value.trim() || '🌟';
-            const name = document.getElementById('modal-habit-name').value.trim();
-            const freqType = document.getElementById('modal-habit-freq').value;
-            const target = parseInt(document.getElementById('modal-habit-target').value) || 1;
-
-            if (!name) return alert("請輸入習慣名稱！");
-
-            if (id) {
-                const h = state.habits.find(i => i.id == id);
-                if (h) {
-                    h.icon = icon;
-                    h.name = name;
-                    h.freqType = freqType;
-                    h.target = target;
-                }
-            } else {
-                state.habits.push({
-                    id: Date.now(),
-                    name, icon, freqType, target,
-                    status: 'active',
-                    history: {}
-                });
-            }
-
-            toggleModal('habit-modal', false);
-            renderHabitToday();
-            renderHabitManage();
-            renderHabitCalendar();
-        }
-
-        function togglePauseHabit(id) {
-            const h = state.habits.find(i => i.id === id);
-            if (h) {
-                h.status = h.status === 'active' ? 'paused' : 'active';
-                renderHabitToday();
-                renderHabitManage();
+        function checkAllTodosCompleted() {
+            if (appState.todos.length === 0) return;
+            const allDone = appState.todos.every(t => t.completedDates.includes(appState.currentDate));
+            if (allDone) {
+                appState.points += 10;
+                alert('🎉 太棒了！今天的所有待辦事項皆已完成，獲得 10 點好棒棒點數！');
             }
         }
 
-        function deleteHabit(id) {
-            if (confirm("確定要刪除這個習慣嗎？")) {
-                state.habits = state.habits.filter(i => i.id !== id);
-                renderHabitToday();
-                renderHabitManage();
-                renderHabitCalendar();
-            }
+        // --- 2. 習慣打卡模組 (目標導向、允許超額、時間戳記、長按取消) ---
+        function saveNewHabit() {
+            const title = document.getElementById('newHabitTitle').value.trim();
+            const target = parseInt(document.getElementById('newHabitTarget').value) || 1;
+            if (!title) return alert('請輸入習慣名稱');
+
+            appState.habits.push({
+                id: Date.now(),
+                title,
+                target,
+                logs: [] // { id, timestamp }
+            });
+            saveState();
+            closeModal('add-habit-modal');
+            document.getElementById('newHabitTitle').value = '';
+            renderHabits();
         }
 
-        function incrementHabitCount(id) {
-            const h = state.habits.find(i => i.id === id);
-            if (!h) return;
-            const current = h.history[TODAY_KEY] || 0;
-            if (current < h.target) {
-                h.history[TODAY_KEY] = current + 1;
-            } else {
-                h.history[TODAY_KEY] = 0;
+        function checkInHabit(habitId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit) return;
+
+            const now = new Date();
+            const log = {
+                id: Date.now(),
+                timestamp: `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+            };
+            habit.logs.push(log);
+
+            // 檢查是否達成目標發放點數
+            const thisWeekLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate.substring(0, 7)));
+            if (thisWeekLogs.length === habit.target) {
+                appState.points += 15;
+                alert(`🏅 恭喜達成習慣【${habit.title}】的目標！獲得 15 點好棒棒點數！`);
             }
-            renderHabitToday();
-            renderHabitCalendar();
+
+            saveState();
+            renderHabits();
         }
 
-        function renderHabitToday() {
-            saveData();
-            const container = document.getElementById('habit-today-list');
-            const activeHabits = state.habits.filter(h => h.status === 'active');
+        function removeHabitLog(habitId, logId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit) return;
+            habit.logs = habit.logs.filter(l => l.id !== logId);
+            saveState();
+            renderHabits();
+        }
 
-            container.innerHTML = activeHabits.map(h => {
-                const count = h.history[TODAY_KEY] || 0;
-                const isDone = count >= h.target;
+        function renderHabits() {
+            const container = document.getElementById('habit-list-container');
+            container.innerHTML = '';
+
+            appState.habits.forEach(habit => {
+                const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
                 
-                let freqLabel = "";
-                if (h.freqType === 'daily_times') freqLabel = `目標：每天 ${h.target} 次`;
-                else if (h.freqType === 'weekly_days') freqLabel = `目標：每週 ${h.target} 天`;
-                else if (h.freqType === 'monthly_days') freqLabel = `目標：每月 ${h.target} 天`;
+                let logsBadgesHtml = todayLogs.map(l => `
+                    <span oncontextmenu="return false;" 
+                          class="habit-badge no-select bg-green-100 text-green-800 text-[10px] px-2 py-0.5 rounded cursor-pointer border border-green-300"
+                          data-habit="${habit.id}" data-log="${l.id}">
+                        ${l.timestamp.split(' ')[1]} (長按取消)
+                    </span>
+                `).join(' ');
 
-                return `
-                    <div class="flex items-center justify-between bg-[#FAF7F2] p-3 rounded-2xl border border-[#E8E1D9]">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">${h.icon}</span>
+                const cardHtml = `
+                    <div class="bg-white p-3 rounded-xl shadow-sm space-y-2 border">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <h4 class="text-xs font-bold text-[#5C5552]">${h.name}</h4>
-                                <p class="text-[10px] text-[#9E958F]">${freqLabel}</p>
+                                <h4 class="font-bold text-gray-800 text-sm">${habit.title}</h4>
+                                <p class="text-[10px] text-gray-400">目標：${habit.target} 次/週 | 本日已打卡 ${todayLogs.length} 次</p>
                             </div>
+                            <button onclick="checkInHabit(${habit.id})" class="bg-green-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow hover:bg-green-600">
+                                + 打卡
+                            </button>
                         </div>
-                        <button onclick="incrementHabitCount(${h.id})" 
-                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${isDone ? 'bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7]' : 'bg-white border border-[#E8E1D9] text-[#5C5552]'}">
-                            <span>${isDone ? '✓ 完成' : '打卡'}</span>
-                            <span class="bg-[#FAF7F2] px-1.5 py-0.5 rounded-md text-[10px] text-[#D47A88]">${count}/${h.target}</span>
-                        </button>
+                        <div class="flex flex-wrap gap-1 pt-1 border-t">
+                            ${logsBadgesHtml || '<span class="text-[10px] text-gray-400">本日尚無打卡紀錄</span>'}
+                        </div>
                     </div>
                 `;
-            }).join('') || '<p class="text-center text-xs text-gray-400 py-4">目前沒有進行中的習慣 ✨</p>';
-        }
-
-        function renderHabitManage() {
-            const container = document.getElementById('habit-manage-list');
-            container.innerHTML = state.habits.map(h => `
-                <div class="flex items-center justify-between bg-[#FAF7F2] px-3 py-2 rounded-2xl border border-[#E8E1D9] text-xs">
-                    <div class="flex items-center gap-2">
-                        <span>${h.icon}</span>
-                        <span class="font-bold ${h.status === 'paused' ? 'line-through text-gray-400' : 'text-[#5C5552]'}">${h.name}</span>
-                        ${h.status === 'paused' ? '<span class="text-[9px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">已暫停</span>' : ''}
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="togglePauseHabit(${h.id})" class="text-[10px] bg-white border px-2 py-0.5 rounded-lg text-gray-600 hover:bg-gray-50">
-                            ${h.status === 'active' ? '暫停' : '恢復'}
-                        </button>
-                        <button onclick="openHabitModal(${h.id})" class="text-[10px] bg-white border px-2 py-0.5 rounded-lg text-blue-500 hover:bg-blue-50">修改</button>
-                        <button onclick="deleteHabit(${h.id})" class="text-[10px] bg-white border px-2 py-0.5 rounded-lg text-red-500 hover:bg-red-50">刪除</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function changeHabitMonth(delta) {
-            currentHabitMonth += delta;
-            if (currentHabitMonth > 11) {
-                currentHabitMonth = 0;
-                currentHabitYear++;
-            } else if (currentHabitMonth < 0) {
-                currentHabitMonth = 11;
-                currentHabitYear--;
-            }
-            renderHabitCalendar();
-        }
-
-        function renderHabitCalendar() {
-            const filterSelect = document.getElementById('habit-calendar-filter');
-            const currentSelected = filterSelect.value;
-            filterSelect.innerHTML = '<option value="ALL">ALL (全體環圈達成率)</option>' + 
-                state.habits.map(h => `<option value="${h.id}">${h.icon} ${h.name}</option>`).join('');
-            filterSelect.value = currentSelected || "ALL";
-
-            document.getElementById('habit-calendar-month-title').innerText = `${currentHabitYear} 年 ${currentHabitMonth + 1} 月`;
-
-            const grid = document.getElementById('habit-calendar-grid');
-            grid.innerHTML = '';
-
-            const firstDay = new Date(currentHabitYear, currentHabitMonth, 1).getDay();
-            const daysInMonth = new Date(currentHabitYear, currentHabitMonth + 1, 0).getDate();
-
-            for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="h-10"></div>`;
-            }
-
-            const activeHabits = state.habits.filter(h => h.status === 'active');
-            const mode = filterSelect.value;
-
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${currentHabitYear}-${String(currentHabitMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                let cellContent = '';
-
-                if (mode === 'ALL') {
-                    let completedCount = 0;
-                    activeHabits.forEach(h => {
-                        if ((h.history[dateStr] || 0) >= h.target) completedCount++;
-                    });
-                    const total = activeHabits.length;
-                    const percent = total > 0 ? (completedCount / total) * 100 : 0;
-                    
-                    cellContent = `
-                        <div class="flex flex-col items-center justify-center h-11 border border-gray-100 bg-white rounded-xl">
-                            <span class="text-[9px] text-gray-400 leading-none mb-0.5">${d}</span>
-                            <div class="relative w-6 h-6 flex items-center justify-center">
-                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                    <path class="text-gray-200" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path class="text-[#D47A88]" stroke-dasharray="${percent}, 100" stroke-width="4" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                </svg>
-                                <span class="absolute text-[8px] font-bold text-[#5C5552]">${completedCount}/${total}</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    const targetHabit = state.habits.find(h => h.id == mode);
-                    const isCompleted = targetHabit && (targetHabit.history[dateStr] || 0) >= targetHabit.target;
-
-                    cellContent = `
-                        <div class="flex flex-col items-center justify-center h-11 border border-gray-100 rounded-xl ${isCompleted ? 'bg-[#FFF8E7]' : 'bg-white'}">
-                            <span class="text-[9px] text-gray-400 leading-none mb-1">${d}</span>
-                            <span class="text-sm">${isCompleted ? targetHabit.icon : '·'}</span>
-                        </div>
-                    `;
-                }
-
-                grid.innerHTML += cellContent;
-            }
-        }
-
-
-        // ==================== 3. 心情日記邏輯 (升級版) ====================
-        function selectMoodEmoji(emoji, label, color, btnEl) {
-            selectedMoodData = { emoji, label, color };
-            document.querySelectorAll('.mood-btn').forEach(b => {
-                b.classList.remove('active', 'bg-white', 'ring-2', 'ring-[#D47A88]');
+                container.insertAdjacentHTML('beforeend', cardHtml);
             });
-            if (btnEl) {
-                btnEl.classList.add('active', 'bg-white', 'ring-2', 'ring-[#D47A88]');
+
+            // 綁定長按事件 (防誤觸)
+            setupLongPressEvents();
+        }
+
+        function setupLongPressEvents() {
+            document.querySelectorAll('.habit-badge').forEach(badge => {
+                let timer = null;
+                const habitId = parseInt(badge.dataset.habit);
+                const logId = parseInt(badge.dataset.log);
+
+                const start = () => {
+                    timer = setTimeout(() => {
+                        if (confirm('確定要取消這次的打卡紀錄嗎？')) {
+                            removeHabitLog(habitId, logId);
+                        }
+                    }, 800); // 長按 0.8 秒
+                };
+                const cancel = () => { if (timer) clearTimeout(timer); };
+
+                badge.addEventListener('mousedown', start);
+                badge.addEventListener('touchstart', start);
+                badge.addEventListener('mouseup', cancel);
+                badge.addEventListener('touchend', cancel);
+            });
+        }
+
+        // --- 3. 喝水打卡模組 ---
+        function addWater(amount) {
+            const current = appState.waterLogs[appState.currentDate] || 0;
+            appState.waterLogs[appState.currentDate] = current + amount;
+            saveState();
+            renderWater();
+        }
+
+        function addNewWaterCup() {
+            const val = prompt('請輸入新杯子的容量 (cc):', '350');
+            if (val && !isNaN(val)) {
+                appState.waterCups.push(parseInt(val));
+                saveState();
+                renderWater();
             }
+        }
+
+        function toggleWaterChart(type) {
+            currentWaterChartView = type;
+            if (type === 'bar') {
+                document.getElementById('water-bar-view').classList.remove('hidden');
+                document.getElementById('water-cal-view').classList.add('hidden');
+                document.getElementById('btn-water-bar').className = "px-2 py-1 bg-blue-500 text-white rounded";
+                document.getElementById('btn-water-cal').className = "px-2 py-1 bg-gray-200 text-gray-700 rounded";
+            } else {
+                document.getElementById('water-bar-view').classList.add('hidden');
+                document.getElementById('water-cal-view').classList.remove('hidden');
+                document.getElementById('btn-water-bar').className = "px-2 py-1 bg-gray-200 text-gray-700 rounded";
+                document.getElementById('btn-water-cal').className = "px-2 py-1 bg-blue-500 text-white rounded";
+            }
+        }
+
+        function renderWater() {
+            const todayAmount = appState.waterLogs[appState.currentDate] || 0;
+            document.getElementById('todayWaterAmount').innerText = todayAmount;
+
+            // 渲染杯子按鈕
+            const cupContainer = document.getElementById('waterCupButtons');
+            cupContainer.innerHTML = '';
+            appState.waterCups.forEach(cc => {
+                cupContainer.innerHTML += `
+                    <button onclick="addWater(${cc})" class="py-2.5 bg-blue-50 border border-blue-200 text-blue-600 rounded-lg font-bold text-xs hover:bg-blue-100 flex flex-col items-center">
+                        <i class="fa-solid fa-glass-water mb-1 text-sm"></i>+${cc} cc
+                    </button>
+                `;
+            });
+
+            // 繪製近 7 天直條圖
+            const barView = document.getElementById('water-bar-view');
+            barView.innerHTML = '';
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(appState.currentDate);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const amt = appState.waterLogs[dateStr] || 0;
+                const heightPct = Math.min(100, Math.round((amt / 2000) * 100));
+
+                barView.innerHTML += `
+                    <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+                        <div class="text-[9px] text-gray-400">${amt}</div>
+                        <div class="w-4 bg-blue-400 rounded-t" style="height: ${Math.max(5, heightPct)}%;"></div>
+                        <div class="text-[9px] text-gray-500">${dateStr.substring(5)}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- 4. 心情日記模組 ---
+        function selectMood(emoji) {
+            selectedMoodEmoji = emoji;
+            document.querySelectorAll('.mood-opt').forEach(btn => {
+                btn.classList.toggle('opacity-30', btn.innerText !== emoji);
+            });
         }
 
         function saveMoodEntry() {
-            const dateStr = document.getElementById('mood-input-date').value;
-            const note = document.getElementById('mood-input-note').value.trim();
+            const text = document.getElementById('moodJournalInput').value.trim();
+            if (!selectedMoodEmoji) return alert('請先選擇一個心情圖示！');
 
-            if (!dateStr) return alert("請選擇日期！");
-
-            // 檢查該日期是否已經有紀錄，有的話更新，沒有的話追加
-            const existingIdx = state.moods.findIndex(m => m.date === dateStr);
-            const moodObj = {
-                date: dateStr,
-                emoji: selectedMoodData.emoji,
-                label: selectedMoodData.label,
-                color: selectedMoodData.color,
-                note: note
+            appState.moodLogs[appState.currentDate] = {
+                mood: selectedMoodEmoji,
+                text
             };
+            appState.points += 5; // 完成心情日記獎勵
+            saveState();
+            renderMood();
+            alert('日記已儲存，獲得 5 點好棒棒點數！');
+        }
 
-            if (existingIdx !== -1) {
-                state.moods[existingIdx] = moodObj;
+        function renderMood() {
+            const entry = appState.moodLogs[appState.currentDate];
+            const display = document.getElementById('moodEntryDisplay');
+            if (entry) {
+                display.innerHTML = `<span class="text-2xl mr-2">${entry.mood}</span> <span>${entry.text || '（當天無填寫文字心得）'}</span>`;
             } else {
-                state.moods.unshift(moodObj);
-            }
-
-            // 依日期排序 (新到舊)
-            state.moods.sort((a, b) => b.date.localeCompare(a.date));
-
-            saveData();
-            document.getElementById('mood-input-note').value = '';
-            
-            renderMoodHistory();
-            renderMoodCalendar();
-            alert(`已儲存 ${dateStr} 的心情日記！`);
-        }
-
-        function deleteMoodEntry(dateStr) {
-            if (confirm(`確定要刪除 ${dateStr} 的心情紀錄嗎？`)) {
-                state.moods = state.moods.filter(m => m.date !== dateStr);
-                saveData();
-                renderMoodHistory();
-                renderMoodCalendar();
-                toggleModal('mood-detail-modal', false);
+                display.innerText = '當天尚無紀錄。';
             }
         }
 
-        function renderMoodHistory() {
-            const container = document.getElementById('mood-history-list');
-            container.innerHTML = state.moods.map(m => `
-                <div class="flex items-center justify-between p-3 rounded-2xl shadow-sm border border-black/5" style="background-color: ${m.color}">
-                    <div class="flex items-center gap-2.5 flex-1 overflow-hidden">
-                        <span class="text-xl">${m.emoji}</span>
-                        <div class="truncate">
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-xs text-[#4A4543]">${m.label}</span>
-                                <span class="text-[10px] text-gray-500">${m.date}</span>
-                            </div>
-                            ${m.note ? `<p class="text-xs text-[#5C5552] truncate mt-0.5">💬 ${m.note}</p>` : ''}
+        // --- 5. 獎勵與兌換商城模組 ---
+        function saveNewReward() {
+            const title = document.getElementById('newRewardTitle').value.trim();
+            const points = parseInt(document.getElementById('newRewardPoints').value);
+            if (!title || isNaN(points)) return alert('請輸入完整商品資訊');
+
+            appState.rewards.push({ id: Date.now(), title, points });
+            saveState();
+            closeModal('add-reward-modal');
+            renderRewards();
+        }
+
+        function redeemReward(rewardId) {
+            const item = appState.rewards.find(r => r.id === rewardId);
+            if (!item) return;
+
+            if (appState.points < item.points) {
+                return alert('好棒棒點數不足，繼續加油！');
+            }
+
+            if (confirm(`確定要消耗 ${item.points} 點兌換【${item.title}】嗎？`)) {
+                appState.points -= item.points;
+                saveState();
+                renderRewards();
+                alert('🎉 兌換成功！好好享受你的獎勵吧！');
+            }
+        }
+
+        function renderRewards() {
+            const container = document.getElementById('rewardListContainer');
+            container.innerHTML = '';
+
+            appState.rewards.forEach(item => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-2.5 bg-gray-50 border rounded-lg">
+                        <div>
+                            <div class="font-bold text-sm text-gray-800">${item.title}</div>
+                            <div class="text-xs text-amber-600 font-bold"><i class="fa-solid fa-star text-[10px]"></i> ${item.points} 點</div>
                         </div>
-                    </div>
-                    <button onclick="deleteMoodEntry('${m.date}')" class="text-xs text-gray-400 hover:text-red-400 px-1 ml-2">✕</button>
-                </div>
-            `).join('') || '<p class="text-center text-xs text-gray-400 py-3">還沒有記錄心情，快寫下一筆吧 🌸</p>';
-        }
-
-        function changeMoodMonth(delta) {
-            currentMoodMonth += delta;
-            if (currentMoodMonth > 11) {
-                currentMoodMonth = 0;
-                currentMoodYear++;
-            } else if (currentMoodMonth < 0) {
-                currentMoodMonth = 11;
-                currentMoodYear--;
-            }
-            renderMoodCalendar();
-        }
-
-        function renderMoodCalendar() {
-            document.getElementById('mood-calendar-month-title').innerText = `${currentMoodYear} 年 ${currentMoodMonth + 1} 月`;
-            
-            const grid = document.getElementById('mood-calendar-grid');
-            grid.innerHTML = '';
-
-            const firstDay = new Date(currentMoodYear, currentMoodMonth, 1).getDay();
-            const daysInMonth = new Date(currentMoodYear, currentMoodMonth + 1, 0).getDate();
-
-            for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="h-14"></div>`;
-            }
-
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${currentMoodYear}-${String(currentMoodMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const mood = state.moods.find(m => m.date === dateStr);
-
-                let bgStyle = mood ? `background-color: ${mood.color}` : 'background-color: #FFFFFF';
-                
-                grid.innerHTML += `
-                    <div onclick="openMoodDetailModal('${dateStr}')" 
-                        class="flex flex-col items-center justify-between p-1 h-14 border border-gray-100 rounded-2xl cursor-pointer hover:shadow-md transition-all overflow-hidden" 
-                        style="${bgStyle}">
-                        <span class="text-[9px] text-gray-400 self-start font-bold">${d}</span>
-                        <span class="text-base">${mood ? mood.emoji : ''}</span>
-                        <span class="text-[9px] text-[#5C5552] font-medium truncate w-full text-center">${mood && mood.note ? mood.note : ''}</span>
+                        <button onclick="redeemReward(${item.id})" class="px-3 py-1.5 bg-amber-500 text-white font-bold text-xs rounded-lg shadow hover:bg-amber-600">
+                            兌換
+                        </button>
                     </div>
                 `;
-            }
+            });
         }
 
-        function openMoodDetailModal(dateStr) {
-            document.getElementById('mood-detail-date').innerText = `📅 ${dateStr} 心情日記`;
-            const mood = state.moods.find(m => m.date === dateStr);
-            const body = document.getElementById('mood-detail-body');
-            const editBtn = document.getElementById('mood-detail-edit-btn');
-
-            if (mood) {
-                body.innerHTML = `
-                    <div class="p-3 rounded-2xl text-center space-y-2" style="background-color: ${mood.color}">
-                        <div class="text-4xl">${mood.emoji}</div>
-                        <div class="font-bold text-sm text-[#4A4543]">${mood.label}</div>
-                        <p class="text-xs text-[#5C5552] bg-white/70 p-2.5 rounded-xl border border-black/5 text-left">
-                            ${mood.note ? mood.note : '無文字紀錄'}
-                        </p>
-                    </div>
-                `;
-                editBtn.onclick = () => {
-                    toggleModal('mood-detail-modal', false);
-                    switchMainTab('mood');
-                    switchMoodSubTab('record');
-                    document.getElementById('mood-input-date').value = dateStr;
-                    document.getElementById('mood-input-note').value = mood.note || '';
-                };
-            } else {
-                body.innerHTML = `
-                    <div class="text-center py-4 space-y-2">
-                        <p class="text-xs text-gray-400">這一天還沒有記錄心情哦！</p>
-                    </div>
-                `;
-                editBtn.onclick = () => {
-                    toggleModal('mood-detail-modal', false);
-                    switchMainTab('mood');
-                    switchMoodSubTab('record');
-                    document.getElementById('mood-input-date').value = dateStr;
-                    document.getElementById('mood-input-note').value = '';
-                };
-            }
-
-            toggleModal('mood-detail-modal', true);
-        }
-
-        // --- 全域重置 ---
-        function resetAllData() {
-            if (confirm("確定要重置所有資料，回復預設範例嗎？")) {
-                localStorage.removeItem('planJoyDataV3');
-                location.reload();
-            }
-        }
-
-        // 啟動頁面
-        initPage();
+        // --- 通用 Modal 控制 ---
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
     </script>
 </body>
 </html>
-index.html
-目前顯示的是「index.html」。
