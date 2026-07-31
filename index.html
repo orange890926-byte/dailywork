@@ -108,54 +108,65 @@
 </section>
 
         <!-- 2. 喝水打卡 (Water) -->
-        <section id="sec-water" class="hidden space-y-4">
-            <div class="bg-gradient-to-br from-[#E0F7FA] to-[#E1F5FE] p-6 rounded-3xl shadow-xs text-center space-y-3 text-[#006064] border border-[#B2EBF2]">
-                <div class="flex justify-between items-center px-2">
-                    <span class="text-sm font-bold text-[#00838F]">💧 本日累積喝水量</span>
-                    <button onclick="openWaterGoalModal()" class="text-xs bg-white/80 px-3 py-1 rounded-xl font-bold border border-[#B2EBF2] hover:bg-white transition">
-                        ⚙️ 設定目標與獎勵
-                    </button>
-                </div>
-                <div class="text-5xl font-black"><span id="todayWaterAmount">0</span> <span class="text-lg font-bold">cc</span></div>
-                <div class="inline-block bg-white/80 px-4 py-1.5 rounded-full text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2]">
-                    目標：<span id="displayWaterGoal">2000</span> cc (達標獎勵: +<span id="displayWaterReward">10</span> 點)
-                </div>
+<section id="sec-water" class="hidden space-y-4">
+    <div class="bg-gradient-to-br from-[#E0F7FA] to-[#E1F5FE] p-6 rounded-3xl shadow-xs text-center space-y-3 text-[#006064] border border-[#B2EBF2]">
+        <div class="flex justify-between items-center px-2">
+            <span class="text-sm font-bold text-[#00838F]">💧 本日累積喝水量</span>
+            <button onclick="openWaterGoalModal()" class="text-xs bg-white/80 px-3 py-1 rounded-xl font-bold border border-[#B2EBF2] hover:bg-white transition">
+                ⚙️ 設定目標與獎勵
+            </button>
+        </div>
+        <div class="text-5xl font-black"><span id="todayWaterAmount">0</span> <span class="text-lg font-bold">cc</span></div>
+
+        <!-- 兩階段目標與獎勵標籤 -->
+        <div class="flex flex-wrap justify-center gap-2 pt-1">
+            <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
+                <span>🎯 第一階段：</span>
+                <span id="displayWaterGoal1">2400</span><span>cc</span>
+                <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward1">10</span> 點</span>
             </div>
-
-            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
-                <h3 class="text-xs font-bold text-[#9E958F]">快速喝水打卡</h3>
-                <div id="waterCupButtons" class="grid grid-cols-3 gap-3"></div>
-                <button onclick="addNewWaterCup()" class="w-full text-xs text-[#00838F] font-bold border border-dashed border-[#B2EBF2] py-2.5 rounded-2xl hover:bg-[#E0F7FA]/40 transition">
-                    + 新增馬克杯/水壺容量
-                </button>
+            <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
+                <span>🚀 第二階段：</span>
+                <span id="displayWaterGoal2">4000</span><span>cc</span>
+                <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward2">20</span> 點</span>
             </div>
+        </div>
+    </div>
 
-            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
-                    <div class="space-x-1 text-xs font-bold">
-                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
-                        <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
-                    </div>
-                </div>
+    <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+        <h3 class="text-xs font-bold text-[#9E958F]">快速喝水打卡</h3>
+        <div id="waterCupButtons" class="grid grid-cols-3 gap-3"></div>
+        <button onclick="addNewWaterCup()" class="w-full text-xs text-[#00838F] font-bold border border-dashed border-[#B2EBF2] py-2.5 rounded-2xl hover:bg-[#E0F7FA]/40 transition">
+            + 新增馬克杯/水壺容量
+        </button>
+    </div>
 
-                <!-- 直條圖視圖 (含當週喝水平均) -->
-                <div id="water-bar-view" class="space-y-2">
-                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
-                        📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
-                    </div>
-                    <div id="waterBarContainer" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
-                </div>
-
-                <!-- 月曆視圖 (含當月喝水平均與💧CC數) -->
-                <div id="water-cal-view" class="hidden space-y-3 text-center text-xs py-1">
-                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
-                        📅 當月平均喝水量：<span id="waterMonthlyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
-                    </div>
-                    <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1.5"></div>
-                </div>
+    <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+            <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
+            <div class="space-x-1 text-xs font-bold">
+                <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
+                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
             </div>
-        </section>
+        </div>
+
+        <!-- 直條圖視圖 (含當週喝水平均) -->
+        <div id="water-bar-view" class="space-y-2">
+            <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+            </div>
+            <div id="waterBarContainer" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
+        </div>
+
+        <!-- 月曆視圖 (含當月喝水平均與💧CC數) -->
+        <div id="water-cal-view" class="hidden space-y-3 text-center text-xs py-1">
+            <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                📅 當月平均喝水量：<span id="waterMonthlyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+            </div>
+            <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+    </div>
+</section>
 
         <!-- 3. 心情日記 (Mood) -->
         <section id="sec-mood" class="hidden space-y-4">
