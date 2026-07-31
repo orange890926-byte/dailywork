@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Joy - 日常小確幸手帳</title>
+    <!-- 引入 Tailwind CSS 快速樣式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google 字體（圓體字） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+            background-color: #FAF7F2;
+            color: #4A4543;
+        }
+        /* 自訂可愛滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E5DDD5;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 flex justify-center items-start">
+
+    <!-- 手帳主體框架 -->
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border-4 border-[#F2EDE4] overflow-hidden">
+        
+        <!-- 手帳頂部區塊 -->
+        <header class="bg-[#FFF8E7] px-6 py-6 border-b-2 border-[#F2EDE4] text-center relative">
+            <span class="inline-block bg-[#FDE2E4] text-[#D47A88] text-xs px-3 py-1 rounded-full font-bold mb-2 shadow-sm">
+                🌸 My Daily Journal
+            </span>
+            <h1 class="text-2xl font-bold tracking-wider text-[#5C5552]">PLAN JOY</h1>
+            <p id="today-date" class="text-xs text-[#9E958F] mt-1"></p>
+        </header>
+
+        <!-- 分頁切換按鈕 -->
+        <nav class="flex border-b-2 border-[#F2EDE4] bg-[#FCFAF7]">
+            <button onclick="switchTab('todo')" id="tab-todo" class="flex-1 py-3 text-sm font-bold text-[#D47A88] border-b-2 border-[#D47A88] transition-all">
+                📝 待辦清單
+            </button>
+            <button onclick="switchTab('habit')" id="tab-habit" class="flex-1 py-3 text-sm font-bold text-[#9E958F] transition-all">
+                🌱 習慣打卡
+            </button>
+            <button onclick="switchTab('mood')" id="tab-mood" class="flex-1 py-3 text-sm font-bold text-[#9E958F] transition-all">
+                🏷️ 心情日記
+            </button>
+        </nav>
+
+        <!-- 內容區塊 -->
+        <main class="p-6 min-h-[380px]">
+
+            <!-- 1. 待辦事項頁面 -->
+            <section id="view-todo" class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="todo-input" placeholder="今天想完成什麼事呢..." 
+                        class="flex-1 bg-[#FAF7F2] border border-[#E8E1D9] rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FDE2E4]">
+                    <button onclick="addTodo()" 
+                        class="bg-[#FDE2E4] hover:bg-[#FCD5CE] text-[#D47A88] font-bold px-5 py-2 rounded-2xl text-sm transition-transform active:scale-95 shadow-sm">
+                        ＋
+                    </button>
+                </div>
+                <ul id="todo-list" class="space-y-2 pt-2">
+                    <!-- JavaScript 會自動塞入待辦項目 -->
+                </ul>
+            </section>
+
+            <!-- 2. 習慣打卡頁面 (預設隱藏) -->
+            <section id="view-habit" class="space-y-4 hidden">
+                <p class="text-xs text-center text-[#9E958F] mb-4">點擊可愛的小圖標，記錄今天的堅持！</p>
+                <div id="habit-list" class="space-y-3">
+                    <!-- JavaScript 會自動塞入習慣項目 -->
+                </div>
+            </section>
+
+            <!-- 3. 心情日記頁面 (預設隱藏) -->
+            <section id="view-mood" class="space-y-4 hidden">
+                <div class="text-center bg-[#FAF7F2] p-4 rounded-2xl border border-[#E8E1D9]">
+                    <p class="text-xs text-[#9E958F] mb-3">你今天心情如何？</p>
+                    <div class="flex justify-around">
+                        <button onclick="addMood('😄', '超快樂', '#E8F5E9')" class="text-2xl hover:scale-125 transition-transform">😄</button>
+                        <button onclick="addMood('😊', '平靜舒適', '#FFF9C4')" class="text-2xl hover:scale-125 transition-transform">😊</button>
+                        <button onclick="addMood('😐', '普普通通', '#F5F5F5')" class="text-2xl hover:scale-125 transition-transform">😐</button>
+                        <button onclick="addMood('🥺', '有點累累', '#FFE0B2')" class="text-2xl hover:scale-125 transition-transform">🥺</button>
+                        <button onclick="addMood('😭', '需要抱抱', '#FFCDD2')" class="text-2xl hover:scale-125 transition-transform">😭</button>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <h3 class="text-xs font-bold text-[#9E958F] mb-2">心情足跡</h3>
+                    <div id="mood-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- JavaScript 會自動塞入心情紀錄 -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- 手帳頁腳 -->
+        <footer class="bg-[#FCFAF7] px-6 py-4 border-t border-[#F2EDE4] text-center flex justify-between items-center text-xs text-[#9E958F]">
+            <span>✨ 一點一滴，累積生活甜度</span>
+            <button onclick="clearData()" class="hover:text-[#D47A88] underline">重置資料</button>
+        </footer>
+
+    </div>
+
+    <!-- 邏輯腳本 -->
+    <script>
+        // 初始化與讀取 LocalStorage 資料
+        let state = JSON.parse(localStorage.getItem('planJoyData')) || {
+            todos: [
+                { id: 1, text: "喝滿 2000ml 的溫水 💧", completed: false },
+                { id: 2, text: "幫自己做一份好吃的早午餐 🥪", completed: true }
+            ],
+            habits: [
+                { id: 1, name: "閱讀 15 分鐘", icon: "📖", checked: false },
+                { id: 2, name: "輕微伸展運動", icon: "🧘‍♀️", checked: false },
+                { id: 3, name: "早睡不熬夜", icon: "🌙", checked: true }
+            ],
+            moods: [
+                { date: "前幾天", emoji: "😊", label: "平靜舒適", color: "#FFF9C4" }
+            ]
+        };
+
+        // 儲存資料到瀏覽器
+        function saveData() {
+            localStorage.setItem('planJoyData', JSON.stringify(state));
+        }
+
+        // 顯示今天日期
+        function setTodayDate() {
+            const today = new Date();
+            const dateString = today.toLocaleDateString('zh-TW', { 
+                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' 
+            });
+            document.getElementById('today-date').innerText = dateString;
+        }
+
+        // 分頁切換功能
+        function switchTab(tab) {
+            ['todo', 'habit', 'mood'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    view.classList.remove('hidden');
+                    btn.classList.add('text-[#D47A88]', 'border-b-2', 'border-[#D47A88]');
+                    btn.classList.remove('text-[#9E958F]');
+                } else {
+                    view.classList.add('hidden');
+                    btn.classList.remove('text-[#D47A88]', 'border-b-2', 'border-[#D47A88]');
+                    btn.classList.add('text-[#9E958F]');
+                }
+            });
+        }
+
+        // --- 待辦事項 (To-Do) 邏輯 ---
+        function renderTodos() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = state.todos.map(todo => `
+                <li class="flex items-center justify-between bg-[#FAF7F2] px-4 py-3 rounded-2xl transition-all ${todo.completed ? 'opacity-60' : ''}">
+                    <label class="flex items-center cursor-pointer gap-3 flex-1">
+                        <input type="checkbox" onchange="toggleTodo(${todo.id})" ${todo.completed ? 'checked' : ''} 
+                            class="w-4 h-4 accent-[#D47A88] rounded cursor-pointer">
+                        <span class="text-sm ${todo.completed ? 'line-through text-[#9E958F]' : 'text-[#4A4543]'}">${todo.text}</span>
+                    </label>
+                    <button onclick="deleteTodo(${todo.id})" class="text-xs text-[#9E958F] hover:text-[#D47A88] ml-2">✕</button>
+                </li>
+            `).join('');
+            saveData();
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const text = input.value.trim();
+            if (!text) return;
+            state.todos.unshift({ id: Date.now(), text, completed: false });
+            input.value = '';
+            renderTodos();
+        }
+
+        function toggleTodo(id) {
+            const todo = state.todos.find(t => t.id === id);
+            if (todo) todo.completed = !todo.completed;
+            renderTodos();
+        }
+
+        function deleteTodo(id) {
+            state.todos = state.todos.filter(t => t.id !== id);
+            renderTodos();
+        }
+
+        // --- 習慣打卡 (Habit) 邏輯 ---
+        function renderHabits() {
+            const list = document.getElementById('habit-list');
+            list.innerHTML = state.habits.map(habit => `
+                <div class="flex items-center justify-between bg-[#FAF7F2] px-4 py-3 rounded-2xl border border-[#E8E1D9]">
+                    <span class="text-sm text-[#4A4543] font-medium">${habit.name}</span>
+                    <button onclick="toggleHabit(${habit.id})" 
+                        class="w-10 h-10 rounded-full flex items-center justify-center text-lg transition-transform active:scale-90 ${habit.checked ? 'bg-[#E8F5E9] border-2 border-[#A5D6A7] shadow-inner' : 'bg-white border border-[#E8E1D9]'}">
+                        ${habit.checked ? habit.icon : '⚪'}
+                    </button>
+                </div>
+            `).join('');
+            saveData();
+        }
+
+        function toggleHabit(id) {
+            const habit = state.habits.find(h => h.id === id);
+            if (habit) habit.checked = !habit.checked;
+            renderHabits();
+        }
+
+        // --- 心情日記 (Mood) 邏輯 ---
+        function renderMoods() {
+            const list = document.getElementById('mood-list');
+            list.innerHTML = state.moods.map(mood => `
+                <div class="flex items-center justify-between px-4 py-2.5 rounded-2xl text-sm shadow-sm" style="background-color: ${mood.color}">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">${mood.emoji}</span>
+                        <span class="font-medium text-[#4A4543] text-xs">${mood.label}</span>
+                    </div>
+                    <span class="text-[10px] text-[#7A7571]">${mood.date}</span>
+                </div>
+            `).join('');
+            saveData();
+        }
+
+        function addMood(emoji, label, color) {
+            const now = new Date();
+            const dateString = `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            state.moods.unshift({ date: dateString, emoji, label, color });
+            renderMoods();
+        }
+
+        // 重置資料 (提供測試用)
+        function clearData() {
+            if (confirm("確定要重置手帳資料嗎？")) {
+                localStorage.removeItem('planJoyData');
+                location.reload();
+            }
+        }
+
+        // 監聽 Enter 鍵快速新增待辦
+        document.getElementById('todo-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addTodo();
+        });
+
+        // 頁面載入時初始化
+        setTodayDate();
+        renderTodos();
+        renderHabits();
+        renderMoods();
+    </script>
+</body>
+</html>
