@@ -633,102 +633,103 @@
         }
 
         function renderHabits() {
-            const container = document.getElementById('habit-list-container');
-            const visualContainer = document.getElementById('habit-visual-container');
-            container.innerHTML = '';
-            visualContainer.innerHTML = '';
+    const container = document.getElementById('habit-list-container');
+    const visualContainer = document.getElementById('habit-visual-container');
+    container.innerHTML = '';
+    visualContainer.innerHTML = '';
 
-            const sortedHabits = [...appState.habits].sort((a, b) => {
-                if (a.isPaused === b.isPaused) return 0;
-                return a.isPaused ? 1 : -1;
-            });
+    const sortedHabits = [...appState.habits].sort((a, b) => {
+        if (a.isPaused === b.isPaused) return 0;
+        return a.isPaused ? 1 : -1;
+    });
 
-            sortedHabits.forEach(habit => {
-                const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-                const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
-                const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
-                
-                const weekDates = getWeekDates(appState.currentDate);
-                const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+    sortedHabits.forEach(habit => {
+        const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+        const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+        const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
+        
+        const weekDates = getWeekDates(appState.currentDate);
+        const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
 
-                let logsBadges = todayLogs.map(l => `
-                    <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
-                          data-habit="${habit.id}" data-log="${l.id}">
-                        ${l.timestamp.split(' ')[1]} (長按刪除)
-                    </span>
-                `).join(' ');
+        let logsBadges = todayLogs.map(l => `
+            <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
+                  data-habit="${habit.id}" data-log="${l.id}">
+                ${l.timestamp.split(' ')[1]} (長按刪除)
+            </span>
+        `).join(' ');
 
-                const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
+        const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
 
-                const cardHtml = `
-                    <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-3xl">${habit.emoji}</span>
-                                <div>
-                                    <div class="flex items-center space-x-2">
-                                        <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
-                                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                                        <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
-                                        <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
-                                    </div>
-                                    <p class="text-xs text-[#9E958F] mt-0.5">
-                                        每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
-                                    </p>
-                                </div>
-                            </div>
+        // ⭐ 關鍵修改：在最外層 div 補上了 data-id="${habit.id}"
+        const cardHtml = `
+            <div data-id="${habit.id}" class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-3xl">${habit.emoji}</span>
+                        <div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
-                                    ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
-                                </button>
-                                ${!habit.isPaused ? `
-                                    <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
-                                        + 打卡 (${todayLogs.length})
-                                    </button>
-                                ` : ''}
+                                <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
+                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                                <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
+                                <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
                             </div>
-                        </div>
-
-                        <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
-                            ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
+                            <p class="text-xs text-[#9E958F] mt-0.5">
+                                每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
+                            </p>
                         </div>
                     </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
+                    <div class="flex items-center space-x-2">
+                        <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
+                            ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
+                        </button>
+                        ${!habit.isPaused ? `
+                            <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
+                                + 打卡 (${todayLogs.length})
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
 
-                if (currentHabitSubVisual === 'cal') {
-                    const habitCalCard = `
-                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                                <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
-                                    <span>${habit.emoji}</span>
-                                    <span>${habit.title} 月曆打卡</span>
-                                    ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                                </div>
-                            </div>
-                            <div id="habit-cal-${habit.id}"></div>
-                        </div>
-                    `;
-                    visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
-                    renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
-                } else {
-                    const habitBarCard = `
-                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
-                                <span>${habit.emoji}</span>
-                                <span>${habit.title} 近七日打卡次數</span>
-                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                            </div>
-                            <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
-                        </div>
-                    `;
-                    visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
-                    renderHabitBarChart(habit, `habit-bar-${habit.id}`);
-                }
-            });
+                <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
+                    ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
 
-            setupLongPressEvents();
+        if (currentHabitSubVisual === 'cal') {
+            const habitCalCard = `
+                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
+                            <span>${habit.emoji}</span>
+                            <span>${habit.title} 月曆打卡</span>
+                            ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                        </div>
+                    </div>
+                    <div id="habit-cal-${habit.id}"></div>
+                </div>
+            `;
+            visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
+            renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
+        } else {
+            const habitBarCard = `
+                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                    <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
+                        <span>${habit.emoji}</span>
+                        <span>${habit.title} 近七日打卡次數</span>
+                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                    </div>
+                    <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
+                </div>
+            `;
+            visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
+            renderHabitBarChart(habit, `habit-bar-${habit.id}`);
         }
+    });
+
+    setupLongPressEvents();
+}
 
         function renderHabitCalendarGrid(habit, containerId) {
             const current = new Date(appState.currentDate);
