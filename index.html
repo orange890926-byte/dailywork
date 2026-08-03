@@ -384,15 +384,30 @@
         let selectedMoodEmoji = '';
 
         window.onload = function() {
-            loadLocalStorage();
-            initHeaderDate();
-            document.getElementById('globalDatePicker').value = appState.currentDate;
-            document.getElementById('globalDatePicker').addEventListener('change', (e) => {
-                appState.currentDate = e.target.value;
-                renderAll();
-            });
+    // 1. 讀取 LocalStorage 歷史資料
+    loadLocalStorage();
+
+    // 2. ⭐ 強制更新為「今天」的本地日期 (YYYY-MM-DD)
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    appState.currentDate = `${year}-${month}-${day}`;
+
+    // 3. 設定日期選擇器顯示今天，並監聽切換事件
+    const datePicker = document.getElementById('globalDatePicker');
+    if (datePicker) {
+        datePicker.value = appState.currentDate;
+        datePicker.addEventListener('change', (e) => {
+            appState.currentDate = e.target.value;
             renderAll();
-        };
+        });
+    }
+
+    // 4. 渲染頂部日期與畫面
+    initHeaderDate();
+    renderAll();
+};
 
         function initHeaderDate() {
             const today = new Date();
