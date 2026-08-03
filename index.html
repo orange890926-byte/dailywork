@@ -146,7 +146,7 @@
             <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
             <div class="space-x-1 text-xs font-bold">
                 <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
-                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray- rounded-xl">月曆</button>
+                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
             </div>
         </div>
 
@@ -258,48 +258,38 @@
     </div>
 
     <!-- 新增 / 編輯打卡 Modal -->
-<div id="habit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#F2EDE4]">
-        <h3 id="habitModalTitle" class="font-bold text-base text-[#5C5552]">🌿 新增習慣打卡項目</h3>
-        <input type="hidden" id="editHabitId" value="">
-        
-        <div class="flex space-x-2">
-            <input type="text" id="habitEmoji" value="💊" class="w-14 text-center p-2.5 border border-gray-200 rounded-xl text-xl">
-            <input type="text" id="habitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2.5 border border-gray-200 rounded-xl text-sm">
-        </div>
-
-        <!-- ⭐ 新增：週期與目標次數選單 -->
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-xs font-bold text-[#8C827A] mb-1">目標週期：</label>
-                <select id="habitTargetType" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white cursor-pointer">
-                    <option value="weekly">每週 (週日～週六)</option>
-                    <option value="monthly">每月 (1號～月底)</option>
-                </select>
+    <div id="habit-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#F2EDE4]">
+            <h3 id="habitModalTitle" class="font-bold text-base text-[#5C5552]">🌿 新增習慣打卡項目</h3>
+            <input type="hidden" id="editHabitId" value="">
+            
+            <div class="flex space-x-2">
+                <input type="text" id="habitEmoji" value="💊" class="w-14 text-center p-2.5 border border-gray-200 rounded-xl text-xl">
+                <input type="text" id="habitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2.5 border border-gray-200 rounded-xl text-sm">
             </div>
+
             <div>
-                <label class="block text-xs font-bold text-[#8C827A] mb-1">目標次數：</label>
+                <label class="block text-xs font-bold text-[#8C827A] mb-1">每週目標次數：</label>
                 <input type="number" id="habitTarget" value="3" min="1" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
             </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
-            <div>
-                <label class="block text-xs font-bold text-[#8C827A] mb-1">1. 每次打卡點數：</label>
-                <input type="number" id="habitPointsReward" value="5" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
+                <div>
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">1. 每次打卡點數：</label>
+                    <input type="number" id="habitPointsReward" value="5" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">2. 達標額外獎勵：</label>
+                    <input type="number" id="habitTargetReward" value="10" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-[#8C827A] mb-1">2. 達標額外獎勵：</label>
-                <input type="number" id="habitTargetReward" value="10" min="0" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
-            </div>
-        </div>
 
-        <div class="flex justify-end space-x-2 pt-2">
-            <button onclick="closeModal('habit-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold">取消</button>
-            <button onclick="saveHabit()" class="px-5 py-2 text-xs bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-xl font-bold">儲存</button>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('habit-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold">取消</button>
+                <button onclick="saveHabit()" class="px-5 py-2 text-xs bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-xl font-bold">儲存</button>
+            </div>
         </div>
     </div>
-</div>
 
    <!-- 喝水目標 Modal -->
 <div id="water-goal-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
@@ -367,402 +357,460 @@
         </div>
     </div>
 
-   <!-- JS 邏輯區 -->
-<script>
-    let appState = {
-        currentDate: new Date().toISOString().split('T')[0],
-        points: 0,
-        pointsHistory: [],
-        // 💧 喝水兩階段目標與獎勵預設值
-        waterGoal1: 2400,
-        waterReward1: 10,
-        waterGoal2: 4000,
-        waterReward2: 20,
-        waterGoalReachedDates: [],
-        habits: [
-            { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
-        ],
-        waterLogs: {},
-        waterCups: [250, 600, 800],
-        moodLogs: {},
-        rewards: [
-            { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
-            { id: 2, title: '看一部電影 🎬', points: 80 }
-        ]
-    };
+    <!-- JS 邏輯區 -->
+    <script>
+        let appState = {
+            currentDate: new Date().toISOString().split('T')[0],
+            points: 0,
+            pointsHistory: [],
+            waterGoal: 2000,
+            waterGoalReward: 10,
+            waterGoalReachedDates: [],
+            habits: [
+                { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
+            ],
+            waterLogs: {},
+            waterCups: [250, 500, 800],
+            moodLogs: {},
+            rewards: [
+                { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
+                { id: 2, title: '看一部電影 🎬', points: 80 }
+            ]
+        };
 
-    let currentHabitMainView = 'list';
-    let currentHabitSubVisual = 'cal';
-    let currentWaterChartView = 'bar';
-    let selectedMoodEmoji = '';
+        let currentHabitMainView = 'list';
+        let currentHabitSubVisual = 'cal';
+        let currentWaterChartView = 'bar';
+        let selectedMoodEmoji = '';
 
-    window.onload = function() {
-        // 1. 讀取 LocalStorage 歷史資料
-        loadLocalStorage();
-
-        // 2. ⭐ 強制更新為「今天」的本地日期 (YYYY-MM-DD)
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        appState.currentDate = `${year}-${month}-${day}`;
-
-        // 3. 設定日期選擇器顯示今天，並監聽切換事件
-        const datePicker = document.getElementById('globalDatePicker');
-        if (datePicker) {
-            datePicker.value = appState.currentDate;
-            datePicker.addEventListener('change', (e) => {
+        window.onload = function() {
+            loadLocalStorage();
+            initHeaderDate();
+            document.getElementById('globalDatePicker').value = appState.currentDate;
+            document.getElementById('globalDatePicker').addEventListener('change', (e) => {
                 appState.currentDate = e.target.value;
                 renderAll();
             });
-        }
-
-        // 4. 渲染頂部日期與畫面
-        initHeaderDate();
-        renderAll();
-    };
-
-    function initHeaderDate() {
-        const today = new Date();
-        const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日 ${days[today.getDay()]}`;
-        document.getElementById('today-date').innerText = dateStr;
-    }
-
-    function saveState() {
-        localStorage.setItem('plan_joy_data', JSON.stringify(appState));
-        renderHeaderPoints();
-    }
-
-    function loadLocalStorage() {
-    const data = localStorage.getItem('plan_joy_data');
-    if (data) {
-        const parsed = JSON.parse(data);
-        appState = { ...appState, ...parsed };
-    }
-
-    // 🛡️ 資料保底防護機制
-    if (!appState.waterCups || appState.waterCups.length === 0) {
-        appState.waterCups = [250, 600, 800]; // 補回預設水杯
-    }
-    if (!appState.habits || appState.habits.length === 0) {
-        appState.habits = [
-            { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
-        ];
-    }
-    if (!appState.pointsHistory) appState.pointsHistory = [];
-}
-
-    function addPointsLog(amount, description) {
-        appState.points += amount;
-        if (!appState.pointsHistory) appState.pointsHistory = [];
-        
-        const now = new Date();
-        const timeStr = `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        
-        appState.pointsHistory.unshift({
-            id: Date.now(),
-            timestamp: timeStr,
-            description,
-            amount
-        });
-    }
-
-    function openPointsHistoryModal() {
-        const container = document.getElementById('pointsHistoryList');
-        container.innerHTML = '';
-
-        if (!appState.pointsHistory || appState.pointsHistory.length === 0) {
-            container.innerHTML = `<div class="text-center text-xs text-gray-400 py-8">尚無點數紀錄</div>`;
-        } else {
-            appState.pointsHistory.forEach(item => {
-                const isPositive = item.amount > 0;
-                container.innerHTML += `
-                    <div class="flex justify-between items-center p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl text-xs">
-                        <div>
-                            <div class="font-bold text-[#5C5552] text-sm">${item.description}</div>
-                            <div class="text-[10px] text-gray-400 mt-0.5">${item.timestamp}</div>
-                        </div>
-                        <div class="font-extrabold text-sm ${isPositive ? 'text-[#2E7D32]' : 'text-[#D47A88]'}">
-                            ${isPositive ? '+' : ''}${item.amount} 點
-                        </div>
-                    </div>
-                `;
-            });
-        }
-        openModal('points-history-modal');
-    }
-
-    function renderHeaderPoints() {
-        document.getElementById('headerPointsDisplay').innerText = appState.points;
-        document.getElementById('shopPointsDisplay').innerText = appState.points;
-    }
-
-    function renderAll() {
-        renderHeaderPoints();
-        renderHabits();
-        renderWater();
-        renderMood();
-        renderRewards();
-    }
-
-    function switchTab(tabName) {
-        ['habit', 'water', 'mood', 'reward'].forEach(t => {
-            document.getElementById(`sec-${t}`).classList.add('hidden');
-            document.getElementById(`nav-${t}`).classList.remove('active');
-            document.getElementById(`nav-${t}`).classList.add('text-[#9E958F]');
-        });
-        document.getElementById(`sec-${tabName}`).classList.remove('hidden');
-        const navBtn = document.getElementById(`nav-${tabName}`);
-        navBtn.classList.add('active');
-        navBtn.classList.remove('text-[#9E958F]');
-    }
-
-    // --- 核心工具：日期範圍計算 ---
-
-    // 1. 取得指定日期所在週的日期陣列（週日～週六）
-    function getWeekDates(dateStr) {
-        const curr = new Date(dateStr);
-        const dayOfWeek = curr.getDay(); // 0 是週日, 1 是週一...
-        const sunday = new Date(curr);
-        sunday.setDate(curr.getDate() - dayOfWeek);
-        
-        const weekDates = [];
-        for (let i = 0; i < 7; i++) {
-            const d = new Date(sunday);
-            d.setDate(sunday.getDate() + i);
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            weekDates.push(`${yyyy}-${mm}-${dd}`);
-        }
-        return weekDates;
-    }
-
-    // 2. 取得指定日期所在月的日期陣列（1號～月底）
-    function getMonthDates(dateStr) {
-        const curr = new Date(dateStr);
-        const year = curr.getFullYear();
-        const month = curr.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthDates = [];
-        for (let d = 1; d <= daysInMonth; d++) {
-            const mm = String(month + 1).padStart(2, '0');
-            const dd = String(d).padStart(2, '0');
-            monthDates.push(`${year}-${mm}-${dd}`);
-        }
-        return monthDates;
-    }
-
-    // 3. 計算習慣在目前週期 (週/月) 內的打卡次數
-    function getHabitPeriodCount(habit, dateStr) {
-        const targetType = habit.targetType || 'weekly';
-        const dates = targetType === 'monthly' ? getMonthDates(dateStr) : getWeekDates(dateStr);
-        return habit.logs.filter(l => dates.includes(l.timestamp.split(' ')[0])).length;
-    }
-
-    // --- 1. 打卡模組函數 ---
-
-    function openAddHabitModal() {
-        document.getElementById('habitModalTitle').innerText = '🌿 新增習慣打卡項目';
-        document.getElementById('editHabitId').value = '';
-        document.getElementById('habitEmoji').value = '💊';
-        document.getElementById('habitTitle').value = '';
-        document.getElementById('habitTargetType').value = 'weekly';
-        document.getElementById('habitTarget').value = '3';
-        document.getElementById('habitPointsReward').value = '5';
-        document.getElementById('habitTargetReward').value = '10';
-        openModal('habit-modal');
-    }
-
-    function openEditHabitModal(habitId) {
-        const habit = appState.habits.find(h => h.id === habitId);
-        if (!habit) return;
-        document.getElementById('habitModalTitle').innerText = '✏️ 編輯習慣項目';
-        document.getElementById('editHabitId').value = habit.id;
-        document.getElementById('habitEmoji').value = habit.emoji || '💊';
-        document.getElementById('habitTitle').value = habit.title || '';
-        document.getElementById('habitTargetType').value = habit.targetType || 'weekly';
-        document.getElementById('habitTarget').value = habit.target || 3;
-        document.getElementById('habitPointsReward').value = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-        document.getElementById('habitTargetReward').value = habit.targetReward !== undefined ? habit.targetReward : 10;
-        openModal('habit-modal');
-    }
-
-    function saveHabit() {
-        const editId = document.getElementById('editHabitId').value;
-        const emoji = document.getElementById('habitEmoji').value.trim() || '💊';
-        const title = document.getElementById('habitTitle').value.trim();
-        const targetType = document.getElementById('habitTargetType').value || 'weekly';
-        const target = parseInt(document.getElementById('habitTarget').value) || 1;
-        const pointsReward = parseInt(document.getElementById('habitPointsReward').value) || 0;
-        const targetReward = parseInt(document.getElementById('habitTargetReward').value) || 0;
-
-        if (!title) return alert('請輸入習慣名稱');
-
-        if (editId) {
-            const habit = appState.habits.find(h => h.id === parseInt(editId));
-            if (habit) {
-                habit.emoji = emoji;
-                habit.title = title;
-                habit.targetType = targetType;
-                habit.target = target;
-                habit.pointsReward = pointsReward;
-                habit.targetReward = targetReward;
-            }
-        } else {
-            appState.habits.push({
-                id: Date.now(),
-                emoji,
-                title,
-                targetType,
-                target,
-                pointsReward,
-                targetReward,
-                isPaused: false,
-                logs: []
-            });
-        }
-
-        saveState();
-        closeModal('habit-modal');
-        renderHabits();
-    }
-
-    function checkInHabit(habitId) {
-        const habit = appState.habits.find(h => h.id === habitId);
-        if (!habit || habit.isPaused) return;
-
-        // 計算打卡前該週期（週或月）已累積的次數
-        const countBefore = getHabitPeriodCount(habit, appState.currentDate);
-
-        const now = new Date();
-        const log = {
-            id: Date.now(),
-            timestamp: `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+            renderAll();
         };
-        habit.logs.push(log);
 
-        const countAfter = countBefore + 1;
-        const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-        addPointsLog(pts, `打卡【${habit.title}】`);
-
-        let alertMsg = `🎉 完成【${habit.title}】打卡！獲得 +${pts} 點好棒棒點數！`;
-
-        // 當剛好達到該週期目標次數時，發放達標獎勵
-        const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
-        const periodName = habit.targetType === 'monthly' ? '每月' : '每週';
-        
-        if (countBefore < habit.target && countAfter >= habit.target && targetPts > 0) {
-            addPointsLog(targetPts, `達成【${habit.title}】${periodName}目標獎勵`);
-            alertMsg += `\n🏆 恭喜達成${periodName}目標 (${habit.target}次)，額外獲得 +${targetPts} 點目標獎勵！`;
+        function initHeaderDate() {
+            const today = new Date();
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日 ${days[today.getDay()]}`;
+            document.getElementById('today-date').innerText = dateStr;
         }
 
-        saveState();
-        renderHabits();
-        alert(alertMsg);
-    }
+        function saveState() {
+            localStorage.setItem('plan_joy_data', JSON.stringify(appState));
+            renderHeaderPoints();
+        }
 
-    function renderHabits() {
-        const container = document.getElementById('habit-list-container');
-        const visualContainer = document.getElementById('habit-visual-container');
-        if (!container || !visualContainer) return;
-        
-        container.innerHTML = '';
-        visualContainer.innerHTML = '';
+        function loadLocalStorage() {
+            const data = localStorage.getItem('plan_joy_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                appState = { ...appState, ...parsed };
+                if (!appState.pointsHistory) appState.pointsHistory = [];
+            }
+        }
 
-        const sortedHabits = [...appState.habits].sort((a, b) => {
-            if (a.isPaused === b.isPaused) return 0;
-            return a.isPaused ? 1 : -1;
-        });
-
-        sortedHabits.forEach(habit => {
-            const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-            const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
-            const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
+        function addPointsLog(amount, description) {
+            appState.points += amount;
+            if (!appState.pointsHistory) appState.pointsHistory = [];
             
-            // 自動判定每週 (週日~週六) 或每月 (1號~月底) 次數
-            const periodCount = getHabitPeriodCount(habit, appState.currentDate);
-            const periodLabel = habit.targetType === 'monthly' ? '每月目標' : '每週目標';
+            const now = new Date();
+            const timeStr = `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            appState.pointsHistory.unshift({
+                id: Date.now(),
+                timestamp: timeStr,
+                description,
+                amount
+            });
+        }
 
-            let logsBadges = todayLogs.map(l => `
-                <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
-                      data-habit="${habit.id}" data-log="${l.id}">
-                    ${l.timestamp.split(' ')[1]} (長按刪除)
-                </span>
-            `).join(' ');
+        function openPointsHistoryModal() {
+            const container = document.getElementById('pointsHistoryList');
+            container.innerHTML = '';
 
-            const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
-
-            const cardHtml = `
-                <div data-id="${habit.id}" class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-3xl">${habit.emoji}</span>
+            if (!appState.pointsHistory || appState.pointsHistory.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-8">尚無點數紀錄</div>`;
+            } else {
+                appState.pointsHistory.forEach(item => {
+                    const isPositive = item.amount > 0;
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl text-xs">
                             <div>
-                                <div class="flex items-center space-x-2">
-                                    <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
-                                    ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                                    <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
-                                    <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
-                                </div>
-                                <p class="text-xs text-[#9E958F] mt-0.5">
-                                    ${periodLabel}: ${periodCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
-                                </p>
+                                <div class="font-bold text-[#5C5552] text-sm">${item.description}</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5">${item.timestamp}</div>
+                            </div>
+                            <div class="font-extrabold text-sm ${isPositive ? 'text-[#2E7D32]' : 'text-[#D47A88]'}">
+                                ${isPositive ? '+' : ''}${item.amount} 點
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
-                                ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
-                            </button>
-                            ${!habit.isPaused ? `
-                                <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
-                                    + 打卡 (${todayLogs.length})
-                                </button>
-                            ` : ''}
+                    `;
+                });
+            }
+            openModal('points-history-modal');
+        }
+
+        function renderHeaderPoints() {
+            document.getElementById('headerPointsDisplay').innerText = appState.points;
+            document.getElementById('shopPointsDisplay').innerText = appState.points;
+        }
+
+        function renderAll() {
+            renderHeaderPoints();
+            renderHabits();
+            renderWater();
+            renderMood();
+            renderRewards();
+        }
+
+        function switchTab(tabName) {
+            ['habit', 'water', 'mood', 'reward'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).classList.remove('active');
+                document.getElementById(`nav-${t}`).classList.add('text-[#9E958F]');
+            });
+            document.getElementById(`sec-${tabName}`).classList.remove('hidden');
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            navBtn.classList.add('active');
+            navBtn.classList.remove('text-[#9E958F]');
+        }
+
+        function getWeekDates(dateStr) {
+            const curr = new Date(dateStr);
+            const day = curr.getDay();
+            const diffToMon = curr.getDate() - day + (day === 0 ? -6 : 1);
+            const mon = new Date(curr.setDate(diffToMon));
+
+            const week = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(mon);
+                d.setDate(mon.getDate() + i);
+                week.push(d.toISOString().split('T')[0]);
+            }
+            return week;
+        }
+
+        // --- 1. 打卡模組 ---
+        function toggleHabitMainView(mode) {
+            currentHabitMainView = mode;
+            document.getElementById('habit-list-view').classList.toggle('hidden', mode !== 'list');
+            document.getElementById('habit-visual-view').classList.toggle('hidden', mode !== 'visual');
+            
+            document.getElementById('btn-habit-view-list').className = mode === 'list' ? "px-4 py-1.5 rounded-lg bg-white text-[#D47A88] shadow-xs" : "px-4 py-1.5 rounded-lg text-[#9E958F]";
+            document.getElementById('btn-habit-view-visual').className = mode === 'visual' ? "px-4 py-1.5 rounded-lg bg-white text-[#D47A88] shadow-xs" : "px-4 py-1.5 rounded-lg text-[#9E958F]";
+
+            renderHabits();
+        }
+
+        function toggleHabitSubVisual(subMode) {
+            currentHabitSubVisual = subMode;
+            document.getElementById('btn-habit-sub-cal').className = subMode === 'cal' ? "px-3 py-1.5 bg-[#D47A88] text-white rounded-xl" : "px-3 py-1.5 bg-gray-200 text-gray-600 rounded-xl";
+            document.getElementById('btn-habit-sub-bar').className = subMode === 'bar' ? "px-3 py-1.5 bg-[#D47A88] text-white rounded-xl" : "px-3 py-1.5 bg-gray-200 text-gray-600 rounded-xl";
+            renderHabits();
+        }
+
+        function openAddHabitModal() {
+            document.getElementById('habitModalTitle').innerText = '🌿 新增習慣打卡項目';
+            document.getElementById('editHabitId').value = '';
+            document.getElementById('habitEmoji').value = '💊';
+            document.getElementById('habitTitle').value = '';
+            document.getElementById('habitTarget').value = '3';
+            document.getElementById('habitPointsReward').value = '5';
+            document.getElementById('habitTargetReward').value = '10';
+            openModal('habit-modal');
+        }
+
+        function openEditHabitModal(habitId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit) return;
+            document.getElementById('habitModalTitle').innerText = '✏️ 編輯習慣項目';
+            document.getElementById('editHabitId').value = habit.id;
+            document.getElementById('habitEmoji').value = habit.emoji || '💊';
+            document.getElementById('habitTitle').value = habit.title || '';
+            document.getElementById('habitTarget').value = habit.target || 3;
+            document.getElementById('habitPointsReward').value = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+            document.getElementById('habitTargetReward').value = habit.targetReward !== undefined ? habit.targetReward : 10;
+            openModal('habit-modal');
+        }
+
+        function deleteHabit(habitId) {
+            if (confirm('確定要刪除這個打卡項目嗎？（其相關打卡紀錄也將一併移除）')) {
+                appState.habits = appState.habits.filter(h => h.id !== habitId);
+                saveState();
+                renderHabits();
+            }
+        }
+
+        function saveHabit() {
+            const editId = document.getElementById('editHabitId').value;
+            const emoji = document.getElementById('habitEmoji').value.trim() || '💊';
+            const title = document.getElementById('habitTitle').value.trim();
+            const target = parseInt(document.getElementById('habitTarget').value) || 1;
+            const pointsReward = parseInt(document.getElementById('habitPointsReward').value) || 0;
+            const targetReward = parseInt(document.getElementById('habitTargetReward').value) || 0;
+
+            if (!title) return alert('請輸入習慣名稱');
+
+            if (editId) {
+                const habit = appState.habits.find(h => h.id === parseInt(editId));
+                if (habit) {
+                    habit.emoji = emoji;
+                    habit.title = title;
+                    habit.target = target;
+                    habit.pointsReward = pointsReward;
+                    habit.targetReward = targetReward;
+                }
+            } else {
+                appState.habits.push({
+                    id: Date.now(),
+                    emoji,
+                    title,
+                    target,
+                    pointsReward,
+                    targetReward,
+                    isPaused: false,
+                    logs: []
+                });
+            }
+
+            saveState();
+            closeModal('habit-modal');
+            renderHabits();
+        }
+
+        function togglePauseHabit(habitId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (habit) {
+                habit.isPaused = !habit.isPaused;
+                saveState();
+                renderHabits();
+            }
+        }
+
+        function checkInHabit(habitId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit || habit.isPaused) return;
+
+            const weekDates = getWeekDates(appState.currentDate);
+            const checkInsBefore = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+
+            const now = new Date();
+            const log = {
+                id: Date.now(),
+                timestamp: `${appState.currentDate} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+            };
+            habit.logs.push(log);
+
+            const checkInsAfter = checkInsBefore + 1;
+
+            const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+            addPointsLog(pts, `打卡【${habit.title}】`);
+
+            let alertMsg = `🎉 完成【${habit.title}】打卡！獲得 +${pts} 點好棒棒點數！`;
+
+            const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+            if (checkInsBefore < habit.target && checkInsAfter >= habit.target && targetPts > 0) {
+                addPointsLog(targetPts, `達成【${habit.title}】每週目標獎勵`);
+                alertMsg += `\n🏆 恭喜達成每週目標 (${habit.target}次)，額外獲得 +${targetPts} 點目標獎勵！`;
+            }
+
+            saveState();
+            renderHabits();
+            alert(alertMsg);
+        }
+
+        function removeHabitLog(habitId, logId) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit) return;
+            habit.logs = habit.logs.filter(l => l.id !== logId);
+            saveState();
+            renderHabits();
+        }
+
+        function renderHabits() {
+    const container = document.getElementById('habit-list-container');
+    const visualContainer = document.getElementById('habit-visual-container');
+    container.innerHTML = '';
+    visualContainer.innerHTML = '';
+
+    const sortedHabits = [...appState.habits].sort((a, b) => {
+        if (a.isPaused === b.isPaused) return 0;
+        return a.isPaused ? 1 : -1;
+    });
+
+    sortedHabits.forEach(habit => {
+        const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+        const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+        const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
+        
+        const weekDates = getWeekDates(appState.currentDate);
+        const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+
+        let logsBadges = todayLogs.map(l => `
+            <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
+                  data-habit="${habit.id}" data-log="${l.id}">
+                ${l.timestamp.split(' ')[1]} (長按刪除)
+            </span>
+        `).join(' ');
+
+        const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
+
+        // ⭐ 關鍵修改：在最外層 div 補上了 data-id="${habit.id}"
+        const cardHtml = `
+            <div data-id="${habit.id}" class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-3xl">${habit.emoji}</span>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
+                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                                <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
+                                <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
+                            </div>
+                            <p class="text-xs text-[#9E958F] mt-0.5">
+                                每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
+                            </p>
                         </div>
                     </div>
-
-                    <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
-                        ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
+                    <div class="flex items-center space-x-2">
+                        <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
+                            ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
+                        </button>
+                        ${!habit.isPaused ? `
+                            <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
+                                + 打卡 (${todayLogs.length})
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
-            `;
-            container.insertAdjacentHTML('beforeend', cardHtml);
 
-            if (currentHabitSubVisual === 'cal') {
-                const habitCalCard = `
-                    <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                        <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
-                                <span>${habit.emoji}</span>
-                                <span>${habit.title} 月曆打卡</span>
-                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                            </div>
-                        </div>
-                        <div id="habit-cal-${habit.id}"></div>
-                    </div>
-                `;
-                visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
-                renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
-            } else {
-                const habitBarCard = `
-                    <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                        <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
+                <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
+                    ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+
+        if (currentHabitSubVisual === 'cal') {
+            const habitCalCard = `
+                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
                             <span>${habit.emoji}</span>
-                            <span>${habit.title} 近七日打卡次數</span>
+                            <span>${habit.title} 月曆打卡</span>
                             ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
                         </div>
-                        <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
+                    </div>
+                    <div id="habit-cal-${habit.id}"></div>
+                </div>
+            `;
+            visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
+            renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
+        } else {
+            const habitBarCard = `
+                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                    <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
+                        <span>${habit.emoji}</span>
+                        <span>${habit.title} 近七日打卡次數</span>
+                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                    </div>
+                    <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
+                </div>
+            `;
+            visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
+            renderHabitBarChart(habit, `habit-bar-${habit.id}`);
+        }
+    });
+
+    setupLongPressEvents();
+}
+
+        function renderHabitCalendarGrid(habit, containerId) {
+            const current = new Date(appState.currentDate);
+            const year = current.getFullYear();
+            const month = current.getMonth();
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let html = `
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+                    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1.5 text-center">
+            `;
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasLog = habit.logs.some(l => l.timestamp.startsWith(dateStr));
+                const isToday = dateStr === appState.currentDate;
+
+                let bgClass = "bg-[#FAF7F2] text-gray-400";
+                if (hasLog) bgClass = "bg-[#FDE2E4] text-[#D47A88] font-bold border border-[#F2EDE4] shadow-xs";
+                if (isToday) bgClass += " ring-2 ring-[#D47A88]";
+
+                html += `
+                    <div class="p-1.5 rounded-xl ${bgClass} h-9 flex flex-col items-center justify-center text-xs">
+                        <span>${day}</span>
+                        ${hasLog ? `<span class="text-xs">${habit.emoji}</span>` : ''}
                     </div>
                 `;
-                visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
-                renderHabitBarChart(habit, `habit-bar-${habit.id}`);
             }
-        });
+            html += `</div>`;
+            document.getElementById(containerId).innerHTML = html;
+        }
 
-        setupLongPressEvents();
-    }
+        function renderHabitBarChart(habit, containerId) {
+            const barView = document.getElementById(containerId);
+            barView.innerHTML = '';
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(appState.currentDate);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const count = habit.logs.filter(l => l.timestamp.startsWith(dateStr)).length;
+
+                barView.innerHTML += `
+                    <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+                        <div class="text-[10px] text-gray-400">${count}次</div>
+                        <div class="w-4 bg-[#C8E6C9] rounded-t-md" style="height: ${Math.max(8, count * 20)}%;"></div>
+                        <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function setupLongPressEvents() {
+            document.querySelectorAll('.habit-badge').forEach(badge => {
+                let timer = null;
+                const habitId = parseInt(badge.dataset.habit);
+                const logId = parseInt(badge.dataset.log);
+
+                const start = () => {
+                    timer = setTimeout(() => {
+                        if (confirm('要取消這次的打卡嗎？')) {
+                            removeHabitLog(habitId, logId);
+                        }
+                    }, 800);
+                };
+                const cancel = () => { if (timer) clearTimeout(timer); };
+
+                badge.addEventListener('mousedown', start);
+                badge.addEventListener('touchstart', start);
+                badge.addEventListener('mouseup', cancel);
+                badge.addEventListener('touchend', cancel);
+            });
+        }
 
         // --- 2. 喝水打卡模組 ---
 
@@ -856,8 +904,7 @@ function toggleWaterChart(type) {
 // 渲染喝水系統介面與統計
 function renderWater() {
     const todayAmount = appState.waterLogs[appState.currentDate] || 0;
-    const todayEl = document.getElementById('todayWaterAmount');
-    if (todayEl) todayEl.innerText = todayAmount;
+    document.getElementById('todayWaterAmount').innerText = todayAmount;
 
     // 渲染 UI 上的兩階段目標數字
     const goal1 = appState.waterGoal1 || 2400;
@@ -865,51 +912,46 @@ function renderWater() {
     const goal2 = appState.waterGoal2 || 4000;
     const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
 
-    if (document.getElementById('displayWaterGoal1')) document.getElementById('displayWaterGoal1').innerText = goal1;
-    if (document.getElementById('displayWaterReward1')) document.getElementById('displayWaterReward1').innerText = reward1;
-    if (document.getElementById('displayWaterGoal2')) document.getElementById('displayWaterGoal2').innerText = goal2;
-    if (document.getElementById('displayWaterReward2')) document.getElementById('displayWaterReward2').innerText = reward2;
+    document.getElementById('displayWaterGoal1').innerText = goal1;
+    document.getElementById('displayWaterReward1').innerText = reward1;
+    document.getElementById('displayWaterGoal2').innerText = goal2;
+    document.getElementById('displayWaterReward2').innerText = reward2;
 
     // 快速按鈕
     const cupContainer = document.getElementById('waterCupButtons');
-    if (cupContainer) {
-        cupContainer.innerHTML = '';
-        appState.waterCups.forEach(cc => {
-            cupContainer.innerHTML += `
-                <button onclick="addWater(${cc})" class="py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
-                    <span class="text-base mb-0.5">🥛</span>+${cc} cc
-                </button>
-            `;
-        });
-    }
+    cupContainer.innerHTML = '';
+    appState.waterCups.forEach(cc => {
+        cupContainer.innerHTML += `
+            <button onclick="addWater(${cc})" class="py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
+                <span class="text-base mb-0.5">🥛</span>+${cc} cc
+            </button>
+        `;
+    });
 
     // 1. 直條圖 (以第二階段目標作為 100% 高度基準)
     const barContainer = document.getElementById('waterBarContainer');
-    if (barContainer) {
-        barContainer.innerHTML = '';
-        let weeklyTotalWater = 0;
+    barContainer.innerHTML = '';
+    let weeklyTotalWater = 0;
 
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date(appState.currentDate);
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            const amt = appState.waterLogs[dateStr] || 0;
-            weeklyTotalWater += amt;
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(appState.currentDate);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const amt = appState.waterLogs[dateStr] || 0;
+        weeklyTotalWater += amt;
 
-            const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
+        const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
 
-            barContainer.innerHTML += `
-                <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-                    <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
-                    <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
-                    <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
-                </div>
-            `;
-        }
-        const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
-        const weeklyAvgEl = document.getElementById('waterWeeklyAvg');
-        if (weeklyAvgEl) weeklyAvgEl.innerText = weeklyAvgWater;
+        barContainer.innerHTML += `
+            <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+                <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
+                <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+                <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+            </div>
+        `;
     }
+    const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+    document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
 
     // 2. 月曆視圖 (根據是否達標呈現不同顯色)
     const calView = document.getElementById('waterCalendarGrid');
@@ -929,8 +971,7 @@ function renderWater() {
             }
         });
         const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
-        const monthlyAvgEl = document.getElementById('waterMonthlyAvg');
-        if (monthlyAvgEl) monthlyAvgEl.innerText = monthlyAvgWater;
+        document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
 
         let html = `
             <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
@@ -969,31 +1010,108 @@ function renderWater() {
     }
 }
 
-// 全域切換日期小幫手
-function changeGlobalDate(dateStr) {
-    appState.currentDate = dateStr;
-    const picker = document.getElementById('globalDatePicker');
-    if (picker) picker.value = dateStr;
-    renderAll();
+            // 1. 計算並渲染直條圖 (包含當週平均喝水量)
+const barContainer = document.getElementById('waterBarContainer');
+barContainer.innerHTML = '';
+
+// 取得兩階段目標 (直條圖 100% 高度以第二階段 goal2 為基準)
+const goal1 = appState.waterGoal1 || 2400;
+const goal2 = appState.waterGoal2 || 4000;
+let weeklyTotalWater = 0;
+
+for (let i = 6; i >= 0; i--) {
+    const d = new Date(appState.currentDate);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const amt = appState.waterLogs[dateStr] || 0;
+    weeklyTotalWater += amt;
+
+    // 計算百分比 (最高 100%)
+    const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
+
+    barContainer.innerHTML += `
+        <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+            <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
+            <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+            <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+        </div>
+    `;
+}
+const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
+
+// 2. 計算並渲染月曆視圖 (包含當月平均喝水量與💧CC數)
+const calView = document.getElementById('waterCalendarGrid');
+if (calView) {
+    const current = new Date(appState.currentDate);
+    const year = current.getFullYear();
+    const month = current.getMonth();
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // 計算當月平均喝水量
+    let monthlyTotalWater = 0;
+    Object.keys(appState.waterLogs).forEach(dateStr => {
+        if (dateStr.startsWith(monthPrefix)) {
+            monthlyTotalWater += appState.waterLogs[dateStr];
+        }
+    });
+    const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
+    document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
+
+    let html = `
+        <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+    `;
+
+    for (let i = 0; i < firstDay; i++) {
+        html += `<div></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const amt = appState.waterLogs[dateStr] || 0;
+        const isToday = dateStr === appState.currentDate;
+
+        // 兩階段月曆配色邏輯：
+        // 1. 達到第二階段 (>= 4000cc)：顯示深水藍底色 + 白字 (#4DD0E1)
+        // 2. 達到第一階段 (>= 2400cc)：顯示淺水藍底色 (#E0F7FA)
+        // 3. 未達標：預設米白底色 (#FAF7F2)
+        let bgClass = "bg-[#FAF7F2] text-gray-500";
+        if (amt >= goal2) {
+            bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
+        } else if (amt >= goal1) {
+            bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+        }
+        if (isToday) bgClass += " ring-2 ring-[#00838F]";
+
+        html += `
+            <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
+                <span class="font-bold text-[11px]">${day}</span>
+                <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
+                    ${amt > 0 ? `💧${amt}cc` : '--'}
+                </span>
+            </div>
+        `;
+    }
+    calView.innerHTML = html;
 }
 
-        // --- 3. 心情日記模組 (包含統計、月曆與歷史條列) ---
-
-        // HTML 字串轉義防護，防止使用者輸入特殊符號破壞 HTML 結構
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // 全域切換日期小幫手
+        function changeGlobalDate(dateStr) {
+            appState.currentDate = dateStr;
+            document.getElementById('globalDatePicker').value = dateStr;
+            renderAll();
         }
 
+        // --- 3. 心情日記模組 (包含統計、月曆與歷史條列) ---
         function selectMood(emoji) {
             selectedMoodEmoji = emoji;
             document.querySelectorAll('.mood-opt').forEach(btn => {
-                if (btn.innerText.trim() === emoji && emoji !== '') {
+                if (btn.innerText === emoji) {
                     btn.classList.remove('opacity-30');
                     btn.classList.add('scale-125');
                 } else {
@@ -1004,8 +1122,7 @@ function changeGlobalDate(dateStr) {
         }
 
         function saveMoodEntry() {
-            const inputEl = document.getElementById('moodJournalInput');
-            const text = inputEl ? inputEl.value.trim() : '';
+            const text = document.getElementById('moodJournalInput').value.trim();
             if (!selectedMoodEmoji) return alert('請先選擇一個心情圖示！');
 
             const isEdit = !!appState.moodLogs[appState.currentDate];
@@ -1031,21 +1148,18 @@ function changeGlobalDate(dateStr) {
         }
 
         function renderMood() {
-            const dateTag = document.getElementById('moodSelectedDateTag');
-            if (dateTag) dateTag.innerText = appState.currentDate;
-
+            document.getElementById('moodSelectedDateTag').innerText = appState.currentDate;
             const entry = appState.moodLogs[appState.currentDate];
             const btnSave = document.getElementById('btnSaveMood');
-            const journalInput = document.getElementById('moodJournalInput');
 
             if (entry) {
                 selectMood(entry.mood);
-                if (journalInput) journalInput.value = entry.text || '';
-                if (btnSave) btnSave.innerText = "更新今日日記內容";
+                document.getElementById('moodJournalInput').value = entry.text || '';
+                btnSave.innerText = "更新今日日記內容";
             } else {
                 selectMood('');
-                if (journalInput) journalInput.value = '';
-                if (btnSave) btnSave.innerText = "儲存日記 (+5 點好棒棒點數)";
+                document.getElementById('moodJournalInput').value = '';
+                btnSave.innerText = "儲存日記 (+5 點好棒棒點數)";
             }
 
             renderMoodStats();
@@ -1056,7 +1170,6 @@ function changeGlobalDate(dateStr) {
         // 當月心情統計 (EX: 😃 4次)
         function renderMoodStats() {
             const statsContainer = document.getElementById('moodMonthlyStats');
-            if (!statsContainer) return;
             statsContainer.innerHTML = '';
 
             const current = new Date(appState.currentDate);
@@ -1085,7 +1198,6 @@ function changeGlobalDate(dateStr) {
         // 心情月曆 View (日 一 二 三 四 五 六)
         function renderMoodCalendar() {
             const calView = document.getElementById('moodCalendarGrid');
-            if (!calView) return;
             calView.innerHTML = '';
 
             const current = new Date(appState.currentDate);
@@ -1128,11 +1240,9 @@ function changeGlobalDate(dateStr) {
         // 歷史日記條列 View
         function renderMoodHistoryList() {
             const historyContainer = document.getElementById('moodHistoryList');
-            if (!historyContainer) return;
             historyContainer.innerHTML = '';
 
-            // 使用 localeCompare 進行精確的 YYYY-MM-DD 字串遞減排序
-            const sortedDates = Object.keys(appState.moodLogs).sort((a, b) => b.localeCompare(a));
+            const sortedDates = Object.keys(appState.moodLogs).sort((a, b) => new Date(b) - new Date(a));
 
             if (sortedDates.length === 0) {
                 historyContainer.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">尚無心情日記紀錄</div>`;
@@ -1141,8 +1251,6 @@ function changeGlobalDate(dateStr) {
 
             sortedDates.forEach(dateStr => {
                 const entry = appState.moodLogs[dateStr];
-                const safeText = escapeHtml(entry.text);
-                
                 historyContainer.innerHTML += `
                     <div class="p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl flex justify-between items-start">
                         <div class="space-y-1">
@@ -1150,7 +1258,7 @@ function changeGlobalDate(dateStr) {
                                 <span class="text-xl">${entry.mood}</span>
                                 <span class="text-xs font-bold text-[#D47A88]">${dateStr}</span>
                             </div>
-                            <p class="text-xs text-[#5C5552] pl-1">${safeText || '（無留下文字記錄）'}</p>
+                            <p class="text-xs text-[#5C5552] pl-1">${entry.text || '（無留下文字記錄）'}</p>
                         </div>
                         <div class="flex space-x-1">
                             <button onclick="changeGlobalDate('${dateStr}')" class="text-xs text-gray-400 hover:text-[#D47A88] p-1" title="編輯這天的日記">✏️</button>
@@ -1185,7 +1293,7 @@ function changeGlobalDate(dateStr) {
             const title = document.getElementById('rewardTitleInput').value.trim();
             const points = parseInt(document.getElementById('rewardPointsInput').value);
 
-            if (!title || isNaN(points) || points <= 0) return alert('請填寫完整資訊，且點數需大於 0！');
+            if (!title || isNaN(points)) return alert('請填寫完整資訊！');
 
             if (editId) {
                 const item = appState.rewards.find(r => r.id === parseInt(editId));
@@ -1232,16 +1340,14 @@ function changeGlobalDate(dateStr) {
 
         function renderRewards() {
             const container = document.getElementById('rewardListContainer');
-            if (!container) return;
             container.innerHTML = '';
 
             appState.rewards.forEach(item => {
-                const safeTitle = escapeHtml(item.title);
                 container.innerHTML += `
                     <div class="flex justify-between items-center p-3.5 bg-[#FFF8E7]/60 border border-[#FFE2B3] rounded-2xl">
                         <div>
                             <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-1.5">
-                                <span>${safeTitle}</span>
+                                <span>${item.title}</span>
                             </div>
                             <div class="text-xs text-[#8C5E14] font-bold mt-0.5">⭐ ${item.points} 點</div>
                         </div>
@@ -1257,64 +1363,44 @@ function changeGlobalDate(dateStr) {
             });
         }
 
-        function openModal(id) { 
-            const el = document.getElementById(id);
-            if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
-        }
-        function closeModal(id) { 
-            const el = document.getElementById(id);
-            if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
-        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
     </script>
-   <!-- ========================================== -->
-<!-- 程式碼請統一放在 </body> 前面的這個位置 -->
-<!-- ========================================== -->
+    <!-- ========================================== -->
+    <!-- 程式碼請統一放在 </body> 前面的這個位置 -->
+    <!-- ========================================== -->
+    
+    <!-- 1. 引入拖曳套件 (SortableJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-<!-- 1. 引入拖曳套件 (SortableJS) -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- 2. 拖曳控制邏輯 (必須用 <script> 包起來) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const listContainer = document.getElementById('habit-list-container');
 
-<!-- 2. 拖曳控制邏輯 -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const listContainer = document.getElementById('habit-list-container');
+    if (listContainer) {
+        new Sortable(listContainer, {
+            animation: 200,
+            delay: 300,
+            delayOnTouchOnly: true,
+            touchStartThreshold: 5,
+            ghostClass: 'opacity-50',
+            onEnd: function () {
+                // 讀取拖曳後的新 ID 順序
+                const currentCards = listContainer.querySelectorAll('[data-id]');
+                const newOrderIds = Array.from(currentCards).map(card => card.getAttribute('data-id'));
 
-        if (listContainer) {
-            new Sortable(listContainer, {
-                animation: 200,
-                delay: 300,
-                delayOnTouchOnly: true,
-                touchStartThreshold: 5,
-                ghostClass: 'opacity-50',
-                filter: 'button, input, .habit-badge',
-                preventOnFilter: false,
-                onEnd: function () {
-                    // 1. 只抓取第一層直接子元素 (習慣卡片) 的 data-id
-                    const currentCards = Array.from(listContainer.children);
-                    const newOrderIds = currentCards
-                        .map(card => card.getAttribute('data-id'))
-                        .filter(id => id !== null && id !== undefined);
+                // 更新 JS 陣列順序
+                appState.habits.sort((a, b) => {
+                    return newOrderIds.indexOf(String(a.id)) - newOrderIds.indexOf(String(b.id));
+                });
 
-                    // 2. 安全更新 JS 陣列順序 (防止 -1 導致排序錯亂)
-                    appState.habits.sort((a, b) => {
-                        const idxA = newOrderIds.indexOf(String(a.id));
-                        const idxB = newOrderIds.indexOf(String(b.id));
-                        if (idxA === -1) return 1;
-                        if (idxB === -1) return -1;
-                        return idxA - idxB;
-                    });
-
-                    // 3. 儲存狀態
-                    saveState();
-
-                    // 4. ⭐ 關鍵修正：錯開 SortableJS 的 DOM 清理時間，防止套件崩潰
-                    setTimeout(() => {
-                        renderHabits();
-                    }, 50);
-                }
-            });
-        }
-    });
-</script>
+                // 儲存到 localStorage
+                saveState();
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>
