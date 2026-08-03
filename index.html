@@ -260,9 +260,19 @@
                 <input type="text" id="habitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2.5 border border-gray-200 rounded-xl text-sm">
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-[#8C827A] mb-1">每週目標次數：</label>
-                <input type="number" id="habitTarget" value="3" min="1" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+            <!-- ⭐ 更新：目標週期與目標次數選單 -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">目標週期：</label>
+                    <select id="habitTargetType" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none">
+                        <option value="weekly">每週</option>
+                        <option value="monthly">每月</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8C827A] mb-1">目標次數：</label>
+                    <input type="number" id="habitTarget" value="3" min="1" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm">
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 pt-1 border-t border-gray-100">
@@ -371,10 +381,10 @@
             waterGoal1ReachedDates: [],
             waterGoal2ReachedDates: [],
             habits: [
-                { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
+                { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
             ],
             waterLogs: {},
-            waterCups: [200, 600, 800], // ⭐ 預設改為 200, 600, 800
+            waterCups: [200, 600, 800],
             moodLogs: {},
             rewards: [
                 { id: 1, title: '喝一杯珍奶 🧋', points: 40, isFavorite: false },
@@ -391,7 +401,7 @@
         window.onload = function() {
             loadLocalStorage();
             
-            // ⭐ 重新整理後永遠自動設為當天日期
+            // 自動設為當天日期
             appState.currentDate = new Date().toISOString().split('T')[0];
             
             initHeaderDate();
@@ -424,7 +434,6 @@
                 if (!appState.pointsHistory) appState.pointsHistory = [];
             }
             
-            // 🛡️ 水杯防護機制 (若為空或不存在，強制給予預設值 [200, 600, 800])
             if (!appState.waterCups || appState.waterCups.length === 0) {
                 appState.waterCups = [200, 600, 800];
             }
@@ -497,16 +506,17 @@
             navBtn.classList.remove('text-[#9E958F]');
         }
 
+        // ⭐ 更新：取得從週日到週六的 7 天日期列表
         function getWeekDates(dateStr) {
             const curr = new Date(dateStr);
-            const day = curr.getDay();
-            const diffToMon = curr.getDate() - day + (day === 0 ? -6 : 1);
-            const mon = new Date(curr.setDate(diffToMon));
+            const day = curr.getDay(); // 0 是週日, 6 是週六
+            const sun = new Date(curr);
+            sun.setDate(curr.getDate() - day); // 退回到當週的週日
 
             const week = [];
             for (let i = 0; i < 7; i++) {
-                const d = new Date(mon);
-                d.setDate(mon.getDate() + i);
+                const d = new Date(sun);
+                d.setDate(sun.getDate() + i);
                 week.push(d.toISOString().split('T')[0]);
             }
             return week;
@@ -536,6 +546,7 @@
             document.getElementById('editHabitId').value = '';
             document.getElementById('habitEmoji').value = '💊';
             document.getElementById('habitTitle').value = '';
+            document.getElementById('habitTargetType').value = 'weekly';
             document.getElementById('habitTarget').value = '3';
             document.getElementById('habitPointsReward').value = '5';
             document.getElementById('habitTargetReward').value = '10';
@@ -549,6 +560,7 @@
             document.getElementById('editHabitId').value = habit.id;
             document.getElementById('habitEmoji').value = habit.emoji || '💊';
             document.getElementById('habitTitle').value = habit.title || '';
+            document.getElementById('habitTargetType').value = habit.targetType || 'weekly';
             document.getElementById('habitTarget').value = habit.target || 3;
             document.getElementById('habitPointsReward').value = habit.pointsReward !== undefined ? habit.pointsReward : 5;
             document.getElementById('habitTargetReward').value = habit.targetReward !== undefined ? habit.targetReward : 10;
@@ -567,6 +579,7 @@
             const editId = document.getElementById('editHabitId').value;
             const emoji = document.getElementById('habitEmoji').value.trim() || '💊';
             const title = document.getElementById('habitTitle').value.trim();
+            const targetType = document.getElementById('habitTargetType').value || 'weekly';
             const target = parseInt(document.getElementById('habitTarget').value) || 1;
             const pointsReward = parseInt(document.getElementById('habitPointsReward').value) || 0;
             const targetReward = parseInt(document.getElementById('habitTargetReward').value) || 0;
@@ -578,6 +591,7 @@
                 if (habit) {
                     habit.emoji = emoji;
                     habit.title = title;
+                    habit.targetType = targetType;
                     habit.target = target;
                     habit.pointsReward = pointsReward;
                     habit.targetReward = targetReward;
@@ -587,6 +601,7 @@
                     id: Date.now(),
                     emoji,
                     title,
+                    targetType,
                     target,
                     pointsReward,
                     targetReward,
@@ -609,12 +624,21 @@
             }
         }
 
+        // ⭐ 更新：打卡邏輯，自動判定每週或每月目標計算
         function checkInHabit(habitId) {
             const habit = appState.habits.find(h => h.id === habitId);
             if (!habit || habit.isPaused) return;
 
-            const weekDates = getWeekDates(appState.currentDate);
-            const checkInsBefore = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+            const targetType = habit.targetType || 'weekly';
+            let checkInsBefore = 0;
+
+            if (targetType === 'monthly') {
+                const monthPrefix = appState.currentDate.substring(0, 7);
+                checkInsBefore = habit.logs.filter(l => l.timestamp.startsWith(monthPrefix)).length;
+            } else {
+                const weekDates = getWeekDates(appState.currentDate);
+                checkInsBefore = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+            }
 
             const now = new Date();
             const log = {
@@ -631,9 +655,11 @@
             let alertMsg = `🎉 完成【${habit.title}】打卡！獲得 +${pts} 點好棒棒點數！`;
 
             const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+            const periodText = targetType === 'monthly' ? '每月' : '每週';
+
             if (checkInsBefore < habit.target && checkInsAfter >= habit.target && targetPts > 0) {
-                addPointsLog(targetPts, `達成【${habit.title}】每週目標獎勵`);
-                alertMsg += `\n🏆 恭喜達成每週目標 (${habit.target}次)，額外獲得 +${targetPts} 點目標獎勵！`;
+                addPointsLog(targetPts, `達成【${habit.title}】${periodText}目標獎勵`);
+                alertMsg += `\n🏆 恭喜達成${periodText}目標 (${habit.target}次)，額外獲得 +${targetPts} 點目標獎勵！`;
             }
 
             saveState();
@@ -649,6 +675,7 @@
             renderHabits();
         }
 
+        // ⭐ 更新：渲染習慣清單，計算每週/每月次數
         function renderHabits() {
             const container = document.getElementById('habit-list-container');
             const visualContainer = document.getElementById('habit-visual-container');
@@ -667,8 +694,19 @@
                 const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
                 const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
                 
-                const weekDates = getWeekDates(appState.currentDate);
-                const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+                const targetType = habit.targetType || 'weekly';
+                let periodCount = 0;
+                let periodLabel = '每週目標';
+
+                if (targetType === 'monthly') {
+                    const monthPrefix = appState.currentDate.substring(0, 7);
+                    periodCount = habit.logs.filter(l => l.timestamp.startsWith(monthPrefix)).length;
+                    periodLabel = '每月目標';
+                } else {
+                    const weekDates = getWeekDates(appState.currentDate);
+                    periodCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+                    periodLabel = '每週目標';
+                }
 
                 let logsBadges = todayLogs.map(l => `
                     <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
@@ -692,7 +730,7 @@
                                         <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
                                     </div>
                                     <p class="text-xs text-[#9E958F] mt-0.5">
-                                        每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
+                                        ${periodLabel}: ${periodCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
                                     </p>
                                 </div>
                             </div>
@@ -907,9 +945,8 @@
             }
         }
 
-        // ⭐ 刪除指定的喝水杯子
         function deleteWaterCup(index, event) {
-            if (event) event.stopPropagation(); // 防止觸發加水打卡事件
+            if (event) event.stopPropagation();
             const cupCc = appState.waterCups[index];
             if (confirm(`確定要刪除 ${cupCc} cc 的水杯嗎？`)) {
                 appState.waterCups.splice(index, 1);
@@ -926,7 +963,6 @@
             document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
         }
 
-        // 渲染喝水系統介面與統計
         function renderWater() {
             const todayAmount = appState.waterLogs[appState.currentDate] || 0;
             document.getElementById('todayWaterAmount').innerText = todayAmount;
@@ -941,7 +977,6 @@
             document.getElementById('displayWaterGoal2').innerText = goal2;
             document.getElementById('displayWaterReward2').innerText = reward2;
 
-            // 快速打卡按鈕 (包含刪除按鈕與拖曳屬性)
             const cupContainer = document.getElementById('waterCupButtons');
             if (cupContainer) {
                 cupContainer.innerHTML = '';
@@ -959,7 +994,6 @@
                 });
             }
 
-            // 直條圖
             const barContainer = document.getElementById('waterBarContainer');
             if (barContainer) {
                 barContainer.innerHTML = '';
@@ -986,7 +1020,6 @@
                 document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
             }
 
-            // 月曆視圖
             const calView = document.getElementById('waterCalendarGrid');
             if (calView) {
                 const current = new Date(appState.currentDate);
@@ -1042,7 +1075,6 @@
             }
         }
 
-        // ⭐ 初始化水杯拖曳排序 (SortableJS)
         function initWaterCupsSortable() {
             const cupContainer = document.getElementById('waterCupButtons');
             if (cupContainer && !waterCupSortable) {
@@ -1289,7 +1321,6 @@
             }
         }
 
-        // ⭐ 切換喜愛 (❤️) 狀態
         function toggleFavoriteReward(rewardId) {
             const item = appState.rewards.find(r => r.id === rewardId);
             if (item) {
@@ -1315,22 +1346,18 @@
             }
         }
 
-        // ⭐ 渲染獎勵清單 (依喜愛 ❤️ 置頂，點數少至多排序)
         function renderRewards() {
             const container = document.getElementById('rewardListContainer');
             if (!container) return;
             container.innerHTML = '';
 
-            // 1. 複製陣列並進行排序：
-            //    - 第一優先順序：isFavorite (true 排前面)
-            //    - 第二優先順序：points (點數由少到多)
             const sortedRewards = [...appState.rewards].sort((a, b) => {
                 const favA = a.isFavorite ? 1 : 0;
                 const favB = b.isFavorite ? 1 : 0;
                 if (favA !== favB) {
-                    return favB - favA; // 愛心在前的排前面
+                    return favB - favA;
                 }
-                return a.points - b.points; // 點數少的排前面
+                return a.points - b.points;
             });
 
             if (sortedRewards.length === 0) {
@@ -1373,9 +1400,7 @@
         }
     </script>
 
-    <!-- ========================================== -->
     <!-- 1. 引入拖曳套件 (SortableJS) -->
-    <!-- ========================================== -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <!-- 2. 打卡習慣拖曳控制邏輯 -->
@@ -1406,7 +1431,6 @@
 
                         saveState();
 
-                        // 錯開 SortableJS 的 DOM 清理時間，確保畫面流暢不崩潰
                         setTimeout(() => {
                             renderHabits();
                         }, 50);
