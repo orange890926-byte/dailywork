@@ -435,13 +435,23 @@
     }
 
     function loadLocalStorage() {
-        const data = localStorage.getItem('plan_joy_data');
-        if (data) {
-            const parsed = JSON.parse(data);
-            appState = { ...appState, ...parsed };
-            if (!appState.pointsHistory) appState.pointsHistory = [];
-        }
+    const data = localStorage.getItem('plan_joy_data');
+    if (data) {
+        const parsed = JSON.parse(data);
+        appState = { ...appState, ...parsed };
     }
+
+    // 🛡️ 資料保底防護機制
+    if (!appState.waterCups || appState.waterCups.length === 0) {
+        appState.waterCups = [250, 500, 800]; // 補回預設水杯
+    }
+    if (!appState.habits || appState.habits.length === 0) {
+        appState.habits = [
+            { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
+        ];
+    }
+    if (!appState.pointsHistory) appState.pointsHistory = [];
+}
 
     function addPointsLog(amount, description) {
         appState.points += amount;
@@ -1275,24 +1285,31 @@ function changeGlobalDate(dateStr) {
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 ghostClass: 'opacity-50',
-                // 🛑 過濾按鈕與標籤，避免點擊/長按按鈕時誤觸拖曳
                 filter: 'button, input, .habit-badge',
                 preventOnFilter: false,
                 onEnd: function () {
-                    // 1. 讀取拖曳後的新 ID 順序
-                    const currentCards = listContainer.querySelectorAll('[data-id]');
-                    const newOrderIds = Array.from(currentCards).map(card => card.getAttribute('data-id'));
+                    // 1. 只抓取第一層直接子元素 (習慣卡片) 的 data-id
+                    const currentCards = Array.from(listContainer.children);
+                    const newOrderIds = currentCards
+                        .map(card => card.getAttribute('data-id'))
+                        .filter(id => id !== null && id !== undefined);
 
-                    // 2. 更新 JS 陣列順序
+                    // 2. 安全更新 JS 陣列順序 (防止 -1 導致排序錯亂)
                     appState.habits.sort((a, b) => {
-                        return newOrderIds.indexOf(String(a.id)) - newOrderIds.indexOf(String(b.id));
+                        const idxA = newOrderIds.indexOf(String(a.id));
+                        const idxB = newOrderIds.indexOf(String(b.id));
+                        if (idxA === -1) return 1;
+                        if (idxB === -1) return -1;
+                        return idxA - idxB;
                     });
 
-                    // 3. 儲存到 localStorage
+                    // 3. 儲存狀態
                     saveState();
 
-                    // 4. ⭐ 重新渲染介面，讓下方的月曆/直條圖順序同步更新
-                    renderHabits();
+                    // 4. ⭐ 關鍵修正：錯開 SortableJS 的 DOM 清理時間，防止套件崩潰
+                    setTimeout(() => {
+                        renderHabits();
+                    }, 50);
                 }
             });
         }
