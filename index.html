@@ -146,7 +146,7 @@
             <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
             <div class="space-x-1 text-xs font-bold">
                 <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
-                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
+                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray- rounded-xl">月曆</button>
             </div>
         </div>
 
@@ -383,7 +383,7 @@
             { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
         ],
         waterLogs: {},
-        waterCups: [250, 500, 800],
+        waterCups: [250, 600, 800],
         moodLogs: {},
         rewards: [
             { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
@@ -443,7 +443,7 @@
 
     // 🛡️ 資料保底防護機制
     if (!appState.waterCups || appState.waterCups.length === 0) {
-        appState.waterCups = [250, 500, 800]; // 補回預設水杯
+        appState.waterCups = [250, 600, 800]; // 補回預設水杯
     }
     if (!appState.habits || appState.habits.length === 0) {
         appState.habits = [
