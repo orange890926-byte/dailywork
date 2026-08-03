@@ -73,104 +73,105 @@
     <main class="max-w-2xl mx-auto w-full flex-1 p-5 space-y-5">
 
         <!-- 1. 習慣打卡 (Habit) -->
-<section id="sec-habit" class="space-y-4">
-    <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-xs border border-[#F2EDE4]">
-        <span class="text-sm font-bold text-[#8C827A]">檢視視圖：</span>
-        <div class="inline-flex rounded-xl bg-[#FAF7F2] p-1 text-sm font-bold border border-[#F2EDE4]">
-            <button id="btn-habit-view-list" onclick="toggleHabitMainView('list')" class="px-4 py-1.5 rounded-lg bg-white text-[#D47A88] shadow-xs">條列模式</button>
-            <button id="btn-habit-view-visual" onclick="toggleHabitMainView('visual')" class="px-4 py-1.5 rounded-lg text-[#9E958F]">月曆 / 直條圖</button>
-        </div>
-    </div>
+        <section id="sec-habit" class="space-y-4">
+            <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-xs border border-[#F2EDE4]">
+                <span class="text-sm font-bold text-[#8C827A]">檢視視圖：</span>
+                <div class="inline-flex rounded-xl bg-[#FAF7F2] p-1 text-sm font-bold border border-[#F2EDE4]">
+                    <button id="btn-habit-view-list" onclick="toggleHabitMainView('list')" class="px-4 py-1.5 rounded-lg bg-white text-[#D47A88] shadow-xs">條列模式</button>
+                    <button id="btn-habit-view-visual" onclick="toggleHabitMainView('visual')" class="px-4 py-1.5 rounded-lg text-[#9E958F]">月曆 / 直條圖</button>
+                </div>
+            </div>
 
-    <button onclick="openAddHabitModal()" class="w-full py-3.5 bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] font-bold rounded-2xl shadow-xs hover:opacity-95 transition flex items-center justify-center space-x-2 text-base">
-        <i class="fa-solid fa-plus text-sm"></i>
-        <span>新增習慣打卡項目</span>
-    </button>
+            <button onclick="openAddHabitModal()" class="w-full py-3.5 bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] font-bold rounded-2xl shadow-xs hover:opacity-95 transition flex items-center justify-center space-x-2 text-base">
+                <i class="fa-solid fa-plus text-sm"></i>
+                <span>新增習慣打卡項目</span>
+            </button>
 
-    <!-- 條列視圖 -->
-    <div id="habit-list-view" class="space-y-2">
-        <!-- 拖曳排序提示 -->
-        <div class="flex items-center justify-end space-x-1.5 text-xs text-[#8C827A] px-1">
-            <i class="fa-solid fa-hand-pointer text-[#D47A88]"></i>
-            <span>長按拖曳打卡項目條列的框框可調整順序</span>
-        </div>
-        <div id="habit-list-container" class="space-y-3"></div>
-    </div>
+            <!-- 條列視圖 -->
+            <div id="habit-list-view" class="space-y-2">
+                <!-- 拖曳排序提示 -->
+                <div class="flex items-center justify-end space-x-1.5 text-xs text-[#8C827A] px-1">
+                    <i class="fa-solid fa-hand-pointer text-[#D47A88]"></i>
+                    <span>長按拖曳打卡項目條列的框框可調整順序</span>
+                </div>
+                <div id="habit-list-container" class="space-y-3"></div>
+            </div>
 
-    <!-- 月曆 / 直條圖 視覺視圖 -->
-    <div id="habit-visual-view" class="hidden space-y-4">
-        <div class="flex justify-end space-x-2 text-xs font-bold">
-            <button onclick="toggleHabitSubVisual('cal')" id="btn-habit-sub-cal" class="px-3 py-1.5 bg-[#D47A88] text-white rounded-xl">月曆模式</button>
-            <button onclick="toggleHabitSubVisual('bar')" id="btn-habit-sub-bar" class="px-3 py-1.5 bg-gray-200 text-gray-600 rounded-xl">直條圖模式</button>
-        </div>
-        <div id="habit-visual-container" class="space-y-4"></div>
-    </div>
-</section>
+            <!-- 月曆 / 直條圖 視覺視圖 -->
+            <div id="habit-visual-view" class="hidden space-y-4">
+                <div class="flex justify-end space-x-2 text-xs font-bold">
+                    <button onclick="toggleHabitSubVisual('cal')" id="btn-habit-sub-cal" class="px-3 py-1.5 bg-[#D47A88] text-white rounded-xl">月曆模式</button>
+                    <button onclick="toggleHabitSubVisual('bar')" id="btn-habit-sub-bar" class="px-3 py-1.5 bg-gray-200 text-gray-600 rounded-xl">直條圖模式</button>
+                </div>
+                <div id="habit-visual-container" class="space-y-4"></div>
+            </div>
+        </section>
 
         <!-- 2. 喝水打卡 (Water) -->
-<section id="sec-water" class="hidden space-y-4">
-    <div class="bg-gradient-to-br from-[#E0F7FA] to-[#E1F5FE] p-6 rounded-3xl shadow-xs text-center space-y-3 text-[#006064] border border-[#B2EBF2]">
-        <div class="flex justify-between items-center px-2">
-            <span class="text-sm font-bold text-[#00838F]">💧 本日累積喝水量</span>
-            <button onclick="openWaterGoalModal()" class="text-xs bg-white/80 px-3 py-1 rounded-xl font-bold border border-[#B2EBF2] hover:bg-white transition">
-                ⚙️ 設定目標與獎勵
-            </button>
-        </div>
-        <div class="text-5xl font-black"><span id="todayWaterAmount">0</span> <span class="text-lg font-bold">cc</span></div>
+        <section id="sec-water" class="hidden space-y-4">
+            <div class="bg-gradient-to-br from-[#E0F7FA] to-[#E1F5FE] p-6 rounded-3xl shadow-xs text-center space-y-3 text-[#006064] border border-[#B2EBF2]">
+                <div class="flex justify-between items-center px-2">
+                    <span class="text-sm font-bold text-[#00838F]">💧 本日累積喝水量</span>
+                    <button onclick="openWaterGoalModal()" class="text-xs bg-white/80 px-3 py-1 rounded-xl font-bold border border-[#B2EBF2] hover:bg-white transition">
+                        ⚙️ 設定目標與獎勵
+                    </button>
+                </div>
+                <div class="text-5xl font-black"><span id="todayWaterAmount">0</span> <span class="text-lg font-bold">cc</span></div>
 
-        <!-- 兩階段目標與獎勵標籤 -->
-        <div class="flex flex-wrap justify-center gap-2 pt-1">
-            <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
-                <span>🎯 第一階段：</span>
-                <span id="displayWaterGoal1">2400</span><span>cc</span>
-                <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward1">10</span> 點</span>
+                <!-- 兩階段目標與獎勵標籤 -->
+                <div class="flex flex-wrap justify-center gap-2 pt-1">
+                    <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
+                        <span>🎯 第一階段：</span>
+                        <span id="displayWaterGoal1">2400</span><span>cc</span>
+                        <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward1">10</span> 點</span>
+                    </div>
+                    <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
+                        <span>🚀 第二階段：</span>
+                        <span id="displayWaterGoal2">4000</span><span>cc</span>
+                        <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward2">20</span> 點</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white/90 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-[#00838F] shadow-xs border border-[#B2EBF2] flex items-center space-x-1">
-                <span>🚀 第二階段：</span>
-                <span id="displayWaterGoal2">4000</span><span>cc</span>
-                <span class="text-[#006064] bg-[#B2EBF2]/50 px-2 py-0.5 rounded-lg text-[11px]">獎勵 +<span id="displayWaterReward2">20</span> 點</span>
-            </div>
-        </div>
-    </div>
 
-    <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
-        <h3 class="text-xs font-bold text-[#9E958F]">快速喝水打卡</h3>
-        <div id="waterCupButtons" class="grid grid-cols-3 gap-3"></div>
-        <button onclick="addNewWaterCup()" class="w-full text-xs text-[#00838F] font-bold border border-dashed border-[#B2EBF2] py-2.5 rounded-2xl hover:bg-[#E0F7FA]/40 transition">
-            + 新增馬克杯/水壺容量
-        </button>
-    </div>
-
-    <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-            <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
-            <div class="space-x-1 text-xs font-bold">
-                <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
-                <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
+            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-[#9E958F]">快速喝水打卡 (按住可拖曳排序)</h3>
+                </div>
+                <div id="waterCupButtons" class="grid grid-cols-3 gap-3"></div>
+                <button onclick="addNewWaterCup()" class="w-full text-xs text-[#00838F] font-bold border border-dashed border-[#B2EBF2] py-2.5 rounded-2xl hover:bg-[#E0F7FA]/40 transition">
+                    + 新增馬克杯/水壺容量
+                </button>
             </div>
-        </div>
 
-        <!-- 直條圖視圖 (含當週喝水平均) -->
-        <div id="water-bar-view" class="space-y-2">
-            <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
-                📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
-            </div>
-            <div id="waterBarContainer" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
-        </div>
+            <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
+                    <div class="space-x-1 text-xs font-bold">
+                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
+                        <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
+                    </div>
+                </div>
 
-        <!-- 月曆視圖 (含當月喝水平均與💧CC數) -->
-        <div id="water-cal-view" class="hidden space-y-3 text-center text-xs py-1">
-            <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
-                📅 當月平均喝水量：<span id="waterMonthlyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+                <!-- 直條圖視圖 -->
+                <div id="water-bar-view" class="space-y-2">
+                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                        📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+                    </div>
+                    <div id="waterBarContainer" class="h-44 flex items-end justify-between px-3 pt-6 pb-2 border-b border-gray-50"></div>
+                </div>
+
+                <!-- 月曆視圖 -->
+                <div id="water-cal-view" class="hidden space-y-3 text-center text-xs py-1">
+                    <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
+                        📅 當月平均喝水量：<span id="waterMonthlyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
+                    </div>
+                    <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+                </div>
             </div>
-            <div id="waterCalendarGrid" class="grid grid-cols-7 gap-1.5"></div>
-        </div>
-    </div>
-</section>
+        </section>
 
         <!-- 3. 心情日記 (Mood) -->
         <section id="sec-mood" class="hidden space-y-4">
-            <!-- 填寫 / 編輯日記區 -->
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 class="text-sm font-bold text-[#5C5552]">今天的心情如何呢？</h3>
@@ -192,28 +193,19 @@
                 </button>
             </div>
 
-            <!-- 當月心情次數統計卡片 -->
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
                 <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📊 當月心情統計</h3>
-                <div id="moodMonthlyStats" class="grid grid-cols-5 gap-2 text-center">
-                    <!-- 動態載入 EX: 😃 4次 -->
-                </div>
+                <div id="moodMonthlyStats" class="grid grid-cols-5 gap-2 text-center"></div>
             </div>
 
-            <!-- 心情月曆 View -->
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
                 <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📅 心情月曆</h3>
-                <div id="moodCalendarGrid" class="grid grid-cols-7 gap-1.5 text-center">
-                    <!-- 動態載入月曆 EMOJI -->
-                </div>
+                <div id="moodCalendarGrid" class="grid grid-cols-7 gap-1.5 text-center"></div>
             </div>
 
-            <!-- 歷史日記條列 View -->
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
                 <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">📖 歷史日記紀錄條列</h3>
-                <div id="moodHistoryList" class="space-y-2.5 max-h-72 overflow-y-auto no-scrollbar">
-                    <!-- 動態載入歷史日記清單 -->
-                </div>
+                <div id="moodHistoryList" class="space-y-2.5 max-h-72 overflow-y-auto no-scrollbar"></div>
             </div>
         </section>
 
@@ -230,7 +222,7 @@
             </button>
 
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-[#F2EDE4] space-y-3">
-                <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">獎勵兌換清單</h3>
+                <h3 class="text-xs font-bold text-[#9E958F] border-b border-gray-100 pb-2">獎勵兌換清單 (點數少至多排序，❤️置頂)</h3>
                 <div id="rewardListContainer" class="space-y-2.5"></div>
             </div>
         </section>
@@ -291,49 +283,47 @@
         </div>
     </div>
 
-   <!-- 喝水目標 Modal -->
-<div id="water-goal-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#B2EBF2]">
-        <h3 class="font-bold text-base text-[#006064]">💧 設定兩階段喝水目標與獎勵</h3>
-        
-        <div class="space-y-3">
-            <!-- 第一階段設定區塊 -->
-            <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
-                <div class="text-xs font-bold text-[#00838F]">🎯 第一階段設定</div>
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
-                        <input type="number" id="inputWaterGoal1" value="2400" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+    <!-- 喝水目標 Modal -->
+    <div id="water-goal-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-[#B2EBF2]">
+            <h3 class="font-bold text-base text-[#006064]">💧 設定兩階段喝水目標與獎勵</h3>
+            
+            <div class="space-y-3">
+                <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
+                    <div class="text-xs font-bold text-[#00838F]">🎯 第一階段設定</div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
+                            <input type="number" id="inputWaterGoal1" value="2400" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
+                            <input type="number" id="inputWaterReward1" value="10" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
-                        <input type="number" id="inputWaterReward1" value="10" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                </div>
+
+                <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
+                    <div class="text-xs font-bold text-[#00838F]">🚀 第二階段設定</div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
+                            <input type="number" id="inputWaterGoal2" value="4000" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
+                            <input type="number" id="inputWaterReward2" value="20" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 第二階段設定區塊 -->
-            <div class="bg-[#E0F7FA]/30 p-3.5 rounded-2xl border border-[#B2EBF2]/60 space-y-2">
-                <div class="text-xs font-bold text-[#00838F]">🚀 第二階段設定</div>
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">目標水量 (cc)：</label>
-                        <input type="number" id="inputWaterGoal2" value="4000" step="50" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-[#00838F] mb-1">達標獎勵 (點)：</label>
-                        <input type="number" id="inputWaterReward2" value="20" min="0" class="w-full p-2 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:border-[#00838F]">
-                    </div>
-                </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('water-goal-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold hover:text-gray-600 transition">取消</button>
+                <button onclick="saveWaterGoalSettings()" class="px-5 py-2 text-xs bg-[#E0F7FA] text-[#006064] border border-[#B2EBF2] rounded-xl font-bold hover:bg-[#B2EBF2] transition">儲存設定</button>
             </div>
-        </div>
-
-        <div class="flex justify-end space-x-2 pt-2">
-            <button onclick="closeModal('water-goal-modal')" class="px-4 py-2 text-xs text-gray-400 font-bold hover:text-gray-600 transition">取消</button>
-            <button onclick="saveWaterGoalSettings()" class="px-5 py-2 text-xs bg-[#E0F7FA] text-[#006064] border border-[#B2EBF2] rounded-xl font-bold hover:bg-[#B2EBF2] transition">儲存設定</button>
         </div>
     </div>
-</div>
 
     <!-- 新增 / 編輯商品 Modal -->
     <div id="reward-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
@@ -359,22 +349,36 @@
 
     <!-- JS 邏輯區 -->
     <script>
+        // HTML 字串安全轉義，避免特殊字元破壞 UI
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         let appState = {
             currentDate: new Date().toISOString().split('T')[0],
             points: 0,
             pointsHistory: [],
-            waterGoal: 2000,
-            waterGoalReward: 10,
-            waterGoalReachedDates: [],
+            waterGoal1: 2400,
+            waterGoalReward1: 10,
+            waterGoal2: 4000,
+            waterGoalReward2: 20,
+            waterGoal1ReachedDates: [],
+            waterGoal2ReachedDates: [],
             habits: [
                 { id: 1, emoji: '💊', title: '吃維他命C', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
             ],
             waterLogs: {},
-            waterCups: [250, 500, 800],
+            waterCups: [200, 600, 800], // ⭐ 預設改為 200, 600, 800
             moodLogs: {},
             rewards: [
-                { id: 1, title: '喝一杯珍奶 🧋', points: 40 },
-                { id: 2, title: '看一部電影 🎬', points: 80 }
+                { id: 1, title: '喝一杯珍奶 🧋', points: 40, isFavorite: false },
+                { id: 2, title: '看一部電影 🎬', points: 80, isFavorite: false }
             ]
         };
 
@@ -382,9 +386,14 @@
         let currentHabitSubVisual = 'cal';
         let currentWaterChartView = 'bar';
         let selectedMoodEmoji = '';
+        let waterCupSortable = null;
 
         window.onload = function() {
             loadLocalStorage();
+            
+            // ⭐ 重新整理後永遠自動設為當天日期
+            appState.currentDate = new Date().toISOString().split('T')[0];
+            
             initHeaderDate();
             document.getElementById('globalDatePicker').value = appState.currentDate;
             document.getElementById('globalDatePicker').addEventListener('change', (e) => {
@@ -392,6 +401,7 @@
                 renderAll();
             });
             renderAll();
+            initWaterCupsSortable();
         };
 
         function initHeaderDate() {
@@ -413,6 +423,13 @@
                 appState = { ...appState, ...parsed };
                 if (!appState.pointsHistory) appState.pointsHistory = [];
             }
+            
+            // 🛡️ 水杯防護機制 (若為空或不存在，強制給予預設值 [200, 600, 800])
+            if (!appState.waterCups || appState.waterCups.length === 0) {
+                appState.waterCups = [200, 600, 800];
+            }
+            if (!appState.habits) appState.habits = [];
+            if (!appState.rewards) appState.rewards = [];
         }
 
         function addPointsLog(amount, description) {
@@ -442,7 +459,7 @@
                     container.innerHTML += `
                         <div class="flex justify-between items-center p-3 bg-[#FAF7F2] border border-[#F2EDE4] rounded-2xl text-xs">
                             <div>
-                                <div class="font-bold text-[#5C5552] text-sm">${item.description}</div>
+                                <div class="font-bold text-[#5C5552] text-sm">${escapeHtml(item.description)}</div>
                                 <div class="text-[10px] text-gray-400 mt-0.5">${item.timestamp}</div>
                             </div>
                             <div class="font-extrabold text-sm ${isPositive ? 'text-[#2E7D32]' : 'text-[#D47A88]'}">
@@ -633,105 +650,109 @@
         }
 
         function renderHabits() {
-    const container = document.getElementById('habit-list-container');
-    const visualContainer = document.getElementById('habit-visual-container');
-    container.innerHTML = '';
-    visualContainer.innerHTML = '';
+            const container = document.getElementById('habit-list-container');
+            const visualContainer = document.getElementById('habit-visual-container');
+            if (!container || !visualContainer) return;
 
-    const sortedHabits = [...appState.habits].sort((a, b) => {
-        if (a.isPaused === b.isPaused) return 0;
-        return a.isPaused ? 1 : -1;
-    });
+            container.innerHTML = '';
+            visualContainer.innerHTML = '';
 
-    sortedHabits.forEach(habit => {
-        const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
-        const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
-        const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
-        
-        const weekDates = getWeekDates(appState.currentDate);
-        const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
+            const sortedHabits = [...appState.habits].sort((a, b) => {
+                if (a.isPaused === b.isPaused) return 0;
+                return a.isPaused ? 1 : -1;
+            });
 
-        let logsBadges = todayLogs.map(l => `
-            <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
-                  data-habit="${habit.id}" data-log="${l.id}">
-                ${l.timestamp.split(' ')[1]} (長按刪除)
-            </span>
-        `).join(' ');
+            sortedHabits.forEach(habit => {
+                const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
+                const targetPts = habit.targetReward !== undefined ? habit.targetReward : 10;
+                const todayLogs = habit.logs.filter(l => l.timestamp.startsWith(appState.currentDate));
+                
+                const weekDates = getWeekDates(appState.currentDate);
+                const weekCount = habit.logs.filter(l => weekDates.includes(l.timestamp.split(' ')[0])).length;
 
-        const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
+                let logsBadges = todayLogs.map(l => `
+                    <span class="habit-badge bg-[#FAF7F2] text-[#8C827A] border border-[#F2EDE4] text-xs px-2.5 py-1 rounded-full cursor-pointer"
+                          data-habit="${habit.id}" data-log="${l.id}">
+                        ${l.timestamp.split(' ')[1]} (長按刪除)
+                    </span>
+                `).join(' ');
 
-        // ⭐ 關鍵修改：在最外層 div 補上了 data-id="${habit.id}"
-        const cardHtml = `
-            <div data-id="${habit.id}" class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-3xl">${habit.emoji}</span>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${habit.title}</h4>
-                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                                <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
-                                <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
+                const pausedCardStyle = habit.isPaused ? 'bg-gray-100 opacity-65 border-gray-200' : 'bg-white border-[#F2EDE4]';
+
+                const cardHtml = `
+                    <div data-id="${habit.id}" class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-3 transition-all">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-3xl">${habit.emoji}</span>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="font-bold text-sm ${habit.isPaused ? 'text-gray-500 line-through' : 'text-[#5C5552]'}">${escapeHtml(habit.title)}</h4>
+                                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                                        <button onclick="openEditHabitModal(${habit.id})" class="text-xs text-gray-400 hover:text-gray-600 p-0.5">✏️</button>
+                                        <button onclick="deleteHabit(${habit.id})" class="text-xs text-gray-400 hover:text-red-500 p-0.5">🗑️</button>
+                                    </div>
+                                    <p class="text-xs text-[#9E958F] mt-0.5">
+                                        每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-xs text-[#9E958F] mt-0.5">
-                                每週目標: ${weekCount}/${habit.target} 次 | 打卡: <span class="text-[#D47A88] font-bold">+${pts}點</span> | 達標: <span class="text-[#8C5E14] font-bold">+${targetPts}點</span>
-                            </p>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
+                                    ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
+                                </button>
+                                ${!habit.isPaused ? `
+                                    <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
+                                        + 打卡 (${todayLogs.length})
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
+                            ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="togglePauseHabit(${habit.id})" class="text-xs px-2.5 py-1.5 rounded-xl font-bold bg-gray-200/80 text-gray-600 hover:bg-gray-300 transition">
-                            ${habit.isPaused ? '▶️ 恢復' : '⏸️ 暫停'}
-                        </button>
-                        ${!habit.isPaused ? `
-                            <button onclick="checkInHabit(${habit.id})" class="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-xs px-3.5 py-2 rounded-2xl font-bold shadow-xs hover:bg-[#C8E6C9] transition">
-                                + 打卡 (${todayLogs.length})
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
 
-                <div class="flex flex-wrap gap-1.5 border-t border-gray-100/60 pt-2.5">
-                    ${logsBadges || '<span class="text-xs text-gray-300">本日尚無打卡紀錄</span>'}
-                </div>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', cardHtml);
-
-        if (currentHabitSubVisual === 'cal') {
-            const habitCalCard = `
-                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                        <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
-                            <span>${habit.emoji}</span>
-                            <span>${habit.title} 月曆打卡</span>
-                            ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                if (currentHabitSubVisual === 'cal') {
+                    const habitCalCard = `
+                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                                <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2">
+                                    <span>${habit.emoji}</span>
+                                    <span>${escapeHtml(habit.title)} 月曆打卡</span>
+                                    ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                                </div>
+                            </div>
+                            <div id="habit-cal-${habit.id}"></div>
                         </div>
-                    </div>
-                    <div id="habit-cal-${habit.id}"></div>
-                </div>
-            `;
-            visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
-            renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
-        } else {
-            const habitBarCard = `
-                <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
-                    <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
-                        <span>${habit.emoji}</span>
-                        <span>${habit.title} 近七日打卡次數</span>
-                        ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
-                    </div>
-                    <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
-                </div>
-            `;
-            visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
-            renderHabitBarChart(habit, `habit-bar-${habit.id}`);
+                    `;
+                    visualContainer.insertAdjacentHTML('beforeend', habitCalCard);
+                    renderHabitCalendarGrid(habit, `habit-cal-${habit.id}`);
+                } else {
+                    const habitBarCard = `
+                        <div class="${pausedCardStyle} p-4 rounded-3xl shadow-xs border space-y-2">
+                            <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-2 border-b border-gray-100 pb-2">
+                                <span>${habit.emoji}</span>
+                                <span>${escapeHtml(habit.title)} 近七日打卡次數</span>
+                                ${habit.isPaused ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-bold">已暫停</span>' : ''}
+                            </div>
+                            <div id="habit-bar-${habit.id}" class="h-32 flex items-end justify-between px-3 pt-4 pb-1"></div>
+                        </div>
+                    `;
+                    visualContainer.insertAdjacentHTML('beforeend', habitBarCard);
+                    renderHabitBarChart(habit, `habit-bar-${habit.id}`);
+                }
+            });
+
+            setupLongPressEvents();
         }
-    });
-
-    setupLongPressEvents();
-}
 
         function renderHabitCalendarGrid(habit, containerId) {
+            const targetEl = document.getElementById(containerId);
+            if (!targetEl) return;
+
             const current = new Date(appState.currentDate);
             const year = current.getFullYear();
             const month = current.getMonth();
@@ -767,11 +788,12 @@
                 `;
             }
             html += `</div>`;
-            document.getElementById(containerId).innerHTML = html;
+            targetEl.innerHTML = html;
         }
 
         function renderHabitBarChart(habit, containerId) {
             const barView = document.getElementById(containerId);
+            if (!barView) return;
             barView.innerHTML = '';
 
             for (let i = 6; i >= 0; i--) {
@@ -813,305 +835,247 @@
         }
 
         // --- 2. 喝水打卡模組 ---
-
-// 開啟設定 Modal 並帶入目前數值
-function openWaterGoalModal() {
-    document.getElementById('inputWaterGoal1').value = appState.waterGoal1 || 2400;
-    document.getElementById('inputWaterReward1').value = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
-    document.getElementById('inputWaterGoal2').value = appState.waterGoal2 || 4000;
-    document.getElementById('inputWaterReward2').value = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
-    openModal('water-goal-modal');
-}
-
-// 儲存兩階段目標設定
-function saveWaterGoalSettings() {
-    const goal1 = parseInt(document.getElementById('inputWaterGoal1').value) || 2400;
-    const reward1 = parseInt(document.getElementById('inputWaterReward1').value) || 0;
-    const goal2 = parseInt(document.getElementById('inputWaterGoal2').value) || 4000;
-    const reward2 = parseInt(document.getElementById('inputWaterReward2').value) || 0;
-
-    appState.waterGoal1 = goal1;
-    appState.waterGoalReward1 = reward1;
-    appState.waterGoal2 = goal2;
-    appState.waterGoalReward2 = reward2;
-
-    saveState();
-    closeModal('water-goal-modal');
-    renderWater();
-}
-
-// 喝水打卡與兩階段獎勵判定
-function addWater(amount) {
-    const current = appState.waterLogs[appState.currentDate] || 0;
-    const newAmount = current + amount;
-    appState.waterLogs[appState.currentDate] = newAmount;
-
-    // 取得兩階段目標與獎勵
-    const goal1 = appState.waterGoal1 || 2400;
-    const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
-    const goal2 = appState.waterGoal2 || 4000;
-    const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
-
-    // 初始化已領取紀錄陣列
-    if (!appState.waterGoal1ReachedDates) appState.waterGoal1ReachedDates = [];
-    if (!appState.waterGoal2ReachedDates) appState.waterGoal2ReachedDates = [];
-
-    let alertMsgs = [];
-
-    // 第一階段判定
-    if (newAmount >= goal1 && !appState.waterGoal1ReachedDates.includes(appState.currentDate)) {
-        appState.waterGoal1ReachedDates.push(appState.currentDate);
-        if (reward1 > 0) {
-            addPointsLog(reward1, `每日喝水第一階段達標 (${goal1}cc)`);
-            alertMsgs.push(`🎯 恭喜達成【第一階段】喝水目標 (${goal1} cc)！獲得 +${reward1} 點好棒棒點數！`);
+        function openWaterGoalModal() {
+            document.getElementById('inputWaterGoal1').value = appState.waterGoal1 || 2400;
+            document.getElementById('inputWaterReward1').value = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+            document.getElementById('inputWaterGoal2').value = appState.waterGoal2 || 4000;
+            document.getElementById('inputWaterReward2').value = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
+            openModal('water-goal-modal');
         }
-    }
 
-    // 第二階段判定
-    if (newAmount >= goal2 && !appState.waterGoal2ReachedDates.includes(appState.currentDate)) {
-        appState.waterGoal2ReachedDates.push(appState.currentDate);
-        if (reward2 > 0) {
-            addPointsLog(reward2, `每日喝水第二階段達標 (${goal2}cc)`);
-            alertMsgs.push(`🚀 恭喜達成【第二階段】喝水目標 (${goal2} cc)！獲得 +${reward2} 點好棒棒點數！`);
+        function saveWaterGoalSettings() {
+            const goal1 = parseInt(document.getElementById('inputWaterGoal1').value) || 2400;
+            const reward1 = parseInt(document.getElementById('inputWaterReward1').value) || 0;
+            const goal2 = parseInt(document.getElementById('inputWaterGoal2').value) || 4000;
+            const reward2 = parseInt(document.getElementById('inputWaterReward2').value) || 0;
+
+            appState.waterGoal1 = goal1;
+            appState.waterGoalReward1 = reward1;
+            appState.waterGoal2 = goal2;
+            appState.waterGoalReward2 = reward2;
+
+            saveState();
+            closeModal('water-goal-modal');
+            renderWater();
         }
-    }
 
-    if (alertMsgs.length > 0) {
-        alert(alertMsgs.join('\n'));
-    }
+        function addWater(amount) {
+            const current = appState.waterLogs[appState.currentDate] || 0;
+            const newAmount = current + amount;
+            appState.waterLogs[appState.currentDate] = newAmount;
 
-    saveState();
-    renderWater();
-}
+            const goal1 = appState.waterGoal1 || 2400;
+            const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+            const goal2 = appState.waterGoal2 || 4000;
+            const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
 
-function addNewWaterCup() {
-    const val = prompt('輸入新杯子容量 (cc):', '350');
-    if (val && !isNaN(val)) {
-        appState.waterCups.push(parseInt(val));
-        saveState();
-        renderWater();
-    }
-}
+            if (!appState.waterGoal1ReachedDates) appState.waterGoal1ReachedDates = [];
+            if (!appState.waterGoal2ReachedDates) appState.waterGoal2ReachedDates = [];
 
-function toggleWaterChart(type) {
-    currentWaterChartView = type;
-    document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
-    document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
-    document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
-    document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
-}
+            let alertMsgs = [];
 
-// 渲染喝水系統介面與統計
-function renderWater() {
-    const todayAmount = appState.waterLogs[appState.currentDate] || 0;
-    document.getElementById('todayWaterAmount').innerText = todayAmount;
-
-    // 渲染 UI 上的兩階段目標數字
-    const goal1 = appState.waterGoal1 || 2400;
-    const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
-    const goal2 = appState.waterGoal2 || 4000;
-    const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
-
-    document.getElementById('displayWaterGoal1').innerText = goal1;
-    document.getElementById('displayWaterReward1').innerText = reward1;
-    document.getElementById('displayWaterGoal2').innerText = goal2;
-    document.getElementById('displayWaterReward2').innerText = reward2;
-
-    // 快速按鈕
-    const cupContainer = document.getElementById('waterCupButtons');
-    cupContainer.innerHTML = '';
-    appState.waterCups.forEach(cc => {
-        cupContainer.innerHTML += `
-            <button onclick="addWater(${cc})" class="py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
-                <span class="text-base mb-0.5">🥛</span>+${cc} cc
-            </button>
-        `;
-    });
-
-    // 1. 直條圖 (以第二階段目標作為 100% 高度基準)
-    const barContainer = document.getElementById('waterBarContainer');
-    barContainer.innerHTML = '';
-    let weeklyTotalWater = 0;
-
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(appState.currentDate);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        const amt = appState.waterLogs[dateStr] || 0;
-        weeklyTotalWater += amt;
-
-        const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
-
-        barContainer.innerHTML += `
-            <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-                <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
-                <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
-                <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
-            </div>
-        `;
-    }
-    const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
-    document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
-
-    // 2. 月曆視圖 (根據是否達標呈現不同顯色)
-    const calView = document.getElementById('waterCalendarGrid');
-    if (calView) {
-        const current = new Date(appState.currentDate);
-        const year = current.getFullYear();
-        const month = current.getMonth();
-        const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        let monthlyTotalWater = 0;
-        Object.keys(appState.waterLogs).forEach(dateStr => {
-            if (dateStr.startsWith(monthPrefix)) {
-                monthlyTotalWater += appState.waterLogs[dateStr];
+            if (newAmount >= goal1 && !appState.waterGoal1ReachedDates.includes(appState.currentDate)) {
+                appState.waterGoal1ReachedDates.push(appState.currentDate);
+                if (reward1 > 0) {
+                    addPointsLog(reward1, `每日喝水第一階段達標 (${goal1}cc)`);
+                    alertMsgs.push(`🎯 恭喜達成【第一階段】喝水目標 (${goal1} cc)！獲得 +${reward1} 點好棒棒點數！`);
+                }
             }
-        });
-        const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
-        document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
 
-        let html = `
-            <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
-                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-            </div>
-        `;
-
-        for (let i = 0; i < firstDay; i++) {
-            html += `<div></div>`;
-        }
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const amt = appState.waterLogs[dateStr] || 0;
-            const isToday = dateStr === appState.currentDate;
-
-            // 月曆底色邏輯：達第二階段 (深水藍) / 達第一階段 (淺水藍) / 未達標 (米白)
-            let bgClass = "bg-[#FAF7F2] text-gray-500";
-            if (amt >= goal2) {
-                bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
-            } else if (amt >= goal1) {
-                bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+            if (newAmount >= goal2 && !appState.waterGoal2ReachedDates.includes(appState.currentDate)) {
+                appState.waterGoal2ReachedDates.push(appState.currentDate);
+                if (reward2 > 0) {
+                    addPointsLog(reward2, `每日喝水第二階段達標 (${goal2}cc)`);
+                    alertMsgs.push(`🚀 恭喜達成【第二階段】喝水目標 (${goal2} cc)！獲得 +${reward2} 點好棒棒點數！`);
+                }
             }
-            if (isToday) bgClass += " ring-2 ring-[#00838F]";
 
-            html += `
-                <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
-                    <span class="font-bold text-[11px]">${day}</span>
-                    <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
-                        ${amt > 0 ? `💧${amt}cc` : '--'}
-                    </span>
-                </div>
-            `;
+            if (alertMsgs.length > 0) {
+                alert(alertMsgs.join('\n'));
+            }
+
+            saveState();
+            renderWater();
         }
-        calView.innerHTML = html;
-    }
-}
 
-            // 1. 計算並渲染直條圖 (包含當週平均喝水量)
-const barContainer = document.getElementById('waterBarContainer');
-barContainer.innerHTML = '';
-
-// 取得兩階段目標 (直條圖 100% 高度以第二階段 goal2 為基準)
-const goal1 = appState.waterGoal1 || 2400;
-const goal2 = appState.waterGoal2 || 4000;
-let weeklyTotalWater = 0;
-
-for (let i = 6; i >= 0; i--) {
-    const d = new Date(appState.currentDate);
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const amt = appState.waterLogs[dateStr] || 0;
-    weeklyTotalWater += amt;
-
-    // 計算百分比 (最高 100%)
-    const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
-
-    barContainer.innerHTML += `
-        <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
-            <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
-            <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
-            <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
-        </div>
-    `;
-}
-const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
-document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
-
-// 2. 計算並渲染月曆視圖 (包含當月平均喝水量與💧CC數)
-const calView = document.getElementById('waterCalendarGrid');
-if (calView) {
-    const current = new Date(appState.currentDate);
-    const year = current.getFullYear();
-    const month = current.getMonth();
-    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // 計算當月平均喝水量
-    let monthlyTotalWater = 0;
-    Object.keys(appState.waterLogs).forEach(dateStr => {
-        if (dateStr.startsWith(monthPrefix)) {
-            monthlyTotalWater += appState.waterLogs[dateStr];
+        function addNewWaterCup() {
+            const val = prompt('輸入新杯子容量 (cc):', '350');
+            if (val && !isNaN(val) && parseInt(val) > 0) {
+                appState.waterCups.push(parseInt(val));
+                saveState();
+                renderWater();
+            }
         }
-    });
-    const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
-    document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
 
-    let html = `
-        <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
-            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-        </div>
-    `;
-
-    for (let i = 0; i < firstDay; i++) {
-        html += `<div></div>`;
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const amt = appState.waterLogs[dateStr] || 0;
-        const isToday = dateStr === appState.currentDate;
-
-        // 兩階段月曆配色邏輯：
-        // 1. 達到第二階段 (>= 4000cc)：顯示深水藍底色 + 白字 (#4DD0E1)
-        // 2. 達到第一階段 (>= 2400cc)：顯示淺水藍底色 (#E0F7FA)
-        // 3. 未達標：預設米白底色 (#FAF7F2)
-        let bgClass = "bg-[#FAF7F2] text-gray-500";
-        if (amt >= goal2) {
-            bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
-        } else if (amt >= goal1) {
-            bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+        // ⭐ 刪除指定的喝水杯子
+        function deleteWaterCup(index, event) {
+            if (event) event.stopPropagation(); // 防止觸發加水打卡事件
+            const cupCc = appState.waterCups[index];
+            if (confirm(`確定要刪除 ${cupCc} cc 的水杯嗎？`)) {
+                appState.waterCups.splice(index, 1);
+                saveState();
+                renderWater();
+            }
         }
-        if (isToday) bgClass += " ring-2 ring-[#00838F]";
 
-        html += `
-            <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
-                <span class="font-bold text-[11px]">${day}</span>
-                <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
-                    ${amt > 0 ? `💧${amt}cc` : '--'}
-                </span>
-            </div>
-        `;
-    }
-    calView.innerHTML = html;
-}
+        function toggleWaterChart(type) {
+            currentWaterChartView = type;
+            document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
+            document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
+            document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
+            document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
+        }
 
-        // 全域切換日期小幫手
+        // 渲染喝水系統介面與統計
+        function renderWater() {
+            const todayAmount = appState.waterLogs[appState.currentDate] || 0;
+            document.getElementById('todayWaterAmount').innerText = todayAmount;
+
+            const goal1 = appState.waterGoal1 || 2400;
+            const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
+            const goal2 = appState.waterGoal2 || 4000;
+            const reward2 = appState.waterGoalReward2 !== undefined ? appState.waterGoalReward2 : 20;
+
+            document.getElementById('displayWaterGoal1').innerText = goal1;
+            document.getElementById('displayWaterReward1').innerText = reward1;
+            document.getElementById('displayWaterGoal2').innerText = goal2;
+            document.getElementById('displayWaterReward2').innerText = reward2;
+
+            // 快速打卡按鈕 (包含刪除按鈕與拖曳屬性)
+            const cupContainer = document.getElementById('waterCupButtons');
+            if (cupContainer) {
+                cupContainer.innerHTML = '';
+                appState.waterCups.forEach((cc, idx) => {
+                    cupContainer.innerHTML += `
+                        <div data-cc="${cc}" class="relative group cursor-grab active:cursor-grabbing">
+                            <button onclick="addWater(${cc})" class="w-full py-3 bg-[#E0F7FA]/50 border border-[#B2EBF2] text-[#00838F] rounded-2xl font-bold text-sm hover:bg-[#E0F7FA] transition flex flex-col items-center">
+                                <span class="text-base mb-0.5">🥛</span>+${cc} cc
+                            </button>
+                            <button onclick="deleteWaterCup(${idx}, event)" class="delete-cup-btn absolute -top-1.5 -right-1.5 bg-red-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-xs hover:bg-red-500 transition" title="刪除這個水杯">
+                                ✕
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+
+            // 直條圖
+            const barContainer = document.getElementById('waterBarContainer');
+            if (barContainer) {
+                barContainer.innerHTML = '';
+                let weeklyTotalWater = 0;
+
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date(appState.currentDate);
+                    d.setDate(d.getDate() - i);
+                    const dateStr = d.toISOString().split('T')[0];
+                    const amt = appState.waterLogs[dateStr] || 0;
+                    weeklyTotalWater += amt;
+
+                    const heightPct = Math.min(100, Math.round((amt / goal2) * 100));
+
+                    barContainer.innerHTML += `
+                        <div class="flex flex-col items-center h-full justify-end flex-1 space-y-1">
+                            <div class="text-[10px] text-gray-400 font-bold">${amt}</div>
+                            <div class="w-4 bg-[#80DEEA] rounded-t-lg" style="height: ${Math.max(5, heightPct)}%;"></div>
+                            <div class="text-[10px] text-gray-400">${dateStr.substring(5)}</div>
+                        </div>
+                    `;
+                }
+                const weeklyAvgWater = Math.round(weeklyTotalWater / 7);
+                document.getElementById('waterWeeklyAvg').innerText = weeklyAvgWater;
+            }
+
+            // 月曆視圖
+            const calView = document.getElementById('waterCalendarGrid');
+            if (calView) {
+                const current = new Date(appState.currentDate);
+                const year = current.getFullYear();
+                const month = current.getMonth();
+                const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                let monthlyTotalWater = 0;
+                Object.keys(appState.waterLogs).forEach(dateStr => {
+                    if (dateStr.startsWith(monthPrefix)) {
+                        monthlyTotalWater += appState.waterLogs[dateStr];
+                    }
+                });
+                const monthlyAvgWater = Math.round(monthlyTotalWater / daysInMonth);
+                document.getElementById('waterMonthlyAvg').innerText = monthlyAvgWater;
+
+                let html = `
+                    <div class="col-span-7 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#9E958F] mb-1">
+                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                    </div>
+                `;
+
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div></div>`;
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const amt = appState.waterLogs[dateStr] || 0;
+                    const isToday = dateStr === appState.currentDate;
+
+                    let bgClass = "bg-[#FAF7F2] text-gray-500";
+                    if (amt >= goal2) {
+                        bgClass = "bg-[#4DD0E1] text-white font-bold border border-[#00ACC1]";
+                    } else if (amt >= goal1) {
+                        bgClass = "bg-[#E0F7FA] text-[#00838F] font-bold border border-[#B2EBF2]";
+                    }
+                    if (isToday) bgClass += " ring-2 ring-[#00838F]";
+
+                    html += `
+                        <div class="p-1 rounded-xl ${bgClass} h-12 flex flex-col items-center justify-between text-xs cursor-pointer" onclick="changeGlobalDate('${dateStr}')">
+                            <span class="font-bold text-[11px]">${day}</span>
+                            <span class="text-[9px] font-extrabold ${amt > 0 ? '' : 'text-gray-300'} truncate">
+                                ${amt > 0 ? `💧${amt}cc` : '--'}
+                            </span>
+                        </div>
+                    `;
+                }
+                calView.innerHTML = html;
+            }
+        }
+
+        // ⭐ 初始化水杯拖曳排序 (SortableJS)
+        function initWaterCupsSortable() {
+            const cupContainer = document.getElementById('waterCupButtons');
+            if (cupContainer && !waterCupSortable) {
+                waterCupSortable = new Sortable(cupContainer, {
+                    animation: 200,
+                    delay: 150,
+                    delayOnTouchOnly: true,
+                    ghostClass: 'opacity-50',
+                    filter: '.delete-cup-btn',
+                    onEnd: function () {
+                        const items = Array.from(cupContainer.children);
+                        const newCups = items.map(el => parseInt(el.getAttribute('data-cc'))).filter(n => !isNaN(n));
+                        if (newCups.length > 0) {
+                            appState.waterCups = newCups;
+                            saveState();
+                            renderWater();
+                        }
+                    }
+                });
+            }
+        }
+
         function changeGlobalDate(dateStr) {
             appState.currentDate = dateStr;
             document.getElementById('globalDatePicker').value = dateStr;
             renderAll();
         }
 
-        // --- 3. 心情日記模組 (包含統計、月曆與歷史條列) ---
+        // --- 3. 心情日記模組 ---
         function selectMood(emoji) {
             selectedMoodEmoji = emoji;
             document.querySelectorAll('.mood-opt').forEach(btn => {
-                if (btn.innerText === emoji) {
+                if (btn.innerText.trim() === emoji && emoji !== '') {
                     btn.classList.remove('opacity-30');
                     btn.classList.add('scale-125');
                 } else {
@@ -1148,18 +1112,20 @@ if (calView) {
         }
 
         function renderMood() {
-            document.getElementById('moodSelectedDateTag').innerText = appState.currentDate;
+            const tag = document.getElementById('moodSelectedDateTag');
+            if (tag) tag.innerText = appState.currentDate;
+
             const entry = appState.moodLogs[appState.currentDate];
             const btnSave = document.getElementById('btnSaveMood');
 
             if (entry) {
                 selectMood(entry.mood);
                 document.getElementById('moodJournalInput').value = entry.text || '';
-                btnSave.innerText = "更新今日日記內容";
+                if (btnSave) btnSave.innerText = "更新今日日記內容";
             } else {
                 selectMood('');
                 document.getElementById('moodJournalInput').value = '';
-                btnSave.innerText = "儲存日記 (+5 點好棒棒點數)";
+                if (btnSave) btnSave.innerText = "儲存日記 (+5 點好棒棒點數)";
             }
 
             renderMoodStats();
@@ -1167,9 +1133,9 @@ if (calView) {
             renderMoodHistoryList();
         }
 
-        // 當月心情統計 (EX: 😃 4次)
         function renderMoodStats() {
             const statsContainer = document.getElementById('moodMonthlyStats');
+            if (!statsContainer) return;
             statsContainer.innerHTML = '';
 
             const current = new Date(appState.currentDate);
@@ -1195,9 +1161,9 @@ if (calView) {
             });
         }
 
-        // 心情月曆 View (日 一 二 三 四 五 六)
         function renderMoodCalendar() {
             const calView = document.getElementById('moodCalendarGrid');
+            if (!calView) return;
             calView.innerHTML = '';
 
             const current = new Date(appState.currentDate);
@@ -1237,12 +1203,12 @@ if (calView) {
             calView.innerHTML = html;
         }
 
-        // 歷史日記條列 View
         function renderMoodHistoryList() {
             const historyContainer = document.getElementById('moodHistoryList');
+            if (!historyContainer) return;
             historyContainer.innerHTML = '';
 
-            const sortedDates = Object.keys(appState.moodLogs).sort((a, b) => new Date(b) - new Date(a));
+            const sortedDates = Object.keys(appState.moodLogs).sort((a, b) => b.localeCompare(a));
 
             if (sortedDates.length === 0) {
                 historyContainer.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">尚無心情日記紀錄</div>`;
@@ -1258,7 +1224,7 @@ if (calView) {
                                 <span class="text-xl">${entry.mood}</span>
                                 <span class="text-xs font-bold text-[#D47A88]">${dateStr}</span>
                             </div>
-                            <p class="text-xs text-[#5C5552] pl-1">${entry.text || '（無留下文字記錄）'}</p>
+                            <p class="text-xs text-[#5C5552] pl-1">${escapeHtml(entry.text) || '（無留下文字記錄）'}</p>
                         </div>
                         <div class="flex space-x-1">
                             <button onclick="changeGlobalDate('${dateStr}')" class="text-xs text-gray-400 hover:text-[#D47A88] p-1" title="編輯這天的日記">✏️</button>
@@ -1293,7 +1259,7 @@ if (calView) {
             const title = document.getElementById('rewardTitleInput').value.trim();
             const points = parseInt(document.getElementById('rewardPointsInput').value);
 
-            if (!title || isNaN(points)) return alert('請填寫完整資訊！');
+            if (!title || isNaN(points) || points <= 0) return alert('請填寫完整資訊，且點數需大於 0！');
 
             if (editId) {
                 const item = appState.rewards.find(r => r.id === parseInt(editId));
@@ -1305,7 +1271,8 @@ if (calView) {
                 appState.rewards.push({
                     id: Date.now(),
                     title,
-                    points
+                    points,
+                    isFavorite: false
                 });
             }
 
@@ -1317,6 +1284,16 @@ if (calView) {
         function deleteRewardItem(rewardId) {
             if (confirm('確定要刪除這個獎勵項目嗎？')) {
                 appState.rewards = appState.rewards.filter(r => r.id !== rewardId);
+                saveState();
+                renderRewards();
+            }
+        }
+
+        // ⭐ 切換喜愛 (❤️) 狀態
+        function toggleFavoriteReward(rewardId) {
+            const item = appState.rewards.find(r => r.id === rewardId);
+            if (item) {
+                item.isFavorite = !item.isFavorite;
                 saveState();
                 renderRewards();
             }
@@ -1338,20 +1315,43 @@ if (calView) {
             }
         }
 
+        // ⭐ 渲染獎勵清單 (依喜愛 ❤️ 置頂，點數少至多排序)
         function renderRewards() {
             const container = document.getElementById('rewardListContainer');
+            if (!container) return;
             container.innerHTML = '';
 
-            appState.rewards.forEach(item => {
+            // 1. 複製陣列並進行排序：
+            //    - 第一優先順序：isFavorite (true 排前面)
+            //    - 第二優先順序：points (點數由少到多)
+            const sortedRewards = [...appState.rewards].sort((a, b) => {
+                const favA = a.isFavorite ? 1 : 0;
+                const favB = b.isFavorite ? 1 : 0;
+                if (favA !== favB) {
+                    return favB - favA; // 愛心在前的排前面
+                }
+                return a.points - b.points; // 點數少的排前面
+            });
+
+            if (sortedRewards.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">尚無自訂兌換商品</div>`;
+                return;
+            }
+
+            sortedRewards.forEach(item => {
+                const isFav = !!item.isFavorite;
                 container.innerHTML += `
-                    <div class="flex justify-between items-center p-3.5 bg-[#FFF8E7]/60 border border-[#FFE2B3] rounded-2xl">
+                    <div class="flex justify-between items-center p-3.5 ${isFav ? 'bg-[#FFF0F2] border-[#FDE2E4]' : 'bg-[#FFF8E7]/60 border-[#FFE2B3]'} border rounded-2xl transition">
                         <div>
                             <div class="font-bold text-sm text-[#5C5552] flex items-center space-x-1.5">
-                                <span>${item.title}</span>
+                                <span>${escapeHtml(item.title)}</span>
                             </div>
                             <div class="text-xs text-[#8C5E14] font-bold mt-0.5">⭐ ${item.points} 點</div>
                         </div>
                         <div class="flex items-center space-x-2">
+                            <button onclick="toggleFavoriteReward(${item.id})" class="text-base p-1 hover:scale-125 transition" title="${isFav ? '取消最愛' : '設為最愛'}">
+                                ${isFav ? '❤️' : '🤍'}
+                            </button>
                             <button onclick="openEditRewardModal(${item.id})" class="text-xs text-gray-400 hover:text-gray-600 p-1">✏️</button>
                             <button onclick="deleteRewardItem(${item.id})" class="text-xs text-gray-400 hover:text-red-500 p-1">🗑️</button>
                             <button onclick="redeemReward(${item.id})" class="px-4 py-2 bg-[#FFF0D6] text-[#8C5E14] font-bold text-xs rounded-xl border border-[#FFE2B3] shadow-xs hover:bg-[#FFE2B3] transition ml-1">
@@ -1363,44 +1363,57 @@ if (calView) {
             });
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+        function openModal(id) { 
+            const el = document.getElementById(id);
+            if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+        }
+        function closeModal(id) { 
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+        }
     </script>
+
     <!-- ========================================== -->
-    <!-- 程式碼請統一放在 </body> 前面的這個位置 -->
-    <!-- ========================================== -->
-    
     <!-- 1. 引入拖曳套件 (SortableJS) -->
+    <!-- ========================================== -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-    <!-- 2. 拖曳控制邏輯 (必須用 <script> 包起來) -->
+    <!-- 2. 打卡習慣拖曳控制邏輯 -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-    const listContainer = document.getElementById('habit-list-container');
+            const listContainer = document.getElementById('habit-list-container');
 
-    if (listContainer) {
-        new Sortable(listContainer, {
-            animation: 200,
-            delay: 300,
-            delayOnTouchOnly: true,
-            touchStartThreshold: 5,
-            ghostClass: 'opacity-50',
-            onEnd: function () {
-                // 讀取拖曳後的新 ID 順序
-                const currentCards = listContainer.querySelectorAll('[data-id]');
-                const newOrderIds = Array.from(currentCards).map(card => card.getAttribute('data-id'));
+            if (listContainer) {
+                new Sortable(listContainer, {
+                    animation: 200,
+                    delay: 300,
+                    delayOnTouchOnly: true,
+                    touchStartThreshold: 5,
+                    ghostClass: 'opacity-50',
+                    filter: 'button, input, .habit-badge',
+                    preventOnFilter: false,
+                    onEnd: function () {
+                        const currentCards = listContainer.querySelectorAll('[data-id]');
+                        const newOrderIds = Array.from(currentCards).map(card => card.getAttribute('data-id'));
 
-                // 更新 JS 陣列順序
-                appState.habits.sort((a, b) => {
-                    return newOrderIds.indexOf(String(a.id)) - newOrderIds.indexOf(String(b.id));
+                        appState.habits.sort((a, b) => {
+                            const idxA = newOrderIds.indexOf(String(a.id));
+                            const idxB = newOrderIds.indexOf(String(b.id));
+                            if (idxA === -1) return 1;
+                            if (idxB === -1) return -1;
+                            return idxA - idxB;
+                        });
+
+                        saveState();
+
+                        // 錯開 SortableJS 的 DOM 清理時間，確保畫面流暢不崩潰
+                        setTimeout(() => {
+                            renderHabits();
+                        }, 50);
+                    }
                 });
-
-                // 儲存到 localStorage
-                saveState();
             }
         });
-    }
-});
     </script>
 </body>
 </html>
