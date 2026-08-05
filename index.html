@@ -6,6 +6,8 @@
     <title>PLAN JOY · 打卡系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js 折線圖套件 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts 圓潤字體 -->
@@ -147,13 +149,30 @@
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                     <h3 class="text-xs font-bold text-[#5C5552]">喝水紀錄與統計</h3>
                     <div class="space-x-1 text-xs font-bold">
-                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">直條圖</button>
+                        <button onclick="toggleWaterChart('line')" id="btn-water-line" class="px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl">折線圖</button>
+                        <button onclick="toggleWaterChart('bar')" id="btn-water-bar" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">直條圖</button>
                         <button onclick="toggleWaterChart('cal')" id="btn-water-cal" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-xl">月曆</button>
                     </div>
                 </div>
 
+                <!-- 折線圖視圖 (當日時間累積) -->
+                <div id="water-line-view" class="space-y-3">
+                    <div class="text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50 flex justify-between items-center">
+                        <span>📈 當日時間累積喝水折線圖</span>
+                        <span class="text-[11px] text-[#006064]/70 font-normal">記錄幾點幾分喝水量</span>
+                    </div>
+                    <div class="relative h-48 w-full">
+                        <canvas id="waterLineChart"></canvas>
+                    </div>
+                    <!-- 當日時間紀錄標籤區 -->
+                    <div class="border-t border-gray-100 pt-2 space-y-1">
+                        <div class="text-[11px] font-bold text-gray-400">🕒 今日喝水時間明細 (點擊可刪除單筆紀錄)：</div>
+                        <div id="todayWaterLogChips" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pt-1"></div>
+                    </div>
+                </div>
+
                 <!-- 直條圖視圖 -->
-                <div id="water-bar-view" class="space-y-2">
+                <div id="water-bar-view" class="hidden space-y-2">
                     <div class="text-right text-xs font-bold text-[#00838F] bg-[#E0F7FA]/60 py-1.5 px-3 rounded-xl border border-[#B2EBF2]/50">
                         📊 當週喝水平均：<span id="waterWeeklyAvg" class="text-sm font-extrabold text-[#006064]">0</span> cc / 天
                     </div>
@@ -260,7 +279,6 @@
                 <input type="text" id="habitTitle" placeholder="習慣名稱 (例: 吃維他命C)..." class="flex-1 p-2.5 border border-gray-200 rounded-xl text-sm">
             </div>
 
-            <!-- ⭐ 更新：目標週期與目標次數選單 -->
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-[#8C827A] mb-1">目標週期：</label>
@@ -359,7 +377,6 @@
 
     <!-- JS 邏輯區 -->
     <script>
-        // HTML 字串安全轉義，避免特殊字元破壞 UI
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -384,6 +401,7 @@
                 { id: 1, emoji: '💊', title: '吃維他命C', targetType: 'weekly', target: 3, pointsReward: 5, targetReward: 10, isPaused: false, logs: [] }
             ],
             waterLogs: {},
+            waterDetailedLogs: {}, // ✨ 新增：儲存幾點幾分打卡的詳細喝水紀錄
             waterCups: [200, 600, 800],
             moodLogs: {},
             rewards: [
@@ -394,14 +412,13 @@
 
         let currentHabitMainView = 'list';
         let currentHabitSubVisual = 'cal';
-        let currentWaterChartView = 'bar';
+        let currentWaterChartView = 'line'; // 預設改為折線圖
         let selectedMoodEmoji = '';
         let waterCupSortable = null;
+        let waterChartInstance = null; // 折線圖圖表實例
 
         window.onload = function() {
             loadLocalStorage();
-            
-            // 自動設為當天日期
             appState.currentDate = new Date().toISOString().split('T')[0];
             
             initHeaderDate();
@@ -432,8 +449,8 @@
                 const parsed = JSON.parse(data);
                 appState = { ...appState, ...parsed };
                 if (!appState.pointsHistory) appState.pointsHistory = [];
+                if (!appState.waterDetailedLogs) appState.waterDetailedLogs = {};
             }
-            
             if (!appState.waterCups || appState.waterCups.length === 0) {
                 appState.waterCups = [200, 600, 800];
             }
@@ -504,14 +521,16 @@
             const navBtn = document.getElementById(`nav-${tabName}`);
             navBtn.classList.add('active');
             navBtn.classList.remove('text-[#9E958F]');
+            if (tabName === 'water' && currentWaterChartView === 'line') {
+                renderWaterLineChart();
+            }
         }
 
-        // ⭐ 更新：取得從週日到週六的 7 天日期列表
         function getWeekDates(dateStr) {
             const curr = new Date(dateStr);
-            const day = curr.getDay(); // 0 是週日, 6 是週六
+            const day = curr.getDay();
             const sun = new Date(curr);
-            sun.setDate(curr.getDate() - day); // 退回到當週的週日
+            sun.setDate(curr.getDate() - day);
 
             const week = [];
             for (let i = 0; i < 7; i++) {
@@ -624,7 +643,6 @@
             }
         }
 
-        // ⭐ 更新：打卡邏輯，自動判定每週或每月目標計算
         function checkInHabit(habitId) {
             const habit = appState.habits.find(h => h.id === habitId);
             if (!habit || habit.isPaused) return;
@@ -648,7 +666,6 @@
             habit.logs.push(log);
 
             const checkInsAfter = checkInsBefore + 1;
-
             const pts = habit.pointsReward !== undefined ? habit.pointsReward : 5;
             addPointsLog(pts, `打卡【${habit.title}】`);
 
@@ -675,7 +692,6 @@
             renderHabits();
         }
 
-        // ⭐ 更新：渲染習慣清單，計算每週/每月次數
         function renderHabits() {
             const container = document.getElementById('habit-list-container');
             const visualContainer = document.getElementById('habit-visual-container');
@@ -805,9 +821,7 @@
                 <div class="grid grid-cols-7 gap-1.5 text-center">
             `;
 
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div></div>`;
-            }
+            for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -897,10 +911,24 @@
             renderWater();
         }
 
+        // ✨ 升級：增加打卡時間紀錄
         function addWater(amount) {
             const current = appState.waterLogs[appState.currentDate] || 0;
             const newAmount = current + amount;
             appState.waterLogs[appState.currentDate] = newAmount;
+
+            // 紀錄喝水時間明細
+            if (!appState.waterDetailedLogs) appState.waterDetailedLogs = {};
+            if (!appState.waterDetailedLogs[appState.currentDate]) {
+                appState.waterDetailedLogs[appState.currentDate] = [];
+            }
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            appState.waterDetailedLogs[appState.currentDate].push({
+                id: Date.now(),
+                time: timeStr,
+                amount: amount
+            });
 
             const goal1 = appState.waterGoal1 || 2400;
             const reward1 = appState.waterGoalReward1 !== undefined ? appState.waterGoalReward1 : 10;
@@ -936,6 +964,18 @@
             renderWater();
         }
 
+        // ✨ 新增：刪除單筆時間喝水紀錄
+        function deleteWaterDetailLog(logId) {
+            const logs = appState.waterDetailedLogs[appState.currentDate] || [];
+            const index = logs.findIndex(l => l.id === logId);
+            if (index !== -1) {
+                const removed = logs.splice(index, 1)[0];
+                appState.waterLogs[appState.currentDate] = Math.max(0, (appState.waterLogs[appState.currentDate] || 0) - removed.amount);
+                saveState();
+                renderWater();
+            }
+        }
+
         function addNewWaterCup() {
             const val = prompt('輸入新杯子容量 (cc):', '350');
             if (val && !isNaN(val) && parseInt(val) > 0) {
@@ -955,12 +995,18 @@
             }
         }
 
+        // ✨ 升級：切換三種喝水圖表 (折線圖, 直條圖, 月曆)
         function toggleWaterChart(type) {
             currentWaterChartView = type;
+            document.getElementById('water-line-view').classList.toggle('hidden', type !== 'line');
             document.getElementById('water-bar-view').classList.toggle('hidden', type !== 'bar');
             document.getElementById('water-cal-view').classList.toggle('hidden', type !== 'cal');
-            document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
-            document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl";
+
+            document.getElementById('btn-water-line').className = type === 'line' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl font-bold" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl font-bold";
+            document.getElementById('btn-water-bar').className = type === 'bar' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl font-bold" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl font-bold";
+            document.getElementById('btn-water-cal').className = type === 'cal' ? "px-3 py-1 bg-[#80DEEA] text-[#004D40] rounded-xl font-bold" : "px-3 py-1 bg-gray-100 text-gray-500 rounded-xl font-bold";
+
+            if (type === 'line') renderWaterLineChart();
         }
 
         function renderWater() {
@@ -992,6 +1038,11 @@
                         </div>
                     `;
                 });
+            }
+
+            // 根據當前切換模式渲染對應視圖
+            if (currentWaterChartView === 'line') {
+                renderWaterLineChart();
             }
 
             const barContainer = document.getElementById('waterBarContainer');
@@ -1045,9 +1096,7 @@
                     </div>
                 `;
 
-                for (let i = 0; i < firstDay; i++) {
-                    html += `<div></div>`;
-                }
+                for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1073,6 +1122,82 @@
                 }
                 calView.innerHTML = html;
             }
+        }
+
+        // ✨ 新增：繪製當日時間喝水折線圖
+        function renderWaterLineChart() {
+            const details = (appState.waterDetailedLogs && appState.waterDetailedLogs[appState.currentDate]) ? appState.waterDetailedLogs[appState.currentDate] : [];
+
+            // 渲染時間細節標籤
+            const chipsContainer = document.getElementById('todayWaterLogChips');
+            if (chipsContainer) {
+                chipsContainer.innerHTML = '';
+                if (details.length === 0) {
+                    chipsContainer.innerHTML = '<span class="text-xs text-gray-400 py-1">本日尚無喝水打卡時間紀錄</span>';
+                } else {
+                    details.forEach(item => {
+                        chipsContainer.innerHTML += `
+                            <span onclick="deleteWaterDetailLog(${item.id})" class="bg-[#E0F7FA] text-[#00838F] border border-[#B2EBF2] text-xs px-2.5 py-1 rounded-full font-bold cursor-pointer hover:bg-red-100 hover:text-red-600 transition" title="點擊刪除此筆紀錄">
+                                ${item.time} +${item.amount}cc ✕
+                            </span>
+                        `;
+                    });
+                }
+            }
+
+            // 準備折線圖數據 (按時間累積)
+            const sortedDetails = [...details].sort((a, b) => a.id - b.id);
+            const labels = ['00:00'];
+            const dataPoints = [0];
+
+            let cumulative = 0;
+            sortedDetails.forEach(d => {
+                cumulative += d.amount;
+                labels.push(d.time);
+                dataPoints.push(cumulative);
+            });
+
+            const canvasCtx = document.getElementById('waterLineChart');
+            if (!canvasCtx) return;
+
+            if (waterChartInstance) {
+                waterChartInstance.destroy();
+            }
+
+            waterChartInstance = new Chart(canvasCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '累積喝水量 (cc)',
+                        data: dataPoints,
+                        borderColor: '#00838F',
+                        backgroundColor: 'rgba(128, 222, 234, 0.25)',
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#006064',
+                        pointHoverRadius: 6,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: appState.waterGoal1 || 2400,
+                            grid: { color: '#F2EDE4' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
         }
 
         function initWaterCupsSortable() {
@@ -1211,9 +1336,7 @@
                 </div>
             `;
 
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div></div>`;
-            }
+            for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -1354,9 +1477,7 @@
             const sortedRewards = [...appState.rewards].sort((a, b) => {
                 const favA = a.isFavorite ? 1 : 0;
                 const favB = b.isFavorite ? 1 : 0;
-                if (favA !== favB) {
-                    return favB - favA;
-                }
+                if (favA !== favB) return favB - favA;
                 return a.points - b.points;
             });
 
